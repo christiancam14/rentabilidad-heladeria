@@ -1,4 +1,4 @@
-import { Form, Head, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 
@@ -34,12 +34,18 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function ProductosEdit({ producto }: Props) {
     const { data, setData, put, processing, errors } = useForm({
         nombre: producto.nombre,
-        precio_venta_publico: producto.precio_venta_publico.toString(),
+        precio_venta_publico: Math.round(Number(producto.precio_venta_publico)).toString(),
     });
 
-    const submit = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(`/productos/${producto.id}`);
+        put(`/productos/${producto.id}`, {
+            data: {
+                nombre: data.nombre,
+                precio_venta_publico: parseInt(data.precio_venta_publico) || 0,
+            },
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -66,7 +72,7 @@ export default function ProductosEdit({ producto }: Props) {
                         <CardTitle>Información del Producto</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Form onSubmit={submit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
                                 <Label htmlFor="nombre">Nombre</Label>
                                 <Input
@@ -83,7 +89,7 @@ export default function ProductosEdit({ producto }: Props) {
                                 <Input
                                     id="precio_venta_publico"
                                     type="number"
-                                    step="0.01"
+                                    step="1"
                                     min="0"
                                     value={data.precio_venta_publico}
                                     onChange={(e) => setData('precio_venta_publico', e.target.value)}

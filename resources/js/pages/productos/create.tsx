@@ -74,11 +74,11 @@ export default function ProductosCreate() {
                                 <Input
                                     id="precio_venta_publico"
                                     type="number"
-                                    step="0.01"
+                                    step="1"
                                     min="0"
                                     value={data.precio_venta_publico}
                                     onChange={(e) => setData('precio_venta_publico', e.target.value)}
-                                    placeholder="0.00"
+                                    placeholder="0"
                                     required
                                 />
                                 <InputError message={errors.precio_venta_publico} />

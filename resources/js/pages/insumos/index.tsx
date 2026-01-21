@@ -119,7 +119,7 @@ export default function InsumosIndex({ insumos, unidades_disponibles, filters }:
                                                 <tr key={insumo.id} className="border-b hover:bg-muted/50">
                                                     <td className="px-4 py-3">{insumo.nombre}</td>
                                                     <td className="px-4 py-3">
-                                                        ${insumo.precio.toFixed(2)}
+                                                        ${Number(insumo.precio).toFixed(0)}
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Badge variant="outline">{insumo.unidad}</Badge>

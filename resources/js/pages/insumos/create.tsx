@@ -1,6 +1,5 @@
-import { Form, Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
-import { Link } from '@inertiajs/react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,9 +38,17 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
         unidad: unidades_disponibles[0] || '',
     });
 
-    const submit = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/insumos');
+        // Convertir precio a número entero antes de enviar
+        post('/insumos', {
+            data: {
+                nombre: data.nombre,
+                precio: parseInt(data.precio) || 0,
+                unidad: data.unidad,
+            },
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -68,11 +75,15 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
                         <CardTitle>Información del Insumo</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Form onSubmit={submit} className="space-y-6">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="space-y-6"
+                        >
                             <div className="space-y-2">
                                 <Label htmlFor="nombre">Nombre</Label>
                                 <Input
                                     id="nombre"
+                                    name="nombre"
                                     value={data.nombre}
                                     onChange={(e) => setData('nombre', e.target.value)}
                                     placeholder="Ej: Leche, Azúcar, Vainilla..."
@@ -86,11 +97,12 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
                                 <Input
                                     id="precio"
                                     type="number"
-                                    step="0.01"
+                                    step="1"
                                     min="0"
+                                    name="precio"
                                     value={data.precio}
                                     onChange={(e) => setData('precio', e.target.value)}
-                                    placeholder="0.00"
+                                    placeholder="0"
                                     required
                                 />
                                 <InputError message={errors.precio} />
@@ -126,7 +138,7 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
                                     Crear Insumo
                                 </Button>
                             </div>
-                        </Form>
+                        </form>
                     </CardContent>
                 </Card>
             </div>

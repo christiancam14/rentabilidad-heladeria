@@ -196,7 +196,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                ${producto.precio_venta_publico.toFixed(2)}
+                                ${Number(producto.precio_venta_publico).toFixed(0)}
                             </div>
                         </CardContent>
                     </Card>
@@ -206,7 +206,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                ${producto.costo_total.toFixed(2)}
+                                ${Number(producto.costo_total).toFixed(0)}
                             </div>
                         </CardContent>
                     </Card>
@@ -216,7 +216,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                         </CardHeader>
                         <CardContent>
                             <div className={`text-2xl font-bold ${producto.ganancia >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                ${producto.ganancia.toFixed(2)}
+                                ${Number(producto.ganancia).toFixed(0)}
                             </div>
                         </CardContent>
                     </Card>
@@ -277,7 +277,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                         <SelectContent>
                                                             {insumos.map((insumo) => (
                                                                 <SelectItem key={insumo.id} value={insumo.id.toString()}>
-                                                                    {insumo.nombre} - ${insumo.precio.toFixed(2)} / {insumo.unidad}
+                                                                    {insumo.nombre} - ${Number(insumo.precio).toFixed(0)} / {insumo.unidad}
                                                                 </SelectItem>
                                                             ))}
                                                         </SelectContent>
@@ -368,19 +368,19 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    ${insumo.precio.toFixed(2)}
+                                                    ${Number(insumo.precio).toFixed(0)}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {insumo.pivot.presentacion}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    ${insumo.pivot.valor_unidad.toFixed(2)}
+                                                    ${Number(insumo.pivot.valor_unidad).toFixed(0)}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {insumo.pivot.cantidad_preparacion}
                                                 </td>
                                                 <td className="px-4 py-3 font-medium">
-                                                    ${insumo.pivot.costo_preparacion.toFixed(2)}
+                                                    ${Number(insumo.pivot.costo_preparacion).toFixed(0)}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex justify-end gap-2">
