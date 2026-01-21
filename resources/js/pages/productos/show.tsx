@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, CalculatorIcon } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, CalculatorIcon, SearchIcon, CheckIcon } from 'lucide-react';
+import { useState, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -101,9 +101,18 @@ const formatPrice = (price: number | string | null | undefined): string => {
     return `$${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 };
 
+// Función helper para formatear porcentajes
+const formatPercentage = (percentage: number | string | null | undefined): string => {
+    if (percentage === null || percentage === undefined) return '0.00';
+    const numPercentage = typeof percentage === 'string' ? parseFloat(percentage) : Number(percentage);
+    if (isNaN(numPercentage)) return '0.00';
+    return numPercentage.toFixed(2);
+};
+
 export default function ProductosShow({ producto, insumos, detalle_costos }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingInsumo, setEditingInsumo] = useState<InsumoProducto | null>(null);
+    const [insumoSearch, setInsumoSearch] = useState('');
 
     const { data, setData, post, processing, errors, reset } = useForm({
         insumo_id: '',
@@ -111,12 +120,31 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
         cantidad_preparacion: '',
     });
 
+    // Filtrar insumos basado en la búsqueda
+    const filteredInsumos = useMemo(() => {
+        if (!insumoSearch.trim()) {
+            return insumos;
+        }
+        const searchLower = insumoSearch.toLowerCase();
+        return insumos.filter((insumo) =>
+            insumo.nombre.toLowerCase().includes(searchLower) ||
+            insumo.unidad.toLowerCase().includes(searchLower)
+        );
+    }, [insumos, insumoSearch]);
+
+    // Obtener el insumo seleccionado para mostrar en el trigger
+    const selectedInsumo = useMemo(() => {
+        if (!data.insumo_id) return null;
+        return insumos.find((insumo) => insumo.id.toString() === data.insumo_id);
+    }, [insumos, data.insumo_id]);
+
     const handleAddInsumo = (e: React.FormEvent) => {
         e.preventDefault();
         post(`/productos/${producto.id}/insumos`, {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
+                setInsumoSearch('');
                 setDialogOpen(false);
             },
         });
@@ -164,8 +192,9 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
     };
 
     const openAddDialog = () => {
-        setEditingInsumo(null);
         reset();
+        setEditingInsumo(null);
+        setInsumoSearch('');
         setDialogOpen(true);
     };
 
@@ -189,8 +218,8 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <Link href={`/productos/${producto.id}/edit`}>
-                            <Button variant="outline">Editar</Button>
+                        <Link href="/productos">
+                            <Button variant="outline">Volver a Productos</Button>
                         </Link>
                         <Button onClick={handleRecalcular} variant="outline">
                             <CalculatorIcon className="size-4 mr-2" />
@@ -237,8 +266,8 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                <Badge variant={producto.porcentaje_rentabilidad >= 30 ? 'default' : 'outline'} className="text-lg">
-                                    {producto.porcentaje_rentabilidad.toFixed(2)}%
+                                <Badge variant={(Number(producto.porcentaje_rentabilidad) || 0) >= 30 ? 'default' : 'outline'} className="text-lg">
+                                    {formatPercentage(producto.porcentaje_rentabilidad)}%
                                 </Badge>
                             </div>
                         </CardContent>
@@ -255,7 +284,14 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                     Gestiona los insumos que componen este producto
                                 </CardDescription>
                             </div>
-                            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                            <Dialog open={dialogOpen} onOpenChange={(open) => {
+                                setDialogOpen(open);
+                                if (!open) {
+                                    setInsumoSearch('');
+                                    reset();
+                                    setEditingInsumo(null);
+                                }
+                            }}>
                                 <DialogTrigger asChild>
                                     <Button onClick={openAddDialog}>
                                         <PlusIcon className="size-4 mr-2" />
@@ -280,17 +316,64 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                     <Label htmlFor="insumo_id">Insumo</Label>
                                                     <Select
                                                         value={data.insumo_id}
-                                                        onValueChange={(value) => setData('insumo_id', value)}
+                                                        onValueChange={(value) => {
+                                                            setData('insumo_id', value);
+                                                            setInsumoSearch(''); // Limpiar búsqueda al seleccionar
+                                                        }}
+                                                        onOpenChange={(open) => {
+                                                            if (!open) {
+                                                                setInsumoSearch(''); // Limpiar búsqueda al cerrar
+                                                            }
+                                                        }}
                                                     >
                                                         <SelectTrigger>
-                                                            <SelectValue placeholder="Selecciona un insumo" />
+                                                            <SelectValue placeholder="Selecciona un insumo">
+                                                                {selectedInsumo && (
+                                                                    <span>
+                                                                        {selectedInsumo.nombre} - {formatPrice(selectedInsumo.precio)} / {selectedInsumo.unidad}
+                                                                    </span>
+                                                                )}
+                                                            </SelectValue>
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {insumos.map((insumo) => (
-                                                                <SelectItem key={insumo.id} value={insumo.id.toString()}>
-                                                                    {insumo.nombre} - {formatPrice(insumo.precio)} / {insumo.unidad}
-                                                                </SelectItem>
-                                                            ))}
+                                                            <div className="p-2 border-b">
+                                                                <div className="relative">
+                                                                    <SearchIcon className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                                                    <Input
+                                                                        placeholder="Buscar insumo..."
+                                                                        value={insumoSearch}
+                                                                        onChange={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setInsumoSearch(e.target.value);
+                                                                        }}
+                                                                        onKeyDown={(e) => {
+                                                                            e.stopPropagation();
+                                                                            if (e.key === 'Enter') {
+                                                                                e.preventDefault();
+                                                                            }
+                                                                        }}
+                                                                        className="pl-8 h-9"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="max-h-[200px] overflow-y-auto">
+                                                                {filteredInsumos.length === 0 ? (
+                                                                    <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+                                                                        No se encontraron insumos
+                                                                    </div>
+                                                                ) : (
+                                                                    filteredInsumos.map((insumo) => (
+                                                                        <SelectItem key={insumo.id} value={insumo.id.toString()}>
+                                                                            <div className="flex items-center justify-between w-full">
+                                                                                <span>{insumo.nombre}</span>
+                                                                                <span className="text-xs text-muted-foreground ml-2">
+                                                                                    {formatPrice(insumo.precio)} / {insumo.unidad}
+                                                                                </span>
+                                                                            </div>
+                                                                        </SelectItem>
+                                                                    ))
+                                                                )}
+                                                            </div>
                                                         </SelectContent>
                                                     </Select>
                                                     <InputError message={errors.insumo_id} />

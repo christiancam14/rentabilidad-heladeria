@@ -74,16 +74,6 @@ class ProductoController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Producto $producto): Response
-    {
-        return Inertia::render('productos/edit', [
-            'producto' => $producto,
-        ]);
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateProductoRequest $request, Producto $producto): RedirectResponse

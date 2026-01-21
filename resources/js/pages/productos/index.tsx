@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { PlusIcon, SearchIcon, PencilIcon, TrashIcon, EyeIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -71,11 +71,21 @@ const formatPrice = (price: number | string | null | undefined): string => {
     return `$${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 };
 
+// Función helper para formatear porcentajes
+const formatPercentage = (percentage: number | string | null | undefined): string => {
+    if (percentage === null || percentage === undefined) return '0.00';
+    const numPercentage = typeof percentage === 'string' ? parseFloat(percentage) : Number(percentage);
+    if (isNaN(numPercentage)) return '0.00';
+    return numPercentage.toFixed(2);
+};
+
 export default function ProductosIndex({ productos, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, put, processing, errors, reset } = useForm({
         nombre: '',
         precio_venta_publico: '',
     });
@@ -98,6 +108,25 @@ export default function ProductosIndex({ productos, filters }: Props) {
         setCreateDialogOpen(true);
     };
 
+    const openEditDialog = (producto: Producto) => {
+        setEditingProducto(producto);
+        setData('nombre', producto.nombre || '');
+        setData('precio_venta_publico', producto.precio_venta_publico ? Math.round(Number(producto.precio_venta_publico)).toString() : '');
+        setEditDialogOpen(true);
+    };
+
+    // Actualizar el formulario cuando se abre el modal con un producto
+    useEffect(() => {
+        if (editDialogOpen && editingProducto) {
+            setData('nombre', editingProducto.nombre || '');
+            setData('precio_venta_publico', editingProducto.precio_venta_publico ? Math.round(Number(editingProducto.precio_venta_publico)).toString() : '');
+        } else if (!editDialogOpen && !createDialogOpen) {
+            // Limpiar el formulario cuando se cierran ambos modales
+            reset();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editDialogOpen, createDialogOpen, editingProducto]);
+
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // Convertir precio a número entero antes de enviar
@@ -106,6 +135,21 @@ export default function ProductosIndex({ productos, filters }: Props) {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateDialogOpen(false);
+                reset();
+            },
+        });
+    };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingProducto) return;
+        // Convertir precio a número entero antes de enviar
+        setData('precio_venta_publico', String(parseInt(data.precio_venta_publico as string) || 0));
+        put(`/productos/${editingProducto.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setEditDialogOpen(false);
+                setEditingProducto(null);
                 reset();
             },
         });
@@ -183,8 +227,8 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                                         </span>
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        <Badge variant={producto.porcentaje_rentabilidad >= 30 ? 'default' : 'outline'}>
-                                                            {producto.porcentaje_rentabilidad.toFixed(2)}%
+                                                        <Badge variant={(Number(producto.porcentaje_rentabilidad) || 0) >= 30 ? 'default' : 'outline'}>
+                                                            {formatPercentage(producto.porcentaje_rentabilidad)}%
                                                         </Badge>
                                                     </td>
                                                     <td className="px-4 py-3 text-sm text-muted-foreground">
@@ -197,11 +241,13 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                                                     <EyeIcon className="size-4" />
                                                                 </Button>
                                                             </Link>
-                                                            <Link href={`/productos/${producto.id}/edit`}>
-                                                                <Button variant="ghost" size="icon">
-                                                                    <PencilIcon className="size-4" />
-                                                                </Button>
-                                                            </Link>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => openEditDialog(producto)}
+                                                            >
+                                                                <PencilIcon className="size-4" />
+                                                            </Button>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
@@ -310,6 +356,64 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                 </Button>
                                 <Button type="submit" disabled={processing}>
                                     Crear Producto
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Modal de Edición */}
+                <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Editar Producto</DialogTitle>
+                            <DialogDescription>
+                                Modifica la información del producto
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleEditSubmit}>
+                            <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-nombre">Nombre</Label>
+                                    <Input
+                                        id="edit-nombre"
+                                        name="nombre"
+                                        value={data.nombre || editingProducto?.nombre || ''}
+                                        onChange={(e) => setData('nombre', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.nombre} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-precio_venta_publico">Precio de Venta Público</Label>
+                                    <Input
+                                        id="edit-precio_venta_publico"
+                                        name="precio_venta_publico"
+                                        type="number"
+                                        step="1"
+                                        min="0"
+                                        value={data.precio_venta_publico || (editingProducto?.precio_venta_publico ? Math.round(Number(editingProducto.precio_venta_publico)).toString() : '')}
+                                        onChange={(e) => setData('precio_venta_publico', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.precio_venta_publico} />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setEditDialogOpen(false);
+                                        setEditingProducto(null);
+                                        reset();
+                                    }}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" disabled={processing}>
+                                    Guardar Cambios
                                 </Button>
                             </DialogFooter>
                         </form>
