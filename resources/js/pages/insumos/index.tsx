@@ -1,11 +1,28 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { PlusIcon, SearchIcon, PencilIcon, TrashIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
@@ -44,6 +61,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function InsumosIndex({ insumos, unidades_disponibles, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
+    const [editingInsumo, setEditingInsumo] = useState<Insumo | null>(null);
+
+    const { data, setData, put, post, processing, errors, reset } = useForm({
+        nombre: '',
+        precio: '',
+        unidad: unidades_disponibles[0] || '',
+    });
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -58,6 +84,56 @@ export default function InsumosIndex({ insumos, unidades_disponibles, filters }:
         }
     };
 
+    const openEditDialog = (insumo: Insumo) => {
+        setEditingInsumo(insumo);
+        setEditDialogOpen(true);
+    };
+
+    const openCreateDialog = () => {
+        reset();
+        setCreateDialogOpen(true);
+    };
+
+    // Actualizar el formulario cuando se abre el modal con un insumo
+    useEffect(() => {
+        if (editDialogOpen && editingInsumo) {
+            setData('nombre', editingInsumo.nombre || '');
+            setData('precio', editingInsumo.precio ? Math.round(Number(editingInsumo.precio)).toString() : '');
+            setData('unidad', editingInsumo.unidad || unidades_disponibles[0] || '');
+        } else if (!editDialogOpen && !createDialogOpen) {
+            // Limpiar el formulario cuando se cierran ambos modales
+            reset();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editDialogOpen, createDialogOpen, editingInsumo]);
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingInsumo) return;
+
+        put(`/insumos/${editingInsumo.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setEditDialogOpen(false);
+                setEditingInsumo(null);
+                reset();
+            },
+        });
+    };
+
+    const handleCreateSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Convertir precio a número entero antes de enviar
+        setData('precio', String(parseInt(data.precio as string) || 0));
+        post('/insumos', {
+            preserveScroll: true,
+            onSuccess: () => {
+                setCreateDialogOpen(false);
+                reset();
+            },
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Insumos" />
@@ -70,12 +146,10 @@ export default function InsumosIndex({ insumos, unidades_disponibles, filters }:
                             Gestiona la materia prima de tu heladería
                         </p>
                     </div>
-                    <Link href="/insumos/create">
-                        <Button>
-                            <PlusIcon className="size-4" />
-                            Nuevo Insumo
-                        </Button>
-                    </Link>
+                    <Button onClick={openCreateDialog}>
+                        <PlusIcon className="size-4" />
+                        Nuevo Insumo
+                    </Button>
                 </div>
 
                 <Card>
@@ -129,11 +203,13 @@ export default function InsumosIndex({ insumos, unidades_disponibles, filters }:
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <div className="flex justify-end gap-2">
-                                                            <Link href={`/insumos/${insumo.id}/edit`}>
-                                                                <Button variant="ghost" size="icon">
-                                                                    <PencilIcon className="size-4" />
-                                                                </Button>
-                                                            </Link>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => openEditDialog(insumo)}
+                                                            >
+                                                                <PencilIcon className="size-4" />
+                                                            </Button>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
@@ -188,6 +264,162 @@ export default function InsumosIndex({ insumos, unidades_disponibles, filters }:
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Modal de Creación */}
+                <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Nuevo Insumo</DialogTitle>
+                            <DialogDescription>
+                                Agrega un nuevo insumo a tu inventario
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleCreateSubmit}>
+                            <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="create-nombre">Nombre</Label>
+                                    <Input
+                                        id="create-nombre"
+                                        name="nombre"
+                                        value={data.nombre}
+                                        onChange={(e) => setData('nombre', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.nombre} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="create-precio">Precio</Label>
+                                    <Input
+                                        id="create-precio"
+                                        name="precio"
+                                        type="number"
+                                        step="1"
+                                        min="0"
+                                        placeholder="0"
+                                        value={data.precio}
+                                        onChange={(e) => setData('precio', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.precio} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="create-unidad">Unidad</Label>
+                                    <Select
+                                        value={data.unidad}
+                                        onValueChange={(value) => setData('unidad', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {unidades_disponibles.map((unidad) => (
+                                                <SelectItem key={unidad} value={unidad}>
+                                                    {unidad}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError message={errors.unidad} />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setCreateDialogOpen(false);
+                                        reset();
+                                    }}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" disabled={processing}>
+                                    Crear Insumo
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Modal de Edición */}
+                <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Editar Insumo</DialogTitle>
+                            <DialogDescription>
+                                Modifica la información del insumo
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleEditSubmit}>
+                            <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-nombre">Nombre</Label>
+                                    <Input
+                                        id="edit-nombre"
+                                        name="nombre"
+                                        value={data.nombre || editingInsumo?.nombre || ''}
+                                        onChange={(e) => setData('nombre', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.nombre} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-precio">Precio</Label>
+                                    <Input
+                                        id="edit-precio"
+                                        name="precio"
+                                        type="number"
+                                        step="1"
+                                        min="0"
+                                        value={data.precio || (editingInsumo?.precio ? Math.round(Number(editingInsumo.precio)).toString() : '')}
+                                        onChange={(e) => setData('precio', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.precio} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-unidad">Unidad</Label>
+                                    <Select
+                                        value={data.unidad || editingInsumo?.unidad || unidades_disponibles[0] || ''}
+                                        onValueChange={(value) => setData('unidad', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {unidades_disponibles.map((unidad) => (
+                                                <SelectItem key={unidad} value={unidad}>
+                                                    {unidad}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError message={errors.unidad} />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setEditDialogOpen(false);
+                                        setEditingInsumo(null);
+                                        reset();
+                                    }}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" disabled={processing}>
+                                    Guardar Cambios
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );

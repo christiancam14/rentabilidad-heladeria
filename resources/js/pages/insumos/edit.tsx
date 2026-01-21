@@ -1,6 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
-import { Link } from '@inertiajs/react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,23 +40,36 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
-    const { data, setData, put, processing, errors } = useForm({
-        nombre: insumo.nombre,
-        precio: Math.round(Number(insumo.precio)).toString(),
-        unidad: insumo.unidad,
-    });
+    // Inicializar con valores del insumo si está disponible
+    const initialData = insumo ? {
+        nombre: insumo.nombre || '',
+        precio: insumo.precio ? Math.round(Number(insumo.precio)).toString() : '',
+        unidad: insumo.unidad || unidades_disponibles[0] || '',
+    } : {
+        nombre: '',
+        precio: '',
+        unidad: unidades_disponibles[0] || '',
+    };
+
+    const { data, setData, put, processing, errors } = useForm(initialData);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!insumo) return;
+        
         put(`/insumos/${insumo.id}`, {
-            data: {
-                nombre: data.nombre,
-                precio: parseInt(data.precio) || 0,
-                unidad: data.unidad,
-            },
             preserveScroll: true,
         });
     };
+
+    if (!insumo) {
+        return (
+            <AppLayout breadcrumbs={breadcrumbs}>
+                <Head title="Editar Insumo" />
+                <div>Cargando...</div>
+            </AppLayout>
+        );
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -88,7 +100,8 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
                                 <Label htmlFor="nombre">Nombre</Label>
                                 <Input
                                     id="nombre"
-                                    value={data.nombre}
+                                    name="nombre"
+                                    value={data.nombre || insumo.nombre}
                                     onChange={(e) => setData('nombre', e.target.value)}
                                     required
                                 />
@@ -99,10 +112,11 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
                                 <Label htmlFor="precio">Precio</Label>
                                 <Input
                                     id="precio"
+                                    name="precio"
                                     type="number"
                                     step="1"
                                     min="0"
-                                    value={data.precio}
+                                    value={data.precio || (insumo.precio ? Math.round(Number(insumo.precio)).toString() : '')}
                                     onChange={(e) => setData('precio', e.target.value)}
                                     required
                                 />

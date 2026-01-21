@@ -1,6 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
-import { Link } from '@inertiajs/react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,20 +32,27 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function ProductosEdit({ producto }: Props) {
     const { data, setData, put, processing, errors } = useForm({
-        nombre: producto.nombre,
-        precio_venta_publico: Math.round(Number(producto.precio_venta_publico)).toString(),
+        nombre: producto?.nombre || '',
+        precio_venta_publico: producto?.precio_venta_publico ? Math.round(Number(producto.precio_venta_publico)).toString() : '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!producto) return;
+        
         put(`/productos/${producto.id}`, {
-            data: {
-                nombre: data.nombre,
-                precio_venta_publico: parseInt(data.precio_venta_publico) || 0,
-            },
             preserveScroll: true,
         });
     };
+
+    if (!producto) {
+        return (
+            <AppLayout breadcrumbs={breadcrumbs}>
+                <Head title="Editar Producto" />
+                <div>Cargando...</div>
+            </AppLayout>
+        );
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -108,7 +114,7 @@ export default function ProductosEdit({ producto }: Props) {
                                     Guardar Cambios
                                 </Button>
                             </div>
-                        </Form>
+                        </form>
                     </CardContent>
                 </Card>
             </div>

@@ -41,12 +41,8 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // Convertir precio a número entero antes de enviar
+        setData('precio', String(parseInt(data.precio) || 0));
         post('/insumos', {
-            data: {
-                nombre: data.nombre,
-                precio: parseInt(data.precio) || 0,
-                unidad: data.unidad,
-            },
             preserveScroll: true,
         });
     };

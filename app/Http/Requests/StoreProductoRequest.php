@@ -23,7 +23,7 @@ class StoreProductoRequest extends FormRequest
     {
         return [
             'nombre' => ['required', 'string', 'max:255'],
-            'precio_venta_publico' => ['required', 'numeric', 'min:0'],
+            'precio_venta_publico' => ['required', 'integer', 'min:0'],
         ];
     }
 
@@ -37,7 +37,7 @@ class StoreProductoRequest extends FormRequest
         return [
             'nombre.required' => 'El nombre del producto es obligatorio.',
             'precio_venta_publico.required' => 'El precio de venta público es obligatorio.',
-            'precio_venta_publico.numeric' => 'El precio de venta debe ser un número válido.',
+            'precio_venta_publico.integer' => 'El precio de venta debe ser un número entero válido.',
             'precio_venta_publico.min' => 'El precio de venta no puede ser negativo.',
         ];
     }

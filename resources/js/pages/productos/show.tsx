@@ -1,4 +1,4 @@
-import { Form, Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, CalculatorIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -104,6 +104,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
     const handleAddInsumo = (e: React.FormEvent) => {
         e.preventDefault();
         post(`/productos/${producto.id}/insumos`, {
+            preserveScroll: true,
             onSuccess: () => {
                 reset();
                 setDialogOpen(false);
@@ -116,8 +117,8 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
         if (!editingInsumo) return;
 
         router.put(`/productos/${producto.id}/insumos/${editingInsumo.id}`, {
-            presentacion: data.presentacion,
-            cantidad_preparacion: data.cantidad_preparacion,
+            presentacion: parseFloat(data.presentacion) || 0,
+            cantidad_preparacion: parseFloat(data.cantidad_preparacion) || 0,
         }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -262,7 +263,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                 : 'Selecciona un insumo y define las cantidades'}
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <Form onSubmit={editingInsumo ? handleUpdateInsumo : handleAddInsumo}>
+                                    <form onSubmit={editingInsumo ? handleUpdateInsumo : handleAddInsumo}>
                                         <div className="space-y-4 py-4">
                                             {!editingInsumo && (
                                                 <div className="space-y-2">
@@ -334,7 +335,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                 {editingInsumo ? 'Actualizar' : 'Agregar'}
                                             </Button>
                                         </DialogFooter>
-                                    </Form>
+                                    </form>
                                 </DialogContent>
                             </Dialog>
                         </div>

@@ -25,7 +25,7 @@ class UpdateInsumoRequest extends FormRequest
     {
         return [
             'nombre' => ['required', 'string', 'max:255'],
-            'precio' => ['required', 'numeric', 'min:0'],
+            'precio' => ['required', 'integer', 'min:0'],
             'unidad' => ['required', 'string', Rule::in(Insumo::unidadesDisponibles())],
         ];
     }
@@ -40,7 +40,7 @@ class UpdateInsumoRequest extends FormRequest
         return [
             'nombre.required' => 'El nombre del insumo es obligatorio.',
             'precio.required' => 'El precio del insumo es obligatorio.',
-            'precio.numeric' => 'El precio debe ser un número válido.',
+            'precio.integer' => 'El precio debe ser un número entero válido.',
             'precio.min' => 'El precio no puede ser negativo.',
             'unidad.required' => 'La unidad es obligatoria.',
             'unidad.in' => 'La unidad seleccionada no es válida.',

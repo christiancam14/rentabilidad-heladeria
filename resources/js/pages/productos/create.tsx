@@ -1,6 +1,5 @@
-import { Form, Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
-import { Link } from '@inertiajs/react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,9 +26,16 @@ export default function ProductosCreate() {
         precio_venta_publico: '',
     });
 
-    const submit = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/productos');
+        // Convertir precio a número entero antes de enviar
+        setData('precio_venta_publico', String(parseInt(data.precio_venta_publico) || 0));
+        post('/productos', {
+            preserveScroll: true,
+            onSuccess: () => {
+                // La redirección se maneja en el controlador
+            },
+        });
     };
 
     return (
@@ -56,7 +62,7 @@ export default function ProductosCreate() {
                         <CardTitle>Información del Producto</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Form onSubmit={submit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
                                 <Label htmlFor="nombre">Nombre</Label>
                                 <Input
@@ -94,7 +100,7 @@ export default function ProductosCreate() {
                                     Crear Producto
                                 </Button>
                             </div>
-                        </Form>
+                        </form>
                     </CardContent>
                 </Card>
             </div>
