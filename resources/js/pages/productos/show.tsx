@@ -113,8 +113,9 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingInsumo, setEditingInsumo] = useState<InsumoProducto | null>(null);
     const [insumoSearch, setInsumoSearch] = useState('');
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, put, processing, errors, reset } = useForm({
         insumo_id: '',
         presentacion: '',
         cantidad_preparacion: '',
@@ -140,7 +141,14 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
 
     const handleAddInsumo = (e: React.FormEvent) => {
         e.preventDefault();
+        // Convertir valores a enteros antes de enviar
+        const formData = {
+            insumo_id: data.insumo_id,
+            presentacion: parseInt(data.presentacion as string) || 1,
+            cantidad_preparacion: parseInt(data.cantidad_preparacion as string) || 0,
+        };
         post(`/productos/${producto.id}/insumos`, {
+            data: formData,
             preserveScroll: true,
             onSuccess: () => {
                 reset();
@@ -152,17 +160,31 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
 
     const handleUpdateInsumo = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingInsumo) return;
+        if (!editingInsumo || isUpdating) return;
 
-        router.put(`/productos/${producto.id}/insumos/${editingInsumo.id}`, {
-            presentacion: parseFloat(data.presentacion) || 0,
-            cantidad_preparacion: parseFloat(data.cantidad_preparacion) || 0,
-        }, {
+        setIsUpdating(true);
+
+        // Preparar los datos para enviar (convertir a enteros)
+        const formData = {
+            presentacion: parseInt(data.presentacion as string) || 1,
+            cantidad_preparacion: parseInt(data.cantidad_preparacion as string) || 0,
+        };
+
+        // Usar router.put directamente ya que useForm.put no funciona bien con rutas personalizadas
+        router.put(`/productos/${producto.id}/insumos/${editingInsumo.id}`, formData, {
             preserveScroll: true,
             onSuccess: () => {
                 reset();
                 setEditingInsumo(null);
+                setInsumoSearch('');
                 setDialogOpen(false);
+                setIsUpdating(false);
+            },
+            onError: () => {
+                setIsUpdating(false);
+            },
+            onFinish: () => {
+                setIsUpdating(false);
             },
         });
     };
@@ -185,8 +207,8 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
         setEditingInsumo(insumo);
         setData({
             insumo_id: insumo.id.toString(),
-            presentacion: insumo.pivot.presentacion.toString(),
-            cantidad_preparacion: insumo.pivot.cantidad_preparacion.toString(),
+            presentacion: Math.round(Number(insumo.pivot.presentacion)).toString(),
+            cantidad_preparacion: Math.round(Number(insumo.pivot.cantidad_preparacion)).toString(),
         });
         setDialogOpen(true);
     };
@@ -285,11 +307,14 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                 </CardDescription>
                             </div>
                             <Dialog open={dialogOpen} onOpenChange={(open) => {
-                                setDialogOpen(open);
-                                if (!open) {
-                                    setInsumoSearch('');
-                                    reset();
-                                    setEditingInsumo(null);
+                                if (!isUpdating && !processing) {
+                                    setDialogOpen(open);
+                                    if (!open) {
+                                        setInsumoSearch('');
+                                        reset();
+                                        setEditingInsumo(null);
+                                        setIsUpdating(false);
+                                    }
                                 }
                             }}>
                                 <DialogTrigger asChild>
@@ -385,11 +410,11 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                 <Input
                                                     id="presentacion"
                                                     type="number"
-                                                    step="0.01"
-                                                    min="0.01"
+                                                    step="1"
+                                                    min="1"
                                                     value={data.presentacion}
                                                     onChange={(e) => setData('presentacion', e.target.value)}
-                                                    placeholder="Ej: 10 (litros, kilos, unidades...)"
+                                                    placeholder="Ej: 10"
                                                     required
                                                 />
                                                 <InputError message={errors.presentacion} />
@@ -403,11 +428,11 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                 <Input
                                                     id="cantidad_preparacion"
                                                     type="number"
-                                                    step="0.01"
+                                                    step="1"
                                                     min="0"
                                                     value={data.cantidad_preparacion}
                                                     onChange={(e) => setData('cantidad_preparacion', e.target.value)}
-                                                    placeholder="Ej: 0.5"
+                                                    placeholder="Ej: 5"
                                                     required
                                                 />
                                                 <InputError message={errors.cantidad_preparacion} />
@@ -420,12 +445,19 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                onClick={() => setDialogOpen(false)}
+                                                onClick={() => {
+                                                    if (!isUpdating && !processing) {
+                                                        setDialogOpen(false);
+                                                    }
+                                                }}
+                                                disabled={processing || isUpdating}
                                             >
                                                 Cancelar
                                             </Button>
-                                            <Button type="submit" disabled={processing}>
-                                                {editingInsumo ? 'Actualizar' : 'Agregar'}
+                                            <Button type="submit" disabled={processing || isUpdating}>
+                                                {isUpdating || processing
+                                                    ? (editingInsumo ? 'Actualizando...' : 'Agregando...')
+                                                    : (editingInsumo ? 'Actualizar' : 'Agregar')}
                                             </Button>
                                         </DialogFooter>
                                     </form>
@@ -465,13 +497,13 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                     {formatPrice(insumo.precio)}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {insumo.pivot.presentacion}
+                                                    {Math.round(Number(insumo.pivot.presentacion))}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {formatPrice(insumo.pivot.valor_unidad)}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {insumo.pivot.cantidad_preparacion}
+                                                    {Math.round(Number(insumo.pivot.cantidad_preparacion))}
                                                 </td>
                                                 <td className="px-4 py-3 font-medium">
                                                     {formatPrice(insumo.pivot.costo_preparacion)}
