@@ -79,6 +79,16 @@ const formatPercentage = (percentage: number | string | null | undefined): strin
     return numPercentage.toFixed(2);
 };
 
+// Función helper para convertir texto a Camel Case
+const toCamelCase = (text: string | null | undefined): string => {
+    if (!text) return '';
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 export default function ProductosIndex({ productos, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -214,7 +224,7 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                         <tbody>
                                             {productos.data.map((producto) => (
                                                 <tr key={producto.id} className="border-b hover:bg-muted/50">
-                                                    <td className="px-4 py-3 font-medium">{producto.nombre}</td>
+                                                    <td className="px-4 py-3 font-medium">{toCamelCase(producto.nombre)}</td>
                                                     <td className="px-4 py-3">
                                                         {formatPrice(producto.precio_venta_publico)}
                                                     </td>

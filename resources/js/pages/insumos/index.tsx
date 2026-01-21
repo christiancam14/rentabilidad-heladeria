@@ -57,6 +57,16 @@ const formatPrice = (price: number | string | null | undefined): string => {
     return `$${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 };
 
+// Función helper para convertir texto a Camel Case
+const toCamelCase = (text: string | null | undefined): string => {
+    if (!text) return '';
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
     const [search, setSearch] = useState('');
     const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -198,7 +208,7 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                                 <tbody>
                                                     {filteredInsumos.map((insumo) => (
                                                         <tr key={insumo.id} className="border-b hover:bg-muted/50">
-                                                            <td className="px-4 py-3">{insumo.nombre}</td>
+                                                            <td className="px-4 py-3">{toCamelCase(insumo.nombre)}</td>
                                                             <td className="px-4 py-3">
                                                                 {formatPrice(insumo.precio)}
                                                             </td>

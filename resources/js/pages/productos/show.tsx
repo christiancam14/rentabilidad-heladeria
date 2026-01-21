@@ -109,6 +109,16 @@ const formatPercentage = (percentage: number | string | null | undefined): strin
     return numPercentage.toFixed(2);
 };
 
+// Función helper para convertir texto a Camel Case
+const toCamelCase = (text: string | null | undefined): string => {
+    if (!text) return '';
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 export default function ProductosShow({ producto, insumos, detalle_costos }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingInsumo, setEditingInsumo] = useState<InsumoProducto | null>(null);
@@ -222,7 +232,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`${producto.nombre} - Detalle`} />
+            <Head title={`${toCamelCase(producto.nombre)} - Detalle`} />
 
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -233,7 +243,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-semibold">{producto.nombre}</h1>
+                            <h1 className="text-2xl font-semibold">{toCamelCase(producto.nombre)}</h1>
                             <p className="text-muted-foreground">
                                 Gestión de insumos y cálculo de rentabilidad
                             </p>
@@ -355,7 +365,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                             <SelectValue placeholder="Selecciona un insumo">
                                                                 {selectedInsumo && (
                                                                     <span>
-                                                                        {selectedInsumo.nombre} - {formatPrice(selectedInsumo.precio)} / {selectedInsumo.unidad}
+                                                                        {toCamelCase(selectedInsumo.nombre)} - {formatPrice(selectedInsumo.precio)} / {selectedInsumo.unidad}
                                                                     </span>
                                                                 )}
                                                             </SelectValue>
@@ -390,7 +400,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                                     filteredInsumos.map((insumo) => (
                                                                         <SelectItem key={insumo.id} value={insumo.id.toString()}>
                                                                             <div className="flex items-center justify-between w-full">
-                                                                                <span>{insumo.nombre}</span>
+                                                                                <span>{toCamelCase(insumo.nombre)}</span>
                                                                                 <span className="text-xs text-muted-foreground ml-2">
                                                                                     {formatPrice(insumo.precio)} / {insumo.unidad}
                                                                                 </span>
@@ -489,7 +499,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                             <tr key={insumo.id} className="border-b hover:bg-muted/50">
                                                 <td className="px-4 py-3">
                                                     <div>
-                                                        <div className="font-medium">{insumo.nombre}</div>
+                                                        <div className="font-medium">{toCamelCase(insumo.nombre)}</div>
                                                         <div className="text-xs text-muted-foreground">{insumo.unidad}</div>
                                                     </div>
                                                 </td>
