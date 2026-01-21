@@ -1,6 +1,7 @@
 import { type PropsWithChildren } from 'react';
 
 import { AppContent } from '@/components/app-content';
+import { AppPageContent } from '@/components/app-page-content';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
@@ -15,7 +16,7 @@ export default function AppSidebarLayout({
             <AppSidebar />
             <AppContent variant="sidebar" className="overflow-x-hidden">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
-                {children}
+                <AppPageContent>{children}</AppPageContent>
             </AppContent>
         </AppShell>
     );
