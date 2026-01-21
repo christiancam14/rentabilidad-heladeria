@@ -76,10 +76,16 @@ class InsumoController extends Controller
      */
     public function update(UpdateInsumoRequest $request, Insumo $insumo): RedirectResponse
     {
+        $precioAnterior = $insumo->precio;
         $insumo->update($request->validated());
 
         // Si cambió el precio, recalcular costos en todos los productos que usan este insumo
-        if ($insumo->wasChanged('precio')) {
+        if ($precioAnterior != $insumo->fresh()->precio) {
+            // Recargar la relación de productos para asegurar que tenemos los datos actualizados
+            $insumo->refresh();
+            $insumo->load('productos');
+
+            // Recalcular costos en todos los productos que usan este insumo
             foreach ($insumo->productos as $producto) {
                 $producto->recalcularCostosInsumos();
             }
