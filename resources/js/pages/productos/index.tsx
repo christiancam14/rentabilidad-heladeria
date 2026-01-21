@@ -51,6 +51,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+// Función helper para formatear precios con separador de miles (punto)
+const formatPrice = (price: number | string | null | undefined): string => {
+    if (price === null || price === undefined) return '$0';
+    const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
+    if (isNaN(numPrice)) return '$0';
+    // Formateo manual con punto como separador de miles
+    const rounded = Math.round(numPrice);
+    return `$${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+};
+
 export default function ProductosIndex({ productos, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
 
@@ -130,14 +140,14 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                                 <tr key={producto.id} className="border-b hover:bg-muted/50">
                                                     <td className="px-4 py-3 font-medium">{producto.nombre}</td>
                                                     <td className="px-4 py-3">
-                                                        ${Number(producto.precio_venta_publico).toFixed(0)}
+                                                        {formatPrice(producto.precio_venta_publico)}
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        ${Number(producto.costo_total).toFixed(0)}
+                                                        {formatPrice(producto.costo_total)}
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <span className={producto.ganancia >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                                            ${Number(producto.ganancia).toFixed(0)}
+                                                            {formatPrice(producto.ganancia)}
                                                         </span>
                                                     </td>
                                                     <td className="px-4 py-3">

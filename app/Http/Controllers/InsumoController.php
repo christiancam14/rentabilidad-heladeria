@@ -17,26 +17,14 @@ class InsumoController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Insumo::query();
-
-        // Búsqueda por nombre
-        if ($request->has('search') && $request->search) {
-            $query->where('nombre', 'like', '%'.$request->search.'%');
-        }
-
-        // Ordenamiento
+        // Cargar todos los insumos sin paginación para búsqueda en frontend
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        // Paginación
-        $perPage = $request->get('per_page', 15);
-        $insumos = $query->paginate($perPage)->withQueryString();
+        $insumos = Insumo::orderBy($sortBy, $sortOrder)->get();
 
         return Inertia::render('insumos/index', [
             'insumos' => $insumos,
             'unidades_disponibles' => Insumo::unidadesDisponibles(),
-            'filters' => $request->only(['search', 'sort_by', 'sort_order', 'per_page']),
         ]);
     }
 

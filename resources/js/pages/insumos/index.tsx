@@ -1,6 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { PlusIcon, SearchIcon, PencilIcon, TrashIcon } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,20 +36,8 @@ interface Insumo {
 }
 
 interface Props {
-    insumos: {
-        data: Insumo[];
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
-    };
+    insumos: Insumo[];
     unidades_disponibles: string[];
-    filters: {
-        search?: string;
-        sort_by?: string;
-        sort_order?: string;
-        per_page?: number;
-    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -59,8 +47,18 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function InsumosIndex({ insumos, unidades_disponibles, filters }: Props) {
-    const [search, setSearch] = useState(filters.search || '');
+// Función helper para formatear precios con separador de miles (punto)
+const formatPrice = (price: number | string | null | undefined): string => {
+    if (price === null || price === undefined) return '$0';
+    const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
+    if (isNaN(numPrice)) return '$0';
+    // Formateo manual con punto como separador de miles
+    const rounded = Math.round(numPrice);
+    return `$${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+};
+
+export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
+    const [search, setSearch] = useState('');
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [editingInsumo, setEditingInsumo] = useState<Insumo | null>(null);
@@ -71,10 +69,16 @@ export default function InsumosIndex({ insumos, unidades_disponibles, filters }:
         unidad: unidades_disponibles[0] || '',
     });
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        router.get('/insumos', { search }, { preserveState: true });
-    };
+    // Filtrar insumos en el frontend basado en la búsqueda
+    const filteredInsumos = useMemo(() => {
+        if (!search.trim()) {
+            return insumos;
+        }
+        const searchLower = search.toLowerCase();
+        return insumos.filter((insumo) =>
+            insumo.nombre.toLowerCase().includes(searchLower)
+        );
+    }, [insumos, search]);
 
     const handleDelete = (id: number) => {
         if (confirm('¿Está seguro de que desea eliminar este insumo?')) {
@@ -154,7 +158,7 @@ export default function InsumosIndex({ insumos, unidades_disponibles, filters }:
 
                 <Card>
                     <CardHeader>
-                        <form onSubmit={handleSearch} className="flex gap-2">
+                        <div className="flex gap-2">
                             <div className="relative flex-1">
                                 <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
@@ -165,100 +169,74 @@ export default function InsumosIndex({ insumos, unidades_disponibles, filters }:
                                     className="pl-9"
                                 />
                             </div>
-                            <Button type="submit" variant="outline">
-                                Buscar
-                            </Button>
-                        </form>
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        {insumos.data.length === 0 ? (
+                        {insumos.length === 0 ? (
                             <div className="py-8 text-center text-muted-foreground">
                                 No hay insumos registrados
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead>
-                                            <tr className="border-b">
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Nombre</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Precio</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Unidad</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Última actualización</th>
-                                                <th className="px-4 py-3 text-right text-sm font-medium">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {insumos.data.map((insumo) => (
-                                                <tr key={insumo.id} className="border-b hover:bg-muted/50">
-                                                    <td className="px-4 py-3">{insumo.nombre}</td>
-                                                    <td className="px-4 py-3">
-                                                        ${Number(insumo.precio).toFixed(0)}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <Badge variant="outline">{insumo.unidad}</Badge>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                                                        {new Date(insumo.updated_at).toLocaleDateString('es-ES')}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex justify-end gap-2">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => openEditDialog(insumo)}
-                                                            >
-                                                                <PencilIcon className="size-4" />
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => handleDelete(insumo.id)}
-                                                            >
-                                                                <TrashIcon className="size-4 text-destructive" />
-                                                            </Button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                {insumos.last_page > 1 && (
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-sm text-muted-foreground">
-                                            Mostrando {insumos.data.length} de {insumos.total} insumos
-                                        </p>
-                                        <div className="flex gap-2">
-                                            {insumos.current_page > 1 && (
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        router.get('/insumos', {
-                                                            ...filters,
-                                                            page: insumos.current_page - 1,
-                                                        })
-                                                    }
-                                                >
-                                                    Anterior
-                                                </Button>
-                                            )}
-                                            {insumos.current_page < insumos.last_page && (
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        router.get('/insumos', {
-                                                            ...filters,
-                                                            page: insumos.current_page + 1,
-                                                        })
-                                                    }
-                                                >
-                                                    Siguiente
-                                                </Button>
-                                            )}
-                                        </div>
+                                {filteredInsumos.length === 0 ? (
+                                    <div className="py-8 text-center text-muted-foreground">
+                                        No se encontraron insumos que coincidan con la búsqueda
                                     </div>
+                                ) : (
+                                    <>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="border-b">
+                                                        <th className="px-4 py-3 text-left text-sm font-medium">Nombre</th>
+                                                        <th className="px-4 py-3 text-left text-sm font-medium">Precio</th>
+                                                        <th className="px-4 py-3 text-left text-sm font-medium">Unidad</th>
+                                                        <th className="px-4 py-3 text-left text-sm font-medium">Última actualización</th>
+                                                        <th className="px-4 py-3 text-right text-sm font-medium">Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {filteredInsumos.map((insumo) => (
+                                                        <tr key={insumo.id} className="border-b hover:bg-muted/50">
+                                                            <td className="px-4 py-3">{insumo.nombre}</td>
+                                                            <td className="px-4 py-3">
+                                                                {formatPrice(insumo.precio)}
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <Badge variant="outline">{insumo.unidad}</Badge>
+                                                            </td>
+                                                            <td className="px-4 py-3 text-sm text-muted-foreground">
+                                                                {new Date(insumo.updated_at).toLocaleDateString('es-ES')}
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <div className="flex justify-end gap-2">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={() => openEditDialog(insumo)}
+                                                                    >
+                                                                        <PencilIcon className="size-4" />
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={() => handleDelete(insumo.id)}
+                                                                    >
+                                                                        <TrashIcon className="size-4 text-destructive" />
+                                                                    </Button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {search && (
+                                            <div className="text-sm text-muted-foreground">
+                                                Mostrando {filteredInsumos.length} de {insumos.length} insumos
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         )}
