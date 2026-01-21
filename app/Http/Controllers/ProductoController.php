@@ -42,14 +42,6 @@ class ProductoController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('productos/create');
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreProductoRequest $request): RedirectResponse

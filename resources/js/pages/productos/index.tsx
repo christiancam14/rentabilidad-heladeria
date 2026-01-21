@@ -1,11 +1,21 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { PlusIcon, SearchIcon, PencilIcon, TrashIcon, EyeIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
@@ -63,6 +73,12 @@ const formatPrice = (price: number | string | null | undefined): string => {
 
 export default function ProductosIndex({ productos, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        nombre: '',
+        precio_venta_publico: '',
+    });
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -77,6 +93,24 @@ export default function ProductosIndex({ productos, filters }: Props) {
         }
     };
 
+    const openCreateDialog = () => {
+        reset();
+        setCreateDialogOpen(true);
+    };
+
+    const handleCreateSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Convertir precio a número entero antes de enviar
+        setData('precio_venta_publico', String(parseInt(data.precio_venta_publico as string) || 0));
+        post('/productos', {
+            preserveScroll: true,
+            onSuccess: () => {
+                setCreateDialogOpen(false);
+                reset();
+            },
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Productos" />
@@ -89,12 +123,10 @@ export default function ProductosIndex({ productos, filters }: Props) {
                             Gestiona los productos de tu heladería
                         </p>
                     </div>
-                    <Link href="/productos/create">
-                        <Button>
-                            <PlusIcon className="size-4" />
-                            Nuevo Producto
-                        </Button>
-                    </Link>
+                    <Button onClick={openCreateDialog}>
+                        <PlusIcon className="size-4" />
+                        Nuevo Producto
+                    </Button>
                 </div>
 
                 <Card>
@@ -224,6 +256,65 @@ export default function ProductosIndex({ productos, filters }: Props) {
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Modal de Creación */}
+                <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Nuevo Producto</DialogTitle>
+                            <DialogDescription>
+                                Crea un nuevo producto. Podrás agregar insumos después de crearlo.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleCreateSubmit}>
+                            <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="create-nombre">Nombre</Label>
+                                    <Input
+                                        id="create-nombre"
+                                        name="nombre"
+                                        value={data.nombre}
+                                        onChange={(e) => setData('nombre', e.target.value)}
+                                        placeholder="Ej: Helado de Vainilla, Helado de Chocolate..."
+                                        required
+                                    />
+                                    <InputError message={errors.nombre} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="create-precio_venta_publico">Precio de Venta Público</Label>
+                                    <Input
+                                        id="create-precio_venta_publico"
+                                        name="precio_venta_publico"
+                                        type="number"
+                                        step="1"
+                                        min="0"
+                                        placeholder="0"
+                                        value={data.precio_venta_publico}
+                                        onChange={(e) => setData('precio_venta_publico', e.target.value)}
+                                        required
+                                    />
+                                    <InputError message={errors.precio_venta_publico} />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setCreateDialogOpen(false);
+                                        reset();
+                                    }}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" disabled={processing}>
+                                    Crear Producto
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );
