@@ -24,8 +24,8 @@ class AgregarInsumoProductoRequest extends FormRequest
     {
         return [
             'insumo_id' => ['sometimes', 'required', 'exists:insumos,id'],
-            'presentacion' => ['required', 'integer', 'min:1'],
-            'cantidad_preparacion' => ['required', 'integer', 'min:0'],
+            'presentacion' => ['required', 'numeric', 'min:0.01'],
+            'cantidad_preparacion' => ['required', 'numeric', 'min:0'],
         ];
     }
 

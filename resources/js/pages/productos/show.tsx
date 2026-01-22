@@ -151,11 +151,11 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
 
     const handleAddInsumo = (e: React.FormEvent) => {
         e.preventDefault();
-        // Convertir valores a enteros antes de enviar
+        // Convertir valores a números decimales antes de enviar
         const formData = {
             insumo_id: data.insumo_id,
-            presentacion: parseInt(data.presentacion as string) || 1,
-            cantidad_preparacion: parseInt(data.cantidad_preparacion as string) || 0,
+            presentacion: parseFloat(data.presentacion as string) || 0,
+            cantidad_preparacion: parseFloat(data.cantidad_preparacion as string) || 0,
         };
         post(`/productos/${producto.id}/insumos`, {
             data: formData,
@@ -174,10 +174,10 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
 
         setIsUpdating(true);
 
-        // Preparar los datos para enviar (convertir a enteros)
+        // Preparar los datos para enviar (convertir a números decimales)
         const formData = {
-            presentacion: parseInt(data.presentacion as string) || 1,
-            cantidad_preparacion: parseInt(data.cantidad_preparacion as string) || 0,
+            presentacion: parseFloat(data.presentacion as string) || 0,
+            cantidad_preparacion: parseFloat(data.cantidad_preparacion as string) || 0,
         };
 
         // Usar router.put directamente ya que useForm.put no funciona bien con rutas personalizadas
@@ -217,8 +217,8 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
         setEditingInsumo(insumo);
         setData({
             insumo_id: insumo.id.toString(),
-            presentacion: Math.round(Number(insumo.pivot.presentacion)).toString(),
-            cantidad_preparacion: Math.round(Number(insumo.pivot.cantidad_preparacion)).toString(),
+            presentacion: Number(insumo.pivot.presentacion).toString(),
+            cantidad_preparacion: Number(insumo.pivot.cantidad_preparacion).toString(),
         });
         setDialogOpen(true);
     };
@@ -420,11 +420,11 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                 <Input
                                                     id="presentacion"
                                                     type="number"
-                                                    step="1"
-                                                    min="1"
+                                                    step="any"
+                                                    min="0.01"
                                                     value={data.presentacion}
                                                     onChange={(e) => setData('presentacion', e.target.value)}
-                                                    placeholder="Ej: 10"
+                                                    placeholder="Ej: 10 o 0.5"
                                                     required
                                                 />
                                                 <InputError message={errors.presentacion} />
@@ -438,11 +438,11 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                 <Input
                                                     id="cantidad_preparacion"
                                                     type="number"
-                                                    step="1"
+                                                    step="any"
                                                     min="0"
                                                     value={data.cantidad_preparacion}
                                                     onChange={(e) => setData('cantidad_preparacion', e.target.value)}
-                                                    placeholder="Ej: 5"
+                                                    placeholder="Ej: 5 o 0.3"
                                                     required
                                                 />
                                                 <InputError message={errors.cantidad_preparacion} />
@@ -507,13 +507,19 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                     {formatPrice(insumo.precio)}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {Math.round(Number(insumo.pivot.presentacion))}
+                                                    {Number(insumo.pivot.presentacion).toLocaleString('es-ES', { 
+                                                        minimumFractionDigits: 0, 
+                                                        maximumFractionDigits: 2 
+                                                    })}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {formatPrice(insumo.pivot.valor_unidad)}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {Math.round(Number(insumo.pivot.cantidad_preparacion))}
+                                                    {Number(insumo.pivot.cantidad_preparacion).toLocaleString('es-ES', { 
+                                                        minimumFractionDigits: 0, 
+                                                        maximumFractionDigits: 2 
+                                                    })}
                                                 </td>
                                                 <td className="px-4 py-3 font-medium">
                                                     {formatPrice(insumo.pivot.costo_preparacion)}

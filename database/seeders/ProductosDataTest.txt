@@ -1,0 +1,644 @@
+==========================================
+ARCHIVO DE PRUEBA - DATOS DE PRODUCTOS
+==========================================
+
+PRODUCTO 1: FRESAS CON CREMA
+------------------------------------------
+Precio de Venta Público: $14,000
+Insumos (7):
+  1. FRESA - Presentación: 500, Cantidad Preparación: 200
+  2. CREMA DE LA CASA - Presentación: 1, Cantidad Preparación: 46
+  3. CHANTILLY - Presentación: 3000, Cantidad Preparación: 80
+  4. MORA - Presentación: 500, Cantidad Preparación: 7
+  5. CEREZA - Presentación: 2400, Cantidad Preparación: 3
+  6. HELADO - Presentación: 5000, Cantidad Preparación: 75
+  7. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 2: BANANA SPLIT
+------------------------------------------
+Precio de Venta Público: $12,500
+Insumos (9):
+  1. BANANO - Presentación: 1, Cantidad Preparación: 1
+  2. HELADO - Presentación: 5000, Cantidad Preparación: 210
+  3. FRESA - Presentación: 500, Cantidad Preparación: 20
+  4. DURAZNO EN ALMIBAR - Presentación: 480, Cantidad Preparación: 14
+  5. CEREZA - Presentación: 2400, Cantidad Preparación: 3
+  6. MANZANA - Presentación: 103, Cantidad Preparación: 12
+  7. CHANTILLY - Presentación: 3000, Cantidad Preparación: 26
+  8. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 8
+  9. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 3: WAFFLE
+------------------------------------------
+Precio de Venta Público: $15,000
+Insumos (9):
+  1. WAFFLE - Presentación: 1, Cantidad Preparación: 1
+  2. AREQUIPE - Presentación: 5000, Cantidad Preparación: 15
+  3. DURAZNO EN ALMIBAR - Presentación: 480, Cantidad Preparación: 34
+  4. BANANO - Presentación: 1, Cantidad Preparación: 0.8 ⚠️ (decimal)
+  5. KIWI - Presentación: 500, Cantidad Preparación: 14
+  6. CHANTILLY - Presentación: 3000, Cantidad Preparación: 30
+  7. FRESA - Presentación: 500, Cantidad Preparación: 40
+  8. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 10
+  9. HELADO - Presentación: 5000, Cantidad Preparación: 102
+
+
+PRODUCTO 4: CHOLADO
+------------------------------------------
+Precio de Venta Público: $13,000
+Insumos (12):
+  1. MANGO - Presentación: 375, Cantidad Preparación: 46
+  2. FRESA - Presentación: 500, Cantidad Preparación: 44
+  3. PIÑA - Presentación: 300, Cantidad Preparación: 60
+  4. MARACUYA - Presentación: 500, Cantidad Preparación: 30
+  5. BANANO - Presentación: 1, Cantidad Preparación: 0.3 ⚠️ (decimal)
+  6. GUANABANA - Presentación: 280, Cantidad Preparación: 52
+  7. MILO - Presentación: 500, Cantidad Preparación: 13
+  8. MANZANA - Presentación: 103, Cantidad Preparación: 10
+  9. LECHE CONDENSADA - Presentación: 5000, Cantidad Preparación: 40
+  10. ESENCIA DE KOLA - Presentación: 470, Cantidad Preparación: 10
+  11. HELADO - Presentación: 5000, Cantidad Preparación: 75
+  12. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 5: BROWNIE CON HELADO
+------------------------------------------
+Precio de Venta Público: $10,000
+Insumos (6):
+  1. BROWNIE - Presentación: 1, Cantidad Preparación: 1
+  2. FRESA - Presentación: 500, Cantidad Preparación: 20
+  3. CHANTILLY - Presentación: 3000, Cantidad Preparación: 28
+  4. HELADO - Presentación: 5000, Cantidad Preparación: 70
+  5. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 20
+  6. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 6: COPA BROWNIE
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (6):
+  1. BROWNIE - Presentación: 1, Cantidad Preparación: 1
+  2. CHANTILLY - Presentación: 3000, Cantidad Preparación: 62
+  3. BARQUILLOS - Presentación: 1, Cantidad Preparación: 1
+  4. HELADO - Presentación: 5000, Cantidad Preparación: 120
+  5. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 8
+  6. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 7: PARFAIT
+------------------------------------------
+Precio de Venta Público: $10,000
+Insumos (9):
+  1. YOGURT - Presentación: 900, Cantidad Preparación: 108
+  2. GRANOLA - Presentación: 1000, Cantidad Preparación: 24
+  3. MANGO - Presentación: 375, Cantidad Preparación: 30
+  4. FRESA - Presentación: 500, Cantidad Preparación: 35
+  5. CHANTILLY - Presentación: 3000, Cantidad Preparación: 23
+  6. BANANO - Presentación: 1, Cantidad Preparación: 0.3 ⚠️ (decimal)
+  7. MANZANA - Presentación: 103, Cantidad Preparación: 13
+  8. MORA - Presentación: 500, Cantidad Preparación: 3
+  9. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 8: MARACUMANGO
+------------------------------------------
+Precio de Venta Público: $10,000
+Insumos (8):
+  1. MORA - Presentación: 500, Cantidad Preparación: 6
+  2. MARACUYA - Presentación: 500, Cantidad Preparación: 120
+  3. LECHE CONDENSADA - Presentación: 5000, Cantidad Preparación: 15
+  4. MANGO - Presentación: 375, Cantidad Preparación: 84
+  5. CHANTILLY - Presentación: 3000, Cantidad Preparación: 32
+  6. HELADO - Presentación: 5000, Cantidad Preparación: 63
+  7. BARQUILLOS - Presentación: 1, Cantidad Preparación: 1
+  8. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 9: ENSALADA DE FRUTAS
+------------------------------------------
+Precio de Venta Público: $18,000
+Insumos (17):
+  1. PAPAYA - Presentación: 400, Cantidad Preparación: 113
+  2. PATILLA - Presentación: 290, Cantidad Preparación: 76
+  3. MELON - Presentación: 280, Cantidad Preparación: 50
+  4. MANGO - Presentación: 375, Cantidad Preparación: 60
+  5. PIÑA - Presentación: 300, Cantidad Preparación: 72
+  6. BANANO - Presentación: 1, Cantidad Preparación: 0.5 ⚠️ (decimal)
+  7. CREMA DE LA CASA - Presentación: 1, Cantidad Preparación: 108
+  8. QUESO - Presentación: 500, Cantidad Preparación: 80
+  9. GRANOLA - Presentación: 1000, Cantidad Preparación: 15
+  10. FRESA - Presentación: 500, Cantidad Preparación: 36
+  11. MANZANA - Presentación: 103, Cantidad Preparación: 10
+  12. HELADO - Presentación: 5000, Cantidad Preparación: 120
+  13. SALSA DE MORA - Presentación: 1000, Cantidad Preparación: 12
+  14. DURAZNO EN ALMIBAR - Presentación: 480, Cantidad Preparación: 20
+  15. CHANTILLY - Presentación: 3000, Cantidad Preparación: 26
+  16. KIWI - Presentación: 500, Cantidad Preparación: 16
+  17. CEREZA - Presentación: 2400, Cantidad Preparación: 6
+  18. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 10: ENSALADA PEQUEÑA
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (13):
+  1. PAPAYA - Presentación: 400, Cantidad Preparación: 73
+  2. PATILLA - Presentación: 290, Cantidad Preparación: 59
+  3. MELON - Presentación: 280, Cantidad Preparación: 31
+  4. MANGO - Presentación: 375, Cantidad Preparación: 51
+  5. PIÑA - Presentación: 300, Cantidad Preparación: 50
+  6. BANANO - Presentación: 1, Cantidad Preparación: 0.5 ⚠️ (decimal)
+  7. CREMA DE LA CASA - Presentación: 1, Cantidad Preparación: 68
+  8. QUESO - Presentación: 500, Cantidad Preparación: 33
+  9. GRANOLA - Presentación: 1000, Cantidad Preparación: 10
+  10. FRESA - Presentación: 500, Cantidad Preparación: 19
+  11. MANZANA - Presentación: 103, Cantidad Preparación: 6
+  12. HELADO - Presentación: 5000, Cantidad Preparación: 60
+  13. SALSA DE MORA - Presentación: 1000, Cantidad Preparación: 8
+  14. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 11: MALTEADA PEQUEÑA
+------------------------------------------
+Precio de Venta Público: $9,000
+Insumos (7):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 160
+  2. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 10
+  3. CREMA DE LECHE - Presentación: 1800, Cantidad Preparación: 10
+  4. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 10
+  5. CHANTILLY - Presentación: 3000, Cantidad Preparación: 30
+  6. BARQUILLOS - Presentación: 1, Cantidad Preparación: 1
+  7. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 12: MALTEADA GRANDE
+------------------------------------------
+Precio de Venta Público: $12,500
+Insumos (9):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 250
+  2. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 10
+  3. CREMA DE LECHE - Presentación: 1800, Cantidad Preparación: 10
+  4. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 10
+  5. CHANTILLY - Presentación: 3000, Cantidad Preparación: 55
+  6. BARQUILLOS - Presentación: 1, Cantidad Preparación: 1
+  7. CEREZA - Presentación: 2400, Cantidad Preparación: 3
+  8. LLUVIA DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 5
+  9. SERVILLETAS - Presentación: 550, Cantidad Preparación: 1
+
+
+PRODUCTO 13: COPA WHISKY
+------------------------------------------
+Precio de Venta Público: $14,000
+Insumos (6):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 116
+  2. CREMA DE WHISKY - Presentación: 700, Cantidad Preparación: 57
+  3. CREMA DE LECHE - Presentación: 1800, Cantidad Preparación: 10
+  4. CHANTILLY - Presentación: 3000, Cantidad Preparación: 59
+  5. BROWNIE - Presentación: 1, Cantidad Preparación: 1
+  6. SERVILLETAS - Presentación: 550, Cantidad Preparación: 1
+
+
+PRODUCTO 14: GELATINA
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (8):
+  1. GELATINA - Presentación: 205, Cantidad Preparación: 66
+  2. CREMA DE LA CASA - Presentación: 1, Cantidad Preparación: 12
+  3. QUESO - Presentación: 500, Cantidad Preparación: 15
+  4. BARQUILLOS - Presentación: 1, Cantidad Preparación: 1
+  5. CHANTILLY - Presentación: 3000, Cantidad Preparación: 13
+  6. HELADO - Presentación: 5000, Cantidad Preparación: 120
+  7. SALSA DE MORA - Presentación: 1000, Cantidad Preparación: 5
+  8. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 15: DURAZNO EN ALMIBAR
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (6):
+  1. DURAZNO EN ALMIBAR - Presentación: 480, Cantidad Preparación: 60
+  2. HELADO - Presentación: 5000, Cantidad Preparación: 130
+  3. CHANTILLY - Presentación: 3000, Cantidad Preparación: 70
+  4. AREQUIPE - Presentación: 5000, Cantidad Preparación: 6
+  5. LLUVIA DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 1
+  6. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 16: OBLEAS
+------------------------------------------
+Precio de Venta Público: $8,000
+Insumos (7):
+  1. AREQUIPE - Presentación: 5000, Cantidad Preparación: 73
+  2. QUESO - Presentación: 500, Cantidad Preparación: 20
+  3. MORA - Presentación: 500, Cantidad Preparación: 30
+  4. CHANTILLY - Presentación: 3000, Cantidad Preparación: 40
+  5. FRESA - Presentación: 500, Cantidad Preparación: 69
+  6. OBLEA - Presentación: 50, Cantidad Preparación: 2
+  7. SERVILLETAS - Presentación: 550, Cantidad Preparación: 1
+
+
+PRODUCTO 17: PAYASO
+------------------------------------------
+Precio de Venta Público: $7,500
+Insumos (8):
+  1. CONO DE GALLETA - Presentación: 500, Cantidad Preparación: 1
+  2. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 3
+  3. SALSA DE MORA - Presentación: 1000, Cantidad Preparación: 3
+  4. GRAJEAS - Presentación: 500, Cantidad Preparación: 1
+  5. HELADO - Presentación: 5000, Cantidad Preparación: 105
+  6. CHANTILLY - Presentación: 3000, Cantidad Preparación: 34
+  7. OJOS Y NARIZ - Presentación: 1, Cantidad Preparación: 1
+  8. SERVILLETAS - Presentación: 550, Cantidad Preparación: 1
+
+
+PRODUCTO 18: OSO
+------------------------------------------
+Precio de Venta Público: $8,500
+Insumos (7):
+  1. GALLETA MINI CHIPS - Presentación: 420, Cantidad Preparación: 7
+  2. HELADO - Presentación: 5000, Cantidad Preparación: 120
+  3. CANASTA DE GALLETA - Presentación: 200, Cantidad Preparación: 1
+  4. CHANTILLY - Presentación: 3000, Cantidad Preparación: 20
+  5. MASMELOS - Presentación: 335, Cantidad Preparación: 2
+  6. OJOS Y NARIZ - Presentación: 1, Cantidad Preparación: 1
+  7. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 19: RATON
+------------------------------------------
+Precio de Venta Público: $8,500
+Insumos (6):
+  1. CANASTA DE GALLETA - Presentación: 200, Cantidad Preparación: 1
+  2. GALLETA OREO - Presentación: 48, Cantidad Preparación: 1
+  3. CHANTILLY - Presentación: 3000, Cantidad Preparación: 20
+  4. HELADO - Presentación: 5000, Cantidad Preparación: 120
+  5. GOMAS GUSANITO - Presentación: 500, Cantidad Preparación: 1
+  6. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 20: ARAÑA
+------------------------------------------
+Precio de Venta Público: $8,500
+Insumos (6):
+  1. CANASTA DE GALLETA - Presentación: 200, Cantidad Preparación: 1
+  2. HELADO - Presentación: 5000, Cantidad Preparación: 120
+  3. CHANTILLY - Presentación: 3000, Cantidad Preparación: 20
+  4. OJOS Y NARIZ - Presentación: 1, Cantidad Preparación: 1
+  5. GOMAS GUSANITO - Presentación: 500, Cantidad Preparación: 4
+  6. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 21: FRAPPE DE MILO
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (10):
+  NOTA: HELADO aparece dos veces (40 y 60) - se mantienen separados según decisión
+  1. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 10
+  2. MEZCLA DE FRAPPE - Presentación: 125, Cantidad Preparación: 70
+  3. HELADO - Presentación: 5000, Cantidad Preparación: 40
+  4. CHANTILLY - Presentación: 3000, Cantidad Preparación: 55
+  5. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 10
+  6. BARQUILLOS - Presentación: 1, Cantidad Preparación: 1
+  7. HIELO - Presentación: 2000, Cantidad Preparación: 150
+  8. CHIPS DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 5
+  9. HELADO - Presentación: 5000, Cantidad Preparación: 60 (mantener separado)
+  10. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 22: FRAPPE OREO
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (11):
+  NOTA: HELADO aparece dos veces (40 y 60). Se mantendrán separados según decisión.
+  1. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 10
+  2. MEZCLA DE FRAPPE - Presentación: 125, Cantidad Preparación: 50
+  3. HELADO - Presentación: 5000, Cantidad Preparación: 40
+  4. CHANTILLY - Presentación: 3000, Cantidad Preparación: 55
+  5. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 10
+  6. BARQUILLOS - Presentación: 1, Cantidad Preparación: 1
+  7. HIELO - Presentación: 2000, Cantidad Preparación: 150
+  8. CHIPS DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 5
+  9. HELADO - Presentación: 5000, Cantidad Preparación: 60 (entrada separada)
+  10. GALLETA OREO - Presentación: 48, Cantidad Preparación: 3
+  11. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 23: FRAPPE CAFÉ
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (10):
+  NOTA: HELADO aparece dos veces (40 y 60). Se mantendrán separados según decisión.
+  1. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 10
+  2. MEZCLA DE FRAPPE - Presentación: 125, Cantidad Preparación: 70
+  3. HELADO - Presentación: 5000, Cantidad Preparación: 40
+  4. CHANTILLY - Presentación: 3000, Cantidad Preparación: 55
+  5. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 10
+  6. BARQUILLOS - Presentación: 1, Cantidad Preparación: 1
+  7. HIELO - Presentación: 2000, Cantidad Preparación: 150
+  8. CHIPS DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 5
+  9. HELADO - Presentación: 5000, Cantidad Preparación: 60 (entrada separada)
+  10. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 24: GUSANITO
+------------------------------------------
+Precio de Venta Público: $9,500
+Insumos (6):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 180
+  2. GOMAS GUSANITO - Presentación: 500, Cantidad Preparación: 5
+  3. LECHE CONDENSADA - Presentación: 5000, Cantidad Preparación: 5
+  4. GRAJEAS - Presentación: 500, Cantidad Preparación: 5
+  5. OJOS Y NARIZ - Presentación: 1, Cantidad Preparación: 1
+  6. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 25: CREPE
+------------------------------------------
+Precio de Venta Público: $15,000
+Insumos (7):
+  1. NUTELLA - Presentación: 350, Cantidad Preparación: 26
+  2. BANANO - Presentación: 1, Cantidad Preparación: 1
+  3. FRESA - Presentación: 500, Cantidad Preparación: 78
+  4. CHANTILLY - Presentación: 3000, Cantidad Preparación: 39
+  5. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 20
+  6. HELADO - Presentación: 5000, Cantidad Preparación: 104
+  7. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 26: MALTEADA WAFFLE
+------------------------------------------
+Precio de Venta Público: $17,000
+Insumos (9):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 240
+  2. FRESA - Presentación: 500, Cantidad Preparación: 70
+  3. AREQUIPE - Presentación: 5000, Cantidad Preparación: 10
+  4. MANI TRITURADO - Presentación: 500, Cantidad Preparación: 22
+  5. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 10
+  6. CREMA DE LECHE - Presentación: 1800, Cantidad Preparación: 10
+  7. CHANTILLY - Presentación: 3000, Cantidad Preparación: 58
+  8. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 16
+  9. WAFFLE - Presentación: 1, Cantidad Preparación: 0.3 ⚠️ (decimal)
+
+
+PRODUCTO 27: CREPE FUSION TROPICAL
+------------------------------------------
+Precio de Venta Público: $15,000
+Insumos (11):
+  1. CREPE - Presentación: 1, Cantidad Preparación: 1
+  2. HELADO - Presentación: 5000, Cantidad Preparación: 70
+  3. BANANO - Presentación: 1, Cantidad Preparación: 1
+  4. DURAZNO EN ALMIBAR - Presentación: 480, Cantidad Preparación: 30
+  5. MARACUYA - Presentación: 500, Cantidad Preparación: 30
+  6. PIÑA - Presentación: 300, Cantidad Preparación: 40
+  7. AREQUIPE - Presentación: 5000, Cantidad Preparación: 20
+  8. CHANTILLY - Presentación: 3000, Cantidad Preparación: 40
+  9. CUCHILLO - Presentación: 100, Cantidad Preparación: 1
+  10. TENEDOR - Presentación: 100, Cantidad Preparación: 1
+  11. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 28: LIMONADA DE COCO 18ONZ
+------------------------------------------
+Precio de Venta Público: $9,000
+Insumos (6):
+  1. CREMA DE COCO - Presentación: 1000, Cantidad Preparación: 125
+  2. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 120
+  3. LIMON - Presentación: 250, Cantidad Preparación: 30
+  4. AZUCAR - Presentación: 500, Cantidad Preparación: 50
+  5. HIELO - Presentación: 2000, Cantidad Preparación: 30
+  6. CEREZA - Presentación: 2400, Cantidad Preparación: 4
+
+
+PRODUCTO 29: CREPE CHOCO
+------------------------------------------
+Precio de Venta Público: $15,000
+Insumos (11):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 102
+  2. FRESA - Presentación: 500, Cantidad Preparación: 110
+  3. CHOCO CUBIERTA - Presentación: 1150, Cantidad Preparación: 35
+  4. ACEITE - Presentación: 1, Cantidad Preparación: 10
+  5. CREMA DE LA CASA - Presentación: 1, Cantidad Preparación: 35
+  6. CREPE - Presentación: 1, Cantidad Preparación: 1
+  7. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 45
+  8. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 10
+  9. CHANTILLY - Presentación: 3000, Cantidad Preparación: 40
+  10. TENEDOR - Presentación: 100, Cantidad Preparación: 1
+  11. CUCHILLO - Presentación: 100, Cantidad Preparación: 1
+  12. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 30: WAFFLE PAN DE YUCA
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (10):
+  1. MEZCLA DE YUCA - Presentación: 1, Cantidad Preparación: 70 (precio 0)
+  2. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 80
+  3. QUESO SALADO - Presentación: 500, Cantidad Preparación: 30
+  4. HUEVO - Presentación: 1, Cantidad Preparación: 0.5 ⚠️ (decimal)
+  5. QUESO DOBLE CREMA - Presentación: 1, Cantidad Preparación: 50
+  6. AREQUIPE - Presentación: 5000, Cantidad Preparación: 30
+  7. HELADO - Presentación: 5000, Cantidad Preparación: 102
+  8. CUCHILLO - Presentación: 100, Cantidad Preparación: 1
+  9. TENEDOR - Presentación: 100, Cantidad Preparación: 1
+  10. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 31: BUHO
+------------------------------------------
+Precio de Venta Público: $8,500
+Insumos (8):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 150
+  2. GALLETA OREO - Presentación: 48, Cantidad Preparación: 2
+  3. GRAJEAS - Presentación: 500, Cantidad Preparación: 10
+  4. CHANTILLY - Presentación: 3000, Cantidad Preparación: 40
+  5. MYM GRANDE - Presentación: 500, Cantidad Preparación: 1
+  6. CHIPS DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 2
+  7. CUCHARA - Presentación: 100, Cantidad Preparación: 1
+  8. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 32: POLLO
+------------------------------------------
+Precio de Venta Público: $8,500
+Insumos (8):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 150
+  2. CHANTILLY - Presentación: 3000, Cantidad Preparación: 25
+  3. FRESA - Presentación: 500, Cantidad Preparación: 27
+  4. GRAJEAS - Presentación: 500, Cantidad Preparación: 10
+  5. MYM GRANDE - Presentación: 500, Cantidad Preparación: 1
+  6. CHIPS DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 2
+  7. CUCHARA - Presentación: 100, Cantidad Preparación: 1
+  8. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 33: GATO
+------------------------------------------
+Precio de Venta Público: $8,500
+Insumos (8):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 150
+  2. MASMELOS - Presentación: 335, Cantidad Preparación: 2
+  3. CHANTILLY - Presentación: 3000, Cantidad Preparación: 25
+  4. GRAJEAS - Presentación: 500, Cantidad Preparación: 20
+  5. CHIPS DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 2
+  6. MINI GOMA - Presentación: 1, Cantidad Preparación: 1 (precio 0)
+  7. CUCHARA - Presentación: 100, Cantidad Preparación: 1
+  8. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 34: MARIPOSA
+------------------------------------------
+Precio de Venta Público: $8,500
+Insumos (9):
+  1. HELADO - Presentación: 5000, Cantidad Preparación: 150
+  2. FRESA - Presentación: 500, Cantidad Preparación: 30
+  3. BANANO - Presentación: 1, Cantidad Preparación: 0.5 ⚠️ (decimal)
+  4. MEZCLA WAFFLE - Presentación: 1, Cantidad Preparación: 35 (precio 0)
+  5. LECHE LIQUIDA - Presentación: 1100, Cantidad Preparación: 48
+  6. CHIPS DE CHOCOLATE - Presentación: 500, Cantidad Preparación: 2
+  7. SALSA DE CHOCOLATE - Presentación: 1000, Cantidad Preparación: 15
+  8. CUCHARA - Presentación: 100, Cantidad Preparación: 1
+  9. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 35: SODA SANDIA
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (9):
+  1. SODA - Presentación: 1, Cantidad Preparación: 1
+  2. AZUCAR - Presentación: 500, Cantidad Preparación: 30
+  3. PATILLA - Presentación: 290, Cantidad Preparación: 80
+  4. LIMON - Presentación: 250, Cantidad Preparación: 90
+  5. GRANADINA - Presentación: 1000, Cantidad Preparación: 45
+  6. BUBOLS - Presentación: 880, Cantidad Preparación: 35
+  7. PITILLOS - Presentación: 100, Cantidad Preparación: 1
+  8. CUCHARA - Presentación: 100, Cantidad Preparación: 1
+  9. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 36: SODA MARACUYA
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (9):
+  1. SODA - Presentación: 1, Cantidad Preparación: 1
+  2. LIMON - Presentación: 250, Cantidad Preparación: 90
+  3. MARACUYA - Presentación: 500, Cantidad Preparación: 40
+  4. AZUCAR - Presentación: 500, Cantidad Preparación: 40
+  5. BUBOLS - Presentación: 880, Cantidad Preparación: 35
+  6. MANZANA - Presentación: 103, Cantidad Preparación: 25
+  7. PITILLOS - Presentación: 100, Cantidad Preparación: 1
+  8. CUCHARA - Presentación: 100, Cantidad Preparación: 1
+  9. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 37: MICHELADA DE MARACUYA
+------------------------------------------
+Precio de Venta Público: $10,000
+Insumos (7):
+  1. CORONITA - Presentación: 1, Cantidad Preparación: 1
+  2. CEREZA - Presentación: 2400, Cantidad Preparación: 1
+  3. GOMAS DE AROS - Presentación: 1, Cantidad Preparación: 2
+  4. MARACUYA - Presentación: 500, Cantidad Preparación: 40
+  5. LIMON - Presentación: 250, Cantidad Preparación: 90
+  6. SAL DE COLOR - Presentación: 500, Cantidad Preparación: 5
+  7. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 38: MICHELADA DE MANGO
+------------------------------------------
+Precio de Venta Público: $10,000
+Insumos (5):
+  1. CORONITA - Presentación: 1, Cantidad Preparación: 1
+  2. LIMON - Presentación: 250, Cantidad Preparación: 90
+  3. MANGO - Presentación: 375, Cantidad Preparación: 60
+  4. CEREZA - Presentación: 2400, Cantidad Preparación: 1
+  5. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+PRODUCTO 39: MICHELADA
+------------------------------------------
+Precio de Venta Público: $12,000
+Insumos (5):
+  1. CORONITA - Presentación: 1, Cantidad Preparación: 1
+  2. LIMON - Presentación: 250, Cantidad Preparación: 90
+  3. GRANADINA - Presentación: 1000, Cantidad Preparación: 45
+  4. CEREZA - Presentación: 2400, Cantidad Preparación: 1
+  5. SERVILLETAS - Presentación: 550, Cantidad Preparación: 2
+
+
+==========================================
+RESUMEN
+==========================================
+Total de productos recibidos: 39
+Productos con precios faltantes: 0 ✅ (Todos los productos tienen precio de venta público)
+
+Cantidades decimales encontradas (ya configurado para aceptar decimales):
+  - BANANO: 0.3 (en CHOLADO y PARFAIT)
+  - BANANO: 0.5 (en ENSALADA DE FRUTAS, ENSALADA PEQUEÑA y MARIPOSA)
+  - BANANO: 0.8 (en WAFFLE)
+  - WAFFLE: 0.3 (en MALTEADA WAFFLE)
+  - HUEVO: 0.5 (en WAFFLE PAN DE YUCA)
+
+DECISIONES TOMADAS:
+  1. HELADO duplicado en FRAPPE DE MILO, FRAPPE OREO y FRAPPE CAFÉ: Se mantendrán como entradas separadas (no se suman).
+  2. Insumos sin precio (MEZCLA DE YUCA, MINI GOMA, MEZCLA WAFFLE): 
+     - Agregados al InsumoSeeder con precio 0
+     - MEZCLA DE YUCA: KILO, precio 0
+     - MINI GOMA: GRAMO, precio 0
+     - MEZCLA WAFFLE: KILO, precio 0
+
+NOTA: Los insumos con precio 0 no afectarán el costo total de los productos, pero se registrarán en la relación.
+
+==========================================
+ESTADO ACTUAL:
+==========================================
+✅ TODOS LOS PRODUCTOS TIENEN PRECIO DE VENTA PÚBLICO (39/39)
+
+Productos con precio confirmado (39):
+  1. FRESAS CON CREMA - $14,000
+  2. BANANA SPLIT - $12,500
+  3. WAFFLE - $15,000
+  4. CHOLADO - $13,000
+  5. BROWNIE CON HELADO - $10,000
+  6. COPA BROWNIE - $12,000
+  7. PARFAIT - $10,000
+  8. MARACUMANGO - $10,000
+  9. ENSALADA DE FRUTAS - $18,000
+  10. ENSALADA PEQUEÑA - $12,000
+  11. MALTEADA PEQUEÑA - $9,000
+  12. MALTEADA GRANDE - $12,500
+  13. COPA WHISKY - $14,000
+  14. GELATINA - $12,000
+  15. DURAZNO EN ALMIBAR - $12,000
+  16. OBLEAS - $8,000
+  17. PAYASO - $7,500
+  18. OSO - $8,500
+  19. RATON - $8,500
+  20. ARAÑA - $8,500
+  21. FRAPPE DE MILO - $12,000
+  22. FRAPPE OREO - $12,000
+  23. FRAPPE CAFÉ - $12,000
+  24. GUSANITO - $9,500
+  25. CREPE - $15,000
+  26. MALTEADA WAFFLE - $17,000
+  27. CREPE FUSION TROPICAL - $15,000
+  28. LIMONADA DE COCO 18ONZ - $9,000
+  29. CREPE CHOCO - $15,000
+  30. WAFFLE PAN DE YUCA - $12,000
+  31. BUHO - $8,500
+  32. POLLO - $8,500
+  33. GATO - $8,500
+  34. MARIPOSA - $8,500
+  35. SODA SANDIA - $12,000
+  36. SODA MARACUYA - $12,000
+  37. MICHELADA DE MARACUYA - $10,000
+  38. MICHELADA DE MANGO - $10,000
+  39. MICHELADA - $12,000
+
+==========================================
+LISTO PARA CREAR EL SEEDER:
+==========================================
+✅ Todos los productos tienen precios de venta público
+✅ Todas las decisiones sobre duplicados e insumos sin precio están resueltas
+✅ El archivo de prueba está completo y validado

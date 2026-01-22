@@ -83,6 +83,9 @@ class InsumoSeeder extends Seeder
             ['nombre' => 'GOMAS DE AROS', 'precio' => 100, 'unidad' => 'GRAMO'],
             ['nombre' => 'SAL DE COLOR', 'precio' => 8000, 'unidad' => 'KILO'],
             ['nombre' => 'MANO DE OBRA', 'precio' => 139, 'unidad' => 'UNIDAD'],
+            ['nombre' => 'MEZCLA DE YUCA', 'precio' => 0, 'unidad' => 'KILO'],
+            ['nombre' => 'MINI GOMA', 'precio' => 0, 'unidad' => 'GRAMO'],
+            ['nombre' => 'MEZCLA WAFFLE', 'precio' => 0, 'unidad' => 'KILO'],
         ];
 
         foreach ($insumos as $insumo) {
