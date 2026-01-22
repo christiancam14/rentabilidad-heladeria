@@ -103,17 +103,21 @@ class MySqlGrammar extends Grammar
      * @param  \Illuminate\Database\Query\Builder  $query
      * @param  \Illuminate\Database\Query\IndexHint  $indexHint
      * @return string
+     *
+     * @throws \InvalidArgumentException
      */
     protected function compileIndexHint(Builder $query, $indexHint)
     {
-        if (! preg_match('/^[a-zA-Z0-9_$]+$/', $indexHint->index)) {
+        $index = $indexHint->index;
+
+        if (! preg_match('/^[a-zA-Z0-9_$]+$/', $index)) {
             throw new InvalidArgumentException('Index name contains invalid characters.');
         }
 
         return match ($indexHint->type) {
-            'hint' => "use index ({$indexHint->index})",
-            'force' => "force index ({$indexHint->index})",
-            default => "ignore index ({$indexHint->index})",
+            'hint' => "use index ({$index})",
+            'force' => "force index ({$index})",
+            default => "ignore index ({$index})",
         };
     }
 
@@ -140,7 +144,7 @@ class MySqlGrammar extends Grammar
     {
         $version = $query->getConnection()->getServerVersion();
 
-        return ! $query->getConnection()->isMaria() && version_compare($version, '8.0.11') < 0;
+        return ! $query->getConnection()->isMaria() && version_compare($version, '8.0.11', '<');
     }
 
     /**
@@ -290,10 +294,20 @@ class MySqlGrammar extends Grammar
      *
      * @param  string|int  $seed
      * @return string
+     *
+     * @throws \InvalidArgumentException
      */
     public function compileRandom($seed)
     {
-        return 'RAND('.((int) $seed).')';
+        if ($seed === '' || $seed === null) {
+            return 'RAND()';
+        }
+
+        if (! is_numeric($seed)) {
+            throw new InvalidArgumentException('The seed value must be numeric.');
+        }
+
+        return 'RAND('.(int) $seed.')';
     }
 
     /**
@@ -447,6 +461,7 @@ class MySqlGrammar extends Grammar
      * @param  array  $values
      * @return array
      */
+    #[\Override]
     public function prepareBindingsForUpdate(array $bindings, array $values)
     {
         $values = (new Collection($values))
