@@ -27,6 +27,7 @@ import InputError from '@/components/input-error';
 import { formatNumberWithSeparator, cleanNumberFormat, handleNumberInputChange, handleNumberInputBlur } from '@/lib/number-format';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Producto {
     id: number;
@@ -231,10 +232,16 @@ export default function CierresMesShow({
 
     const handleDeleteProducto = (productoId: number) => {
         if (!cierre?.id) return;
-        if (confirm('¿Está seguro de que desea eliminar este producto del cierre?')) {
-            router.delete(`/cierres-mes/${cierre.id}/productos/${productoId}`, {
+        setProductoToDelete(productoId);
+        setDeleteProductoDialogOpen(true);
+    };
+
+    const confirmDeleteProducto = () => {
+        if (productoToDelete && cierre?.id) {
+            router.delete(`/cierres-mes/${cierre.id}/productos/${productoToDelete}`, {
                 preserveScroll: true,
             });
+            setProductoToDelete(null);
         }
     };
 
@@ -297,10 +304,16 @@ export default function CierresMesShow({
 
     const handleDeleteGasto = (gastoId: number) => {
         if (!cierre?.id) return;
-        if (confirm('¿Está seguro de que desea eliminar este gasto?')) {
-            router.delete(`/cierres-mes/${cierre.id}/gastos/${gastoId}`, {
+        setGastoToDelete(gastoId);
+        setDeleteGastoDialogOpen(true);
+    };
+
+    const confirmDeleteGasto = () => {
+        if (gastoToDelete && cierre?.id) {
+            router.delete(`/cierres-mes/${cierre.id}/gastos/${gastoToDelete}`, {
                 preserveScroll: true,
             });
+            setGastoToDelete(null);
         }
     };
 
@@ -991,6 +1004,28 @@ export default function CierresMesShow({
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                <ConfirmDialog
+                    open={deleteProductoDialogOpen}
+                    onOpenChange={setDeleteProductoDialogOpen}
+                    title="Eliminar Producto"
+                    description="¿Está seguro de que desea eliminar este producto del cierre? Esta acción no se puede deshacer."
+                    confirmText="Eliminar"
+                    cancelText="Cancelar"
+                    variant="destructive"
+                    onConfirm={confirmDeleteProducto}
+                />
+
+                <ConfirmDialog
+                    open={deleteGastoDialogOpen}
+                    onOpenChange={setDeleteGastoDialogOpen}
+                    title="Eliminar Gasto"
+                    description="¿Está seguro de que desea eliminar este gasto? Esta acción no se puede deshacer."
+                    confirmText="Eliminar"
+                    cancelText="Cancelar"
+                    variant="destructive"
+                    onConfirm={confirmDeleteGasto}
+                />
             </div>
         </AppLayout>
     );

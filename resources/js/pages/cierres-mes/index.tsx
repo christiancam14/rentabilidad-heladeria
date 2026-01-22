@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface CierreMes {
     id: number;
@@ -114,6 +115,8 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
     const [selectedAnio, setSelectedAnio] = useState<string>(filters.anio?.toString() || 'all');
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [cierreToDelete, setCierreToDelete] = useState<{ id: number; periodo: string } | null>(null);
     
     const currentYear = new Date().getFullYear();
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -131,10 +134,16 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
     };
 
     const handleDelete = (id: number, periodo: string) => {
-        if (confirm(`¿Está seguro de que desea eliminar el cierre de ${periodo}?`)) {
-            router.delete(`/cierres-mes/${id}`, {
+        setCierreToDelete({ id, periodo });
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (cierreToDelete) {
+            router.delete(`/cierres-mes/${cierreToDelete.id}`, {
                 preserveScroll: true,
             });
+            setCierreToDelete(null);
         }
     };
 
@@ -408,6 +417,17 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                <ConfirmDialog
+                    open={deleteDialogOpen}
+                    onOpenChange={setDeleteDialogOpen}
+                    title="Eliminar Cierre de Mes"
+                    description={cierreToDelete ? `¿Está seguro de que desea eliminar el cierre de ${cierreToDelete.periodo}? Esta acción no se puede deshacer.` : ''}
+                    confirmText="Eliminar"
+                    cancelText="Cancelar"
+                    variant="destructive"
+                    onConfirm={confirmDelete}
+                />
             </div>
         </AppLayout>
     );

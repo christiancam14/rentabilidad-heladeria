@@ -19,6 +19,7 @@ import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { formatNumberWithSeparator, cleanNumberFormat, handleNumberInputChange, handleNumberInputBlur } from '@/lib/number-format';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Insumo {
     id: number;
@@ -94,6 +95,8 @@ export default function ProductosIndex({ productos, filters }: Props) {
     const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [productoToDelete, setProductoToDelete] = useState<number | null>(null);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         nombre: '',
@@ -162,10 +165,16 @@ export default function ProductosIndex({ productos, filters }: Props) {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-            router.delete(`/productos/${id}`, {
+        setProductoToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (productoToDelete) {
+            router.delete(`/productos/${productoToDelete}`, {
                 preserveScroll: true,
             });
+            setProductoToDelete(null);
         }
     };
 
@@ -554,6 +563,17 @@ export default function ProductosIndex({ productos, filters }: Props) {
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                <ConfirmDialog
+                    open={deleteDialogOpen}
+                    onOpenChange={setDeleteDialogOpen}
+                    title="Eliminar Producto"
+                    description="¿Está seguro de que desea eliminar este producto? Esta acción no se puede deshacer."
+                    confirmText="Eliminar"
+                    cancelText="Cancelar"
+                    variant="destructive"
+                    onConfirm={confirmDelete}
+                />
             </div>
         </AppLayout>
     );

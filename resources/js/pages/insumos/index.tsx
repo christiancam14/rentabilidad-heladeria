@@ -26,6 +26,7 @@ import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { formatNumberWithSeparator, cleanNumberFormat, handleNumberInputChange, handleNumberInputBlur } from '@/lib/number-format';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Insumo {
     id: number;
@@ -75,6 +76,8 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
     const [editingInsumo, setEditingInsumo] = useState<Insumo | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [insumoToDelete, setInsumoToDelete] = useState<number | null>(null);
 
     const { data, setData, put, post, processing, errors, reset } = useForm({
         nombre: '',
@@ -94,10 +97,16 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
     }, [insumos, search]);
 
     const handleDelete = (id: number) => {
-        if (confirm('¿Está seguro de que desea eliminar este insumo?')) {
-            router.delete(`/insumos/${id}`, {
+        setInsumoToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (insumoToDelete) {
+            router.delete(`/insumos/${insumoToDelete}`, {
                 preserveScroll: true,
             });
+            setInsumoToDelete(null);
         }
     };
 
@@ -459,6 +468,17 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                <ConfirmDialog
+                    open={deleteDialogOpen}
+                    onOpenChange={setDeleteDialogOpen}
+                    title="Eliminar Insumo"
+                    description="¿Está seguro de que desea eliminar este insumo? Esta acción no se puede deshacer."
+                    confirmText="Eliminar"
+                    cancelText="Cancelar"
+                    variant="destructive"
+                    onConfirm={confirmDelete}
+                />
             </div>
         </AppLayout>
     );
