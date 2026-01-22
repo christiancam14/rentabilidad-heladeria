@@ -19,25 +19,16 @@ class ProductoController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Producto::with('insumos');
-
-        // Búsqueda por nombre
-        if ($request->has('search') && $request->search) {
-            $query->where('nombre', 'like', '%'.$request->search.'%');
-        }
-
-        // Ordenamiento
+        // Cargar todos los productos sin paginación para búsqueda en frontend
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
-
-        // Paginación
-        $perPage = $request->get('per_page', 15);
-        $productos = $query->paginate($perPage)->withQueryString();
+        $productos = Producto::with('insumos')
+            ->orderBy($sortBy, $sortOrder)
+            ->get();
 
         return Inertia::render('productos/index', [
             'productos' => $productos,
-            'filters' => $request->only(['search', 'sort_by', 'sort_order', 'per_page']),
+            'filters' => $request->only(['sort_by', 'sort_order']),
         ]);
     }
 

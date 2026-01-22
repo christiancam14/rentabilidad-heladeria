@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { PlusIcon, SearchIcon, PencilIcon, TrashIcon, EyeIcon } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -39,18 +39,10 @@ interface Producto {
 }
 
 interface Props {
-    productos: {
-        data: Producto[];
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
-    };
+    productos: Producto[];
     filters: {
-        search?: string;
         sort_by?: string;
         sort_order?: string;
-        per_page?: number;
     };
 }
 
@@ -90,7 +82,7 @@ const toCamelCase = (text: string | null | undefined): string => {
 };
 
 export default function ProductosIndex({ productos, filters }: Props) {
-    const [search, setSearch] = useState(filters.search || '');
+    const [search, setSearch] = useState('');
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
@@ -100,10 +92,16 @@ export default function ProductosIndex({ productos, filters }: Props) {
         precio_venta_publico: '',
     });
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        router.get('/productos', { search }, { preserveState: true });
-    };
+    // Filtrar productos en el frontend basado en la búsqueda
+    const filteredProductos = useMemo(() => {
+        if (!search.trim()) {
+            return productos;
+        }
+        const searchLower = search.toLowerCase();
+        return productos.filter((producto) =>
+            producto.nombre.toLowerCase().includes(searchLower)
+        );
+    }, [productos, search]);
 
     const handleDelete = (id: number) => {
         if (confirm('¿Está seguro de que desea eliminar este producto?')) {
@@ -185,26 +183,23 @@ export default function ProductosIndex({ productos, filters }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <form onSubmit={handleSearch} className="flex gap-2">
-                            <div className="relative flex-1">
-                                <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                                <Input
-                                    type="text"
-                                    placeholder="Buscar productos..."
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-9"
-                                />
-                            </div>
-                            <Button type="submit" variant="outline">
-                                Buscar
-                            </Button>
-                        </form>
+                        <div className="relative">
+                            <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                                type="text"
+                                placeholder="Buscar productos..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-9"
+                            />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        {productos.data.length === 0 ? (
+                        {filteredProductos.length === 0 ? (
                             <div className="py-8 text-center text-muted-foreground">
-                                No hay productos registrados
+                                {productos.length === 0
+                                    ? 'No hay productos registrados'
+                                    : 'No se encontraron productos que coincidan con la búsqueda'}
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -222,7 +217,7 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {productos.data.map((producto) => (
+                                            {filteredProductos.map((producto) => (
                                                 <tr key={producto.id} className="border-b hover:bg-muted/50">
                                                     <td className="px-4 py-3 font-medium">{toCamelCase(producto.nombre)}</td>
                                                     <td className="px-4 py-3">
@@ -273,41 +268,12 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                     </table>
                                 </div>
 
-                                {productos.last_page > 1 && (
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-sm text-muted-foreground">
-                                            Mostrando {productos.data.length} de {productos.total} productos
-                                        </p>
-                                        <div className="flex gap-2">
-                                            {productos.current_page > 1 && (
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        router.get('/productos', {
-                                                            ...filters,
-                                                            page: productos.current_page - 1,
-                                                        })
-                                                    }
-                                                >
-                                                    Anterior
-                                                </Button>
-                                            )}
-                                            {productos.current_page < productos.last_page && (
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        router.get('/productos', {
-                                                            ...filters,
-                                                            page: productos.current_page + 1,
-                                                        })
-                                                    }
-                                                >
-                                                    Siguiente
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                                <div className="flex items-center justify-between">
+                                    <p className="text-sm text-muted-foreground">
+                                        {filteredProductos.length} {filteredProductos.length === 1 ? 'producto' : 'productos'}
+                                        {search && ` (de ${productos.length} total)`}
+                                    </p>
+                                </div>
                             </div>
                         )}
                     </CardContent>

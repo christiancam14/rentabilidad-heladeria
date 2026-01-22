@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, Package, IceCream } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Package, IceCream, Calendar } from 'lucide-react';
 
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -53,6 +53,11 @@ const mainNavItems: NavItem[] = [
         title: 'Productos',
         href: '/productos',
         icon: IceCream,
+    },
+    {
+        title: 'Cierres de Mes',
+        href: '/cierres-mes',
+        icon: Calendar,
     },
 ];
 

@@ -1,0 +1,206 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\AgregarProductoCierreRequest;
+use App\Http\Requests\StoreCierreMesRequest;
+use App\Models\CierreMes;
+use App\Models\Producto;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class CierreMesController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request): Response
+    {
+        $query = CierreMes::with('productosVendidos.producto');
+
+        // Búsqueda por año
+        if ($request->has('anio') && $request->anio) {
+            $query->where('anio', $request->anio);
+        }
+
+        // Ordenamiento: más reciente primero
+        $query->orderBy('anio', 'desc')
+            ->orderBy('mes', 'desc');
+
+        // Paginación
+        $perPage = $request->get('per_page', 15);
+        $cierres = $query->paginate($perPage)->withQueryString();
+
+        // Calcular métricas para cada cierre
+        $cierres->getCollection()->transform(function ($cierre) {
+            $cierre->ingresos = $cierre->calcularIngresos();
+            $cierre->costos = $cierre->calcularCostos();
+            $cierre->ganancia_bruta = $cierre->calcularGananciaBruta();
+            $cierre->ganancia_neta = $cierre->calcularGananciaNeta();
+            return $cierre;
+        });
+
+        // Obtener años disponibles para filtro
+        $anios = CierreMes::select('anio')
+            ->distinct()
+            ->orderBy('anio', 'desc')
+            ->pluck('anio');
+
+        return Inertia::render('cierres-mes/index', [
+            'cierres' => $cierres,
+            'anios' => $anios,
+            'filters' => $request->only(['anio', 'per_page']),
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('cierres-mes/create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreCierreMesRequest $request): RedirectResponse
+    {
+        // Verificar si ya existe un cierre para ese mes/año
+        $existe = CierreMes::where('anio', $request->anio)
+            ->where('mes', $request->mes)
+            ->exists();
+
+        if ($existe) {
+            return redirect()->back()
+                ->withErrors(['mes' => 'Ya existe un cierre para ese mes y año.'])
+                ->withInput();
+        }
+
+        $cierre = CierreMes::create($request->validated());
+
+        return redirect()->route('cierres-mes.show', $cierre)
+            ->with('success', 'Cierre de mes creado exitosamente.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(CierreMes $cierreMes): Response
+    {
+        $cierreMes->load('productosVendidos.producto');
+
+        // Calcular métricas
+        $ingresos = $cierreMes->calcularIngresos();
+        $costos = $cierreMes->calcularCostos();
+        $gananciaBruta = $cierreMes->calcularGananciaBruta();
+        $gananciaNeta = $cierreMes->calcularGananciaNeta();
+
+        // Obtener todos los productos para el select
+        $productos = Producto::orderBy('nombre')->get();
+
+        // Formatear productos vendidos para la vista
+        $productosVendidos = $cierreMes->productosVendidos->map(function ($pivot) {
+            return [
+                'id' => $pivot->id,
+                'producto' => $pivot->producto,
+                'pivot' => [
+                    'cantidad_vendida' => $pivot->cantidad_vendida,
+                    'precio_venta_snapshot' => $pivot->precio_venta_snapshot,
+                    'costo_unitario_snapshot' => $pivot->costo_unitario_snapshot,
+                ],
+            ];
+        });
+
+        return Inertia::render('cierres-mes/show', [
+            'cierre' => array_merge($cierreMes->toArray(), [
+                'productos_vendidos' => $productosVendidos,
+            ]),
+            'productos' => $productos,
+            'ingresos' => $ingresos,
+            'costos' => $costos,
+            'ganancia_bruta' => $gananciaBruta,
+            'ganancia_neta' => $gananciaNeta,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(CierreMes $cierreMes): Response
+    {
+        return Inertia::render('cierres-mes/edit', [
+            'cierre' => $cierreMes,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(StoreCierreMesRequest $request, CierreMes $cierreMes): RedirectResponse
+    {
+        // Verificar si ya existe otro cierre para ese mes/año (excluyendo el actual)
+        $existe = CierreMes::where('anio', $request->anio)
+            ->where('mes', $request->mes)
+            ->where('id', '!=', $cierreMes->id)
+            ->exists();
+
+        if ($existe) {
+            return redirect()->back()
+                ->withErrors(['mes' => 'Ya existe otro cierre para ese mes y año.'])
+                ->withInput();
+        }
+
+        $cierreMes->update($request->validated());
+
+        return redirect()->route('cierres-mes.show', $cierreMes)
+            ->with('success', 'Cierre de mes actualizado exitosamente.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(CierreMes $cierreMes): RedirectResponse
+    {
+        $cierreMes->delete();
+
+        return redirect()->route('cierres-mes.index')
+            ->with('success', 'Cierre de mes eliminado exitosamente.');
+    }
+
+    /**
+     * Agregar un producto vendido al cierre.
+     */
+    public function agregarProducto(AgregarProductoCierreRequest $request, CierreMes $cierreMes): RedirectResponse
+    {
+        $producto = Producto::findOrFail($request->producto_id);
+        $cierreMes->agregarProducto($producto, $request->cantidad_vendida);
+
+        return redirect()->back()
+            ->with('success', 'Producto agregado al cierre exitosamente.');
+    }
+
+    /**
+     * Actualizar la cantidad vendida de un producto en el cierre.
+     */
+    public function actualizarProducto(AgregarProductoCierreRequest $request, CierreMes $cierreMes, Producto $producto): RedirectResponse
+    {
+        $cierreMes->agregarProducto($producto, $request->cantidad_vendida);
+
+        return redirect()->back()
+            ->with('success', 'Cantidad vendida actualizada exitosamente.');
+    }
+
+    /**
+     * Eliminar un producto del cierre.
+     */
+    public function eliminarProducto(CierreMes $cierreMes, Producto $producto): RedirectResponse
+    {
+        $cierreMes->productos()->detach($producto->id);
+
+        return redirect()->back()
+            ->with('success', 'Producto eliminado del cierre exitosamente.');
+    }
+}

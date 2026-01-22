@@ -20,6 +20,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('productos/{producto}/insumos/{insumo}', [\App\Http\Controllers\ProductoController::class, 'actualizarInsumo'])->name('productos.insumos.update');
     Route::delete('productos/{producto}/insumos/{insumo}', [\App\Http\Controllers\ProductoController::class, 'eliminarInsumo'])->name('productos.insumos.destroy');
     Route::post('productos/{producto}/recalcular', [\App\Http\Controllers\ProductoController::class, 'recalcularTotales'])->name('productos.recalcular');
+
+    // Rutas de Cierres de Mes
+    Route::resource('cierres-mes', \App\Http\Controllers\CierreMesController::class);
+    Route::post('cierres-mes/{cierre_mes}/productos', [\App\Http\Controllers\CierreMesController::class, 'agregarProducto'])->name('cierres-mes.productos.store');
+    Route::put('cierres-mes/{cierre_mes}/productos/{producto}', [\App\Http\Controllers\CierreMesController::class, 'actualizarProducto'])->name('cierres-mes.productos.update');
+    Route::delete('cierres-mes/{cierre_mes}/productos/{producto}', [\App\Http\Controllers\CierreMesController::class, 'eliminarProducto'])->name('cierres-mes.productos.destroy');
 });
 
 require __DIR__.'/settings.php';

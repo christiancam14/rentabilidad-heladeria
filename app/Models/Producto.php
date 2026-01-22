@@ -55,6 +55,21 @@ class Producto extends Model
     }
 
     /**
+     * Los cierres de mes en los que aparece este producto.
+     */
+    public function cierresMes(): BelongsToMany
+    {
+        return $this->belongsToMany(CierreMes::class, 'cierre_mes_productos')
+            ->using(CierreMesProducto::class)
+            ->withPivot([
+                'cantidad_vendida',
+                'precio_venta_snapshot',
+                'costo_unitario_snapshot',
+            ])
+            ->withTimestamps();
+    }
+
+    /**
      * Agregar un insumo al producto con cálculos automáticos.
      *
      * @param  Insumo  $insumo  El insumo a agregar
