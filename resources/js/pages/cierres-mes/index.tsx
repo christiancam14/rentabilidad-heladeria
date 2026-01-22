@@ -1,6 +1,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { PlusIcon, EyeIcon, TrashIcon, CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -142,8 +143,14 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
         if (cierreToDelete) {
             router.delete(`/cierres-mes/${cierreToDelete.id}`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Cierre de mes eliminado correctamente');
+                    setCierreToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Error al eliminar el cierre de mes');
+                },
             });
-            setCierreToDelete(null);
         }
     };
 
@@ -152,8 +159,12 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
         post('/cierres-mes', {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Cierre de mes creado correctamente');
                 setCreateDialogOpen(false);
                 reset();
+            },
+            onError: () => {
+                toast.error('Error al crear el cierre de mes');
             },
         });
     };

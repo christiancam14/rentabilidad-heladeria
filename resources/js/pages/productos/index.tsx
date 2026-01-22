@@ -1,6 +1,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { PlusIcon, SearchIcon, PencilIcon, TrashIcon, EyeIcon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -173,8 +174,14 @@ export default function ProductosIndex({ productos, filters }: Props) {
         if (productoToDelete) {
             router.delete(`/productos/${productoToDelete}`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Producto eliminado correctamente');
+                    setProductoToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Error al eliminar el producto');
+                },
             });
-            setProductoToDelete(null);
         }
     };
 
@@ -217,11 +224,13 @@ export default function ProductosIndex({ productos, filters }: Props) {
         }, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Producto creado correctamente');
                 setCreateDialogOpen(false);
                 reset();
                 setIsCreating(false);
             },
             onError: () => {
+                toast.error('Error al crear el producto');
                 setIsCreating(false);
             },
             onFinish: () => {
@@ -245,12 +254,14 @@ export default function ProductosIndex({ productos, filters }: Props) {
         }, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Producto actualizado correctamente');
                 setEditDialogOpen(false);
                 setEditingProducto(null);
                 reset();
                 setIsUpdating(false);
             },
             onError: () => {
+                toast.error('Error al actualizar el producto');
                 setIsUpdating(false);
             },
             onFinish: () => {

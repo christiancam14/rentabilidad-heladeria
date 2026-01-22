@@ -4,6 +4,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Toaster } from 'react-hot-toast';
 
 import { initializeTheme } from './hooks/use-appearance';
 
@@ -22,6 +23,29 @@ createInertiaApp({
         root.render(
             <StrictMode>
                 <App {...props} />
+                <Toaster
+                    position="top-right"
+                    toastOptions={{
+                        duration: 4000,
+                        style: {
+                            background: 'var(--background)',
+                            color: 'var(--foreground)',
+                            border: '1px solid var(--border)',
+                        },
+                        success: {
+                            iconTheme: {
+                                primary: 'hsl(142.1 76.2% 36.3%)',
+                                secondary: 'white',
+                            },
+                        },
+                        error: {
+                            iconTheme: {
+                                primary: 'hsl(0 84.2% 60.2%)',
+                                secondary: 'white',
+                            },
+                        },
+                    }}
+                />
             </StrictMode>,
         );
     },

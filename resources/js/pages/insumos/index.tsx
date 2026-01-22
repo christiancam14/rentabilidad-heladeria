@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { PlusIcon, SearchIcon, PencilIcon, TrashIcon } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -105,8 +106,14 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
         if (insumoToDelete) {
             router.delete(`/insumos/${insumoToDelete}`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Insumo eliminado correctamente');
+                    setInsumoToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Error al eliminar el insumo');
+                },
             });
-            setInsumoToDelete(null);
         }
     };
 
@@ -149,12 +156,14 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
         }, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Insumo actualizado correctamente');
                 setEditDialogOpen(false);
                 setEditingInsumo(null);
                 reset();
                 setIsUpdating(false);
             },
             onError: () => {
+                toast.error('Error al actualizar el insumo');
                 setIsUpdating(false);
             },
             onFinish: () => {
@@ -179,11 +188,13 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
         }, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Insumo creado correctamente');
                 setCreateDialogOpen(false);
                 reset();
                 setIsCreating(false);
             },
             onError: () => {
+                toast.error('Error al crear el insumo');
                 setIsCreating(false);
             },
             onFinish: () => {

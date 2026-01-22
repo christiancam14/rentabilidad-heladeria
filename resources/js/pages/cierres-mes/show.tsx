@@ -1,6 +1,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, SearchIcon, EditIcon } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -131,6 +132,10 @@ export default function CierresMesShow({
     const [isAddingProducto, setIsAddingProducto] = useState(false);
     const [isUpdatingProducto, setIsUpdatingProducto] = useState(false);
     const [isUpdatingCierre, setIsUpdatingCierre] = useState(false);
+    const [deleteProductoDialogOpen, setDeleteProductoDialogOpen] = useState(false);
+    const [deleteGastoDialogOpen, setDeleteGastoDialogOpen] = useState(false);
+    const [productoToDelete, setProductoToDelete] = useState<number | null>(null);
+    const [gastoToDelete, setGastoToDelete] = useState<number | null>(null);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         producto_id: '',
@@ -194,12 +199,14 @@ export default function CierresMesShow({
         post(`/cierres-mes/${cierre.id}/productos`, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Producto agregado al cierre correctamente');
                 setDialogOpen(false);
                 reset();
                 setProductoSearch('');
                 setIsAddingProducto(false);
             },
             onError: () => {
+                toast.error('Error al agregar el producto al cierre');
                 setIsAddingProducto(false);
             },
             onFinish: () => {
@@ -215,6 +222,7 @@ export default function CierresMesShow({
         put(`/cierres-mes/${cierre.id}/productos/${editingProducto.producto.id}`, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Producto actualizado correctamente');
                 setDialogOpen(false);
                 reset();
                 setEditingProducto(null);
@@ -222,6 +230,7 @@ export default function CierresMesShow({
                 setIsUpdatingProducto(false);
             },
             onError: () => {
+                toast.error('Error al actualizar el producto');
                 setIsUpdatingProducto(false);
             },
             onFinish: () => {
@@ -240,8 +249,14 @@ export default function CierresMesShow({
         if (productoToDelete && cierre?.id) {
             router.delete(`/cierres-mes/${cierre.id}/productos/${productoToDelete}`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Producto eliminado del cierre correctamente');
+                    setProductoToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Error al eliminar el producto del cierre');
+                },
             });
-            setProductoToDelete(null);
         }
     };
 
@@ -260,11 +275,13 @@ export default function CierresMesShow({
         }, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Gasto agregado correctamente');
                 setGastoDialogOpen(false);
                 resetGasto();
                 setIsAddingGasto(false);
             },
             onError: () => {
+                toast.error('Error al agregar el gasto');
                 setIsAddingGasto(false);
             },
             onFinish: () => {
@@ -288,12 +305,14 @@ export default function CierresMesShow({
         }, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Gasto actualizado correctamente');
                 setGastoDialogOpen(false);
                 resetGasto();
                 setEditingGasto(null);
                 setIsUpdatingGasto(false);
             },
             onError: () => {
+                toast.error('Error al actualizar el gasto');
                 setIsUpdatingGasto(false);
             },
             onFinish: () => {
@@ -312,8 +331,14 @@ export default function CierresMesShow({
         if (gastoToDelete && cierre?.id) {
             router.delete(`/cierres-mes/${cierre.id}/gastos/${gastoToDelete}`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Gasto eliminado correctamente');
+                    setGastoToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Error al eliminar el gasto');
+                },
             });
-            setGastoToDelete(null);
         }
     };
 
@@ -378,21 +403,17 @@ export default function CierresMesShow({
         router.put(`/cierres-mes/${currentCierreId}`, formData, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Cierre de mes actualizado correctamente');
                 setEditCierreDialogOpen(false);
                 resetCierre();
                 setIsUpdatingCierre(false);
             },
             onError: () => {
+                toast.error('Error al actualizar el cierre de mes');
                 setIsUpdatingCierre(false);
             },
             onFinish: () => {
                 setIsUpdatingCierre(false);
-            },
-            onError: (errors) => {
-                console.error('Errores al actualizar:', errors);
-            },
-            onFinish: () => {
-                console.log('Request finished');
             },
         });
     };

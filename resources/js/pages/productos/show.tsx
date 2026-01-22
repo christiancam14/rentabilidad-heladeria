@@ -1,4 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, CalculatorIcon, SearchIcon, CheckIcon } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
@@ -167,12 +168,14 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
             data: formData,
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Insumo agregado al producto correctamente');
                 reset();
                 setInsumoSearch('');
                 setDialogOpen(false);
                 setIsAdding(false);
             },
             onError: () => {
+                toast.error('Error al agregar el insumo al producto');
                 setIsAdding(false);
             },
             onFinish: () => {
@@ -197,6 +200,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
         router.put(`/productos/${producto.id}/insumos/${editingInsumo.id}`, formData, {
             preserveScroll: true,
             onSuccess: () => {
+                toast.success('Insumo actualizado correctamente');
                 reset();
                 setEditingInsumo(null);
                 setInsumoSearch('');
@@ -204,6 +208,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                 setIsUpdating(false);
             },
             onError: () => {
+                toast.error('Error al actualizar el insumo');
                 setIsUpdating(false);
             },
             onFinish: () => {
@@ -221,14 +226,26 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
         if (insumoToDelete) {
             router.delete(`/productos/${producto.id}/insumos/${insumoToDelete}`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Insumo eliminado del producto correctamente');
+                    setInsumoToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Error al eliminar el insumo del producto');
+                },
             });
-            setInsumoToDelete(null);
         }
     };
 
     const handleRecalcular = () => {
         router.post(`/productos/${producto.id}/recalcular`, {}, {
             preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Cálculos recalculados correctamente');
+            },
+            onError: () => {
+                toast.error('Error al recalcular los valores');
+            },
         });
     };
 

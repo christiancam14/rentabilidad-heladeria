@@ -1,6 +1,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { ArrowLeftIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,6 +57,13 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
             unidad: data.unidad,
         }, {
             preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Insumo creado correctamente');
+            },
+            onError: () => {
+                toast.error('Error al crear el insumo');
+                setIsSubmitting(false);
+            },
             onFinish: () => {
                 setIsSubmitting(false);
             },

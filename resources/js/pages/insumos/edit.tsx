@@ -1,5 +1,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,6 +71,12 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
             unidad: data.unidad,
         }, {
             preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Insumo actualizado correctamente');
+            },
+            onError: () => {
+                toast.error('Error al actualizar el insumo');
+            },
         });
     };
 
