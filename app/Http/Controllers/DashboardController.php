@@ -61,7 +61,8 @@ class DashboardController extends Controller
         // Productos que requieren atención
         $productosBajaRentabilidad = Producto::with('insumos')
             ->whereHas('insumos')
-            ->where('porcentaje_rentabilidad', '<', 15)
+            ->where('porcentaje_rentabilidad', '<', 40)
+            ->where('porcentaje_rentabilidad', '>=', 0)
             ->orderBy('porcentaje_rentabilidad', 'asc')
             ->limit(10)
             ->get()
@@ -117,15 +118,15 @@ class DashboardController extends Controller
 
         // Distribución de rentabilidad
         $distribucionRentabilidad = [
-            'alta' => Producto::whereHas('insumos')
-                ->where('porcentaje_rentabilidad', '>=', 30)
+            'excelente' => Producto::whereHas('insumos')
+                ->where('porcentaje_rentabilidad', '>=', 60)
                 ->count(),
             'media' => Producto::whereHas('insumos')
-                ->whereBetween('porcentaje_rentabilidad', [15, 29.99])
+                ->whereBetween('porcentaje_rentabilidad', [40, 59.99])
                 ->count(),
             'baja' => Producto::whereHas('insumos')
-                ->where('porcentaje_rentabilidad', '<', 15)
                 ->where('porcentaje_rentabilidad', '>=', 0)
+                ->where('porcentaje_rentabilidad', '<', 40)
                 ->count(),
             'negativa' => Producto::whereHas('insumos')
                 ->where('ganancia', '<', 0)

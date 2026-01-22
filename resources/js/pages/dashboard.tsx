@@ -54,7 +54,7 @@ interface Props {
         promedio_insumos_por_producto: number;
     };
     distribucion_rentabilidad: {
-        alta: number;
+        excelente: number;
         media: number;
         baja: number;
         negativa: number;
@@ -198,7 +198,7 @@ export default function Dashboard({
                                                 </div>
                                             </div>
                                             <Badge
-                                                variant={producto.porcentaje_rentabilidad >= 30 ? 'default' : 'outline'}
+                                                variant={producto.porcentaje_rentabilidad >= 60 ? 'default' : 'outline'}
                                                 className="font-semibold"
                                             >
                                                 {formatPercentage(producto.porcentaje_rentabilidad)}%
@@ -265,16 +265,16 @@ export default function Dashboard({
                     <CardContent>
                         <div className="grid gap-4 md:grid-cols-4">
                             <div className="flex flex-col items-center rounded-lg border p-4">
-                                <div className="text-2xl font-bold text-green-600">{distribucion_rentabilidad.alta}</div>
-                                <div className="text-sm text-muted-foreground">Alta (≥30%)</div>
+                                <div className="text-2xl font-bold text-green-600">{distribucion_rentabilidad.excelente}</div>
+                                <div className="text-sm text-muted-foreground">Excelente (≥60%)</div>
                             </div>
                             <div className="flex flex-col items-center rounded-lg border p-4">
                                 <div className="text-2xl font-bold text-blue-600">{distribucion_rentabilidad.media}</div>
-                                <div className="text-sm text-muted-foreground">Media (15-30%)</div>
+                                <div className="text-sm text-muted-foreground">Media (40-60%)</div>
                             </div>
                             <div className="flex flex-col items-center rounded-lg border p-4">
                                 <div className="text-2xl font-bold text-yellow-600">{distribucion_rentabilidad.baja}</div>
-                                <div className="text-sm text-muted-foreground">Baja (&lt;15%)</div>
+                                <div className="text-sm text-muted-foreground">Baja (0-40%)</div>
                             </div>
                             <div className="flex flex-col items-center rounded-lg border p-4">
                                 <div className="text-2xl font-bold text-red-600">{distribucion_rentabilidad.negativa}</div>
@@ -293,7 +293,7 @@ export default function Dashboard({
                                 Baja Rentabilidad
                             </CardTitle>
                             <CardDescription>
-                                Productos con rentabilidad &lt;15%
+                                Productos con rentabilidad &lt;40%
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
