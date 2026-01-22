@@ -23,7 +23,7 @@ class StoreGastoCierreRequest extends FormRequest
     {
         return [
             'nombre' => ['required', 'string', 'max:255'],
-            'valor' => ['required', 'numeric', 'min:0'],
+            'valor' => ['required', 'integer', 'min:0'],
         ];
     }
 
@@ -39,7 +39,7 @@ class StoreGastoCierreRequest extends FormRequest
             'nombre.string' => 'El nombre debe ser un texto válido.',
             'nombre.max' => 'El nombre no puede exceder 255 caracteres.',
             'valor.required' => 'El valor del gasto es obligatorio.',
-            'valor.numeric' => 'El valor debe ser un número válido.',
+            'valor.integer' => 'El valor debe ser un número entero válido.',
             'valor.min' => 'El valor no puede ser negativo.',
         ];
     }

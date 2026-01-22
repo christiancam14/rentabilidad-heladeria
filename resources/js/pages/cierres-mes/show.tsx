@@ -99,6 +99,20 @@ const toCamelCase = (text: string | null | undefined): string => {
         .join(' ');
 };
 
+// Función helper para formatear número con separadores de miles (puntos)
+const formatNumberWithSeparator = (value: string | number): string => {
+    if (!value && value !== 0) return '';
+    const numValue = typeof value === 'string' ? value.replace(/\./g, '') : String(value);
+    const num = parseInt(numValue, 10);
+    if (isNaN(num)) return '';
+    return num.toLocaleString('es-ES');
+};
+
+// Función helper para limpiar formato y obtener solo el número
+const cleanNumberFormat = (value: string): string => {
+    return value.replace(/\./g, '');
+};
+
 // Función helper para obtener nombre del mes
 const getNombreMes = (mes: number): string => {
     const meses = [
@@ -219,6 +233,9 @@ export default function CierresMesShow({
     const handleAddGasto = (e: React.FormEvent) => {
         e.preventDefault();
         if (!cierre?.id) return;
+        // Limpiar formato y convertir valor a número entero antes de enviar
+        const cleanValue = cleanNumberFormat(gastoData.valor as string);
+        setGastoData('valor', String(parseInt(cleanValue) || 0));
         postGasto(`/cierres-mes/${cierre.id}/gastos`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -231,6 +248,9 @@ export default function CierresMesShow({
     const handleUpdateGasto = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingGasto || !cierre?.id) return;
+        // Limpiar formato y convertir valor a número entero antes de enviar
+        const cleanValue = cleanNumberFormat(gastoData.valor as string);
+        setGastoData('valor', String(parseInt(cleanValue) || 0));
         putGasto(`/cierres-mes/${cierre.id}/gastos/${editingGasto.id}`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -270,7 +290,7 @@ export default function CierresMesShow({
         setEditingGasto(gasto);
         setGastoData({
             nombre: gasto.nombre,
-            valor: gasto.valor.toString(),
+            valor: formatNumberWithSeparator(Math.round(Number(gasto.valor))),
         });
         setGastoDialogOpen(true);
     };
@@ -727,11 +747,24 @@ export default function CierresMesShow({
                                                 <Label htmlFor="gasto_valor">Valor</Label>
                                                 <Input
                                                     id="gasto_valor"
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
+                                                    type="text"
                                                     value={gastoData.valor}
-                                                    onChange={(e) => setGastoData('valor', e.target.value)}
+                                                    onChange={(e) => {
+                                                        // Permitir solo números y puntos (para formato)
+                                                        const inputValue = e.target.value.replace(/[^\d.]/g, '');
+                                                        // Formatear con separadores de miles
+                                                        const cleaned = cleanNumberFormat(inputValue);
+                                                        if (cleaned === '' || !isNaN(Number(cleaned))) {
+                                                            setGastoData('valor', cleaned === '' ? '' : formatNumberWithSeparator(cleaned));
+                                                        }
+                                                    }}
+                                                    onBlur={(e) => {
+                                                        // Asegurar formato correcto al perder el foco
+                                                        const cleaned = cleanNumberFormat(e.target.value);
+                                                        if (cleaned !== '') {
+                                                            setGastoData('valor', formatNumberWithSeparator(cleaned));
+                                                        }
+                                                    }}
                                                     placeholder="0"
                                                     required
                                                 />

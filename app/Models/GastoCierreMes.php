@@ -36,7 +36,7 @@ class GastoCierreMes extends Model
     protected function casts(): array
     {
         return [
-            'valor' => 'decimal:2',
+            'valor' => 'integer',
         ];
     }
 
