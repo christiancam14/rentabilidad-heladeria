@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Insumo;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -148,6 +149,42 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Productos más vendidos (suma de cantidad_vendida de todos los cierres de mes)
+        $productosMasVendidos = DB::table('productos')
+            ->leftJoin('cierre_mes_productos', 'productos.id', '=', 'cierre_mes_productos.producto_id')
+            ->select('productos.id', 'productos.nombre', 'productos.precio_venta_publico')
+            ->selectRaw('COALESCE(SUM(cierre_mes_productos.cantidad_vendida), 0) as total_vendido')
+            ->groupBy('productos.id', 'productos.nombre', 'productos.precio_venta_publico')
+            ->orderBy('total_vendido', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($producto) {
+                return [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,
+                    'precio_venta_publico' => $producto->precio_venta_publico,
+                    'total_vendido' => (int) $producto->total_vendido,
+                ];
+            });
+
+        // Productos menos vendidos (suma de cantidad_vendida de todos los cierres de mes)
+        $productosMenosVendidos = DB::table('productos')
+            ->leftJoin('cierre_mes_productos', 'productos.id', '=', 'cierre_mes_productos.producto_id')
+            ->select('productos.id', 'productos.nombre', 'productos.precio_venta_publico')
+            ->selectRaw('COALESCE(SUM(cierre_mes_productos.cantidad_vendida), 0) as total_vendido')
+            ->groupBy('productos.id', 'productos.nombre', 'productos.precio_venta_publico')
+            ->orderBy('total_vendido', 'asc')
+            ->limit(10)
+            ->get()
+            ->map(function ($producto) {
+                return [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,
+                    'precio_venta_publico' => $producto->precio_venta_publico,
+                    'total_vendido' => (int) $producto->total_vendido,
+                ];
+            });
+
         return Inertia::render('dashboard', [
             'kpis' => [
                 'total_productos' => $totalProductos,
@@ -172,6 +209,8 @@ class DashboardController extends Controller
             ],
             'distribucion_rentabilidad' => $distribucionRentabilidad,
             'insumos_mas_utilizados' => $insumosMasUtilizados,
+            'productos_mas_vendidos' => $productosMasVendidos,
+            'productos_menos_vendidos' => $productosMenosVendidos,
         ]);
     }
 }

@@ -31,6 +31,13 @@ interface Insumo {
     productos_count: number;
 }
 
+interface ProductoVendido {
+    id: number;
+    nombre: string;
+    precio_venta_publico: number;
+    total_vendido: number;
+}
+
 interface Props {
     kpis: {
         total_productos: number;
@@ -60,6 +67,8 @@ interface Props {
         negativa: number;
     };
     insumos_mas_utilizados: Insumo[];
+    productos_mas_vendidos: ProductoVendido[];
+    productos_menos_vendidos: ProductoVendido[];
 }
 
 // Función helper para formatear precios con separador de miles (punto)
@@ -98,6 +107,8 @@ export default function Dashboard({
     metricas_adicionales,
     distribucion_rentabilidad,
     insumos_mas_utilizados,
+    productos_mas_vendidos,
+    productos_menos_vendidos,
 }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -246,6 +257,89 @@ export default function Dashboard({
                                                     {formatPrice(producto.ganancia)}
                                                 </div>
                                             </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Productos Más y Menos Vendidos */}
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Productos Más Vendidos</CardTitle>
+                            <CardDescription>
+                                Top 10 productos con mayor cantidad vendida en cierres de mes
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {productos_mas_vendidos.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No hay datos de ventas registrados</p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {productos_mas_vendidos.map((producto, index) => (
+                                        <div key={producto.id} className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold">
+                                                    {index + 1}
+                                                </div>
+                                                <div>
+                                                    <Link
+                                                        href={`/productos/${producto.id}`}
+                                                        className="font-medium hover:underline"
+                                                    >
+                                                        {toCamelCase(producto.nombre)}
+                                                    </Link>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Precio: {formatPrice(producto.precio_venta_publico)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <Badge variant="default" className="font-semibold">
+                                                {producto.total_vendido} unidades
+                                            </Badge>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Productos Menos Vendidos</CardTitle>
+                            <CardDescription>
+                                Top 10 productos con menor cantidad vendida en cierres de mes
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {productos_menos_vendidos.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No hay datos de ventas registrados</p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {productos_menos_vendidos.map((producto, index) => (
+                                        <div key={producto.id} className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold">
+                                                    {index + 1}
+                                                </div>
+                                                <div>
+                                                    <Link
+                                                        href={`/productos/${producto.id}`}
+                                                        className="font-medium hover:underline"
+                                                    >
+                                                        {toCamelCase(producto.nombre)}
+                                                    </Link>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Precio: {formatPrice(producto.precio_venta_publico)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <Badge variant="outline" className="font-semibold">
+                                                {producto.total_vendido} unidades
+                                            </Badge>
                                         </div>
                                     ))}
                                 </div>
