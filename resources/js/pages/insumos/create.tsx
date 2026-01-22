@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -43,8 +43,14 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
         e.preventDefault();
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio as string);
-        setData('precio', String(parseInt(cleanPrecio) || 0));
-        post('/insumos', {
+        const precioNumerico = parseInt(cleanPrecio) || 0;
+        
+        // Enviar datos directamente con el valor limpio
+        router.post('/insumos', {
+            nombre: data.nombre,
+            precio: precioNumerico,
+            unidad: data.unidad,
+        }, {
             preserveScroll: true,
         });
     };

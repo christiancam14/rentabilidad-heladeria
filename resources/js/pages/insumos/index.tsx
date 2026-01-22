@@ -127,8 +127,14 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
         if (!editingInsumo) return;
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio as string);
-        setData('precio', String(parseInt(cleanPrecio) || 0));
-        put(`/insumos/${editingInsumo.id}`, {
+        const precioNumerico = parseInt(cleanPrecio) || 0;
+        
+        // Enviar datos directamente con el valor limpio
+        router.put(`/insumos/${editingInsumo.id}`, {
+            nombre: data.nombre,
+            precio: precioNumerico,
+            unidad: data.unidad,
+        }, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditDialogOpen(false);
@@ -142,8 +148,14 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
         e.preventDefault();
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio as string);
-        setData('precio', String(parseInt(cleanPrecio) || 0));
-        post('/insumos', {
+        const precioNumerico = parseInt(cleanPrecio) || 0;
+        
+        // Enviar datos directamente con el valor limpio
+        router.post('/insumos', {
+            nombre: data.nombre,
+            precio: precioNumerico,
+            unidad: data.unidad,
+        }, {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateDialogOpen(false);

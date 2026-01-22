@@ -222,8 +222,13 @@ export default function CierresMesShow({
         if (!cierre?.id) return;
         // Limpiar formato y convertir valor a número entero antes de enviar
         const cleanValue = cleanNumberFormat(gastoData.valor as string);
-        setGastoData('valor', String(parseInt(cleanValue) || 0));
-        postGasto(`/cierres-mes/${cierre.id}/gastos`, {
+        const valorNumerico = parseInt(cleanValue) || 0;
+        
+        // Enviar datos directamente con el valor limpio
+        router.post(`/cierres-mes/${cierre.id}/gastos`, {
+            nombre: gastoData.nombre,
+            valor: valorNumerico,
+        }, {
             preserveScroll: true,
             onSuccess: () => {
                 setGastoDialogOpen(false);
@@ -237,8 +242,13 @@ export default function CierresMesShow({
         if (!editingGasto || !cierre?.id) return;
         // Limpiar formato y convertir valor a número entero antes de enviar
         const cleanValue = cleanNumberFormat(gastoData.valor as string);
-        setGastoData('valor', String(parseInt(cleanValue) || 0));
-        putGasto(`/cierres-mes/${cierre.id}/gastos/${editingGasto.id}`, {
+        const valorNumerico = parseInt(cleanValue) || 0;
+        
+        // Enviar datos directamente con el valor limpio
+        router.put(`/cierres-mes/${cierre.id}/gastos/${editingGasto.id}`, {
+            nombre: gastoData.nombre,
+            valor: valorNumerico,
+        }, {
             preserveScroll: true,
             onSuccess: () => {
                 setGastoDialogOpen(false);

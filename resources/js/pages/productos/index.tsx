@@ -195,8 +195,13 @@ export default function ProductosIndex({ productos, filters }: Props) {
         e.preventDefault();
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio_venta_publico as string);
-        setData('precio_venta_publico', String(parseInt(cleanPrecio) || 0));
-        post('/productos', {
+        const precioNumerico = parseInt(cleanPrecio) || 0;
+        
+        // Enviar datos directamente con el valor limpio
+        router.post('/productos', {
+            nombre: data.nombre,
+            precio_venta_publico: precioNumerico,
+        }, {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateDialogOpen(false);
@@ -208,9 +213,15 @@ export default function ProductosIndex({ productos, filters }: Props) {
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingProducto) return;
-        // Convertir precio a número entero antes de enviar
-        setData('precio_venta_publico', String(parseInt(data.precio_venta_publico as string) || 0));
-        put(`/productos/${editingProducto.id}`, {
+        // Limpiar formato y convertir precio a número entero antes de enviar
+        const cleanPrecio = cleanNumberFormat(data.precio_venta_publico as string);
+        const precioNumerico = parseInt(cleanPrecio) || 0;
+        
+        // Enviar datos directamente con el valor limpio
+        router.put(`/productos/${editingProducto.id}`, {
+            nombre: data.nombre,
+            precio_venta_publico: precioNumerico,
+        }, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditDialogOpen(false);
