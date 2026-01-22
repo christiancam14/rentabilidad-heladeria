@@ -59,32 +59,13 @@ class CierreMesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('cierres-mes/create');
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreCierreMesRequest $request): RedirectResponse
     {
-        // Verificar si ya existe un cierre para ese mes/año
-        $existe = CierreMes::where('anio', $request->anio)
-            ->where('mes', $request->mes)
-            ->exists();
-
-        if ($existe) {
-            return redirect()->back()
-                ->withErrors(['mes' => 'Ya existe un cierre para ese mes y año.'])
-                ->withInput();
-        }
-
         $cierre = CierreMes::create($request->validated());
 
-        return redirect()->route('cierres-mes.show', $cierre->id)
+        return redirect()->to("/cierres-mes/{$cierre->id}")
             ->with('success', 'Cierre de mes creado exitosamente.');
     }
 
@@ -165,18 +146,6 @@ class CierreMesController extends Controller
         // Guardar el ID antes del update
         $cierreId = $cierreMes->id;
         
-        // Verificar si ya existe otro cierre para ese mes/año (excluyendo el actual)
-        $existe = CierreMes::where('anio', $request->anio)
-            ->where('mes', $request->mes)
-            ->where('id', '!=', $cierreId)
-            ->exists();
-
-        if ($existe) {
-            return redirect()->back()
-                ->withErrors(['mes' => 'Ya existe otro cierre para ese mes y año.'])
-                ->withInput();
-        }
-
         // Obtener los datos validados y actualizar
         $validated = $request->validated();
         $cierreMes->nombre = $validated['nombre'] ?? null;

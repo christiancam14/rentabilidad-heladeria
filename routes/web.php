@@ -22,7 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('productos/{producto}/recalcular', [\App\Http\Controllers\ProductoController::class, 'recalcularTotales'])->name('productos.recalcular');
 
     // Rutas de Cierres de Mes
-    Route::resource('cierres-mes', \App\Http\Controllers\CierreMesController::class)->except(['edit']);
+    Route::resource('cierres-mes', \App\Http\Controllers\CierreMesController::class)->except(['create', 'edit']);
     Route::post('cierres-mes/{cierre_mes}/productos', [\App\Http\Controllers\CierreMesController::class, 'agregarProducto'])->name('cierres-mes.productos.store');
     Route::put('cierres-mes/{cierre_mes}/productos/{producto}', [\App\Http\Controllers\CierreMesController::class, 'actualizarProducto'])->name('cierres-mes.productos.update');
     Route::delete('cierres-mes/{cierre_mes}/productos/{producto}', [\App\Http\Controllers\CierreMesController::class, 'eliminarProducto'])->name('cierres-mes.productos.destroy');

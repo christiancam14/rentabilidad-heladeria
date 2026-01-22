@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { PlusIcon, EyeIcon, TrashIcon, CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -11,7 +11,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
@@ -84,8 +95,31 @@ const getNombreMes = (mes: number): string => {
     return meses[mes - 1] || '';
 };
 
+const meses = [
+    { value: '1', label: 'Enero' },
+    { value: '2', label: 'Febrero' },
+    { value: '3', label: 'Marzo' },
+    { value: '4', label: 'Abril' },
+    { value: '5', label: 'Mayo' },
+    { value: '6', label: 'Junio' },
+    { value: '7', label: 'Julio' },
+    { value: '8', label: 'Agosto' },
+    { value: '9', label: 'Septiembre' },
+    { value: '10', label: 'Octubre' },
+    { value: '11', label: 'Noviembre' },
+    { value: '12', label: 'Diciembre' },
+];
+
 export default function CierresMesIndex({ cierres, anios, filters }: Props) {
     const [selectedAnio, setSelectedAnio] = useState<string>(filters.anio?.toString() || 'all');
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
+    
+    const currentYear = new Date().getFullYear();
+    const { data, setData, post, processing, errors, reset } = useForm({
+        nombre: '',
+        anio: currentYear.toString(),
+        mes: (new Date().getMonth() + 1).toString(),
+    });
 
     const handleFilterChange = (anio: string) => {
         setSelectedAnio(anio);
@@ -103,6 +137,24 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
         }
     };
 
+    const handleCreateSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/cierres-mes', {
+            preserveScroll: true,
+            onSuccess: () => {
+                setCreateDialogOpen(false);
+                reset();
+            },
+        });
+    };
+
+    const openCreateDialog = () => {
+        reset();
+        setData('anio', currentYear.toString());
+        setData('mes', (new Date().getMonth() + 1).toString());
+        setCreateDialogOpen(true);
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Cierres de Mes" />
@@ -115,11 +167,9 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
                             Gestión de cierres mensuales y rentabilidad
                         </p>
                     </div>
-                    <Button asChild>
-                        <Link href="/cierres-mes/create">
-                            <PlusIcon className="mr-2 h-4 w-4" />
-                            Nuevo Cierre
-                        </Link>
+                    <Button onClick={openCreateDialog}>
+                        <PlusIcon className="mr-2 h-4 w-4" />
+                        Nuevo Cierre
                     </Button>
                 </div>
 
@@ -271,6 +321,92 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Modal de Creación */}
+                <Dialog open={createDialogOpen} onOpenChange={(open) => {
+                    if (!processing) {
+                        setCreateDialogOpen(open);
+                        if (!open) {
+                            reset();
+                        }
+                    }
+                }}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Crear Cierre de Mes</DialogTitle>
+                            <DialogDescription>
+                                Registra un nuevo cierre mensual con gastos
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleCreateSubmit}>
+                            <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="create_nombre">Nombre del Cierre (Opcional)</Label>
+                                    <Input
+                                        id="create_nombre"
+                                        type="text"
+                                        value={data.nombre}
+                                        onChange={(e) => setData('nombre', e.target.value)}
+                                        placeholder="Ej: Cierre Enero 2025"
+                                    />
+                                    <InputError message={errors.nombre} />
+                                    <p className="text-xs text-muted-foreground">
+                                        Un nombre descriptivo para identificar este cierre
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="create_anio">Año *</Label>
+                                        <Input
+                                            id="create_anio"
+                                            type="number"
+                                            min="2000"
+                                            max="2100"
+                                            value={data.anio}
+                                            onChange={(e) => setData('anio', e.target.value)}
+                                            required
+                                        />
+                                        <InputError message={errors.anio} />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="create_mes">Mes *</Label>
+                                        <Select value={data.mes} onValueChange={(value) => setData('mes', value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecciona un mes" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {meses.map((mes) => (
+                                                    <SelectItem key={mes.value} value={mes.value}>
+                                                        {mes.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={errors.mes} />
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setCreateDialogOpen(false);
+                                        reset();
+                                    }}
+                                    disabled={processing}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" disabled={processing}>
+                                    {processing ? 'Creando...' : 'Crear Cierre'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );
