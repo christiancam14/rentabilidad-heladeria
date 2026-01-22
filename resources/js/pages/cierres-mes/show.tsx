@@ -125,6 +125,11 @@ export default function CierresMesShow({
     const [editingGasto, setEditingGasto] = useState<Gasto | null>(null);
     const [productoSearch, setProductoSearch] = useState('');
     const [cierreId, setCierreId] = useState<number | null>(null);
+    const [isUpdatingGasto, setIsUpdatingGasto] = useState(false);
+    const [isAddingGasto, setIsAddingGasto] = useState(false);
+    const [isAddingProducto, setIsAddingProducto] = useState(false);
+    const [isUpdatingProducto, setIsUpdatingProducto] = useState(false);
+    const [isUpdatingCierre, setIsUpdatingCierre] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         producto_id: '',
@@ -183,20 +188,29 @@ export default function CierresMesShow({
 
     const handleAddProducto = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!cierre?.id) return;
+        if (!cierre?.id || isAddingProducto) return;
+        setIsAddingProducto(true);
         post(`/cierres-mes/${cierre.id}/productos`, {
             preserveScroll: true,
             onSuccess: () => {
                 setDialogOpen(false);
                 reset();
                 setProductoSearch('');
+                setIsAddingProducto(false);
+            },
+            onError: () => {
+                setIsAddingProducto(false);
+            },
+            onFinish: () => {
+                setIsAddingProducto(false);
             },
         });
     };
 
     const handleUpdateProducto = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingProducto || !cierre?.id) return;
+        if (!editingProducto || !cierre?.id || isUpdatingProducto) return;
+        setIsUpdatingProducto(true);
         put(`/cierres-mes/${cierre.id}/productos/${editingProducto.producto.id}`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -204,6 +218,13 @@ export default function CierresMesShow({
                 reset();
                 setEditingProducto(null);
                 setProductoSearch('');
+                setIsUpdatingProducto(false);
+            },
+            onError: () => {
+                setIsUpdatingProducto(false);
+            },
+            onFinish: () => {
+                setIsUpdatingProducto(false);
             },
         });
     };
@@ -219,11 +240,12 @@ export default function CierresMesShow({
 
     const handleAddGasto = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!cierre?.id) return;
+        if (!cierre?.id || isAddingGasto) return;
         // Limpiar formato y convertir valor a número entero antes de enviar
         const cleanValue = cleanNumberFormat(gastoData.valor as string);
         const valorNumerico = parseInt(cleanValue) || 0;
         
+        setIsAddingGasto(true);
         // Enviar datos directamente con el valor limpio
         router.post(`/cierres-mes/${cierre.id}/gastos`, {
             nombre: gastoData.nombre,
@@ -233,17 +255,25 @@ export default function CierresMesShow({
             onSuccess: () => {
                 setGastoDialogOpen(false);
                 resetGasto();
+                setIsAddingGasto(false);
+            },
+            onError: () => {
+                setIsAddingGasto(false);
+            },
+            onFinish: () => {
+                setIsAddingGasto(false);
             },
         });
     };
 
     const handleUpdateGasto = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingGasto || !cierre?.id) return;
+        if (!editingGasto || !cierre?.id || isUpdatingGasto) return;
         // Limpiar formato y convertir valor a número entero antes de enviar
         const cleanValue = cleanNumberFormat(gastoData.valor as string);
         const valorNumerico = parseInt(cleanValue) || 0;
         
+        setIsUpdatingGasto(true);
         // Enviar datos directamente con el valor limpio
         router.put(`/cierres-mes/${cierre.id}/gastos/${editingGasto.id}`, {
             nombre: gastoData.nombre,
@@ -254,6 +284,13 @@ export default function CierresMesShow({
                 setGastoDialogOpen(false);
                 resetGasto();
                 setEditingGasto(null);
+                setIsUpdatingGasto(false);
+            },
+            onError: () => {
+                setIsUpdatingGasto(false);
+            },
+            onFinish: () => {
+                setIsUpdatingGasto(false);
             },
         });
     };
@@ -302,6 +339,8 @@ export default function CierresMesShow({
         e.preventDefault();
         e.stopPropagation();
         
+        if (isUpdatingCierre) return;
+        
         // Obtener el ID del cierre de forma robusta (usar estado, prop, o URL)
         const currentCierreId = cierreId || cierre?.id || (typeof window !== 'undefined' ? parseInt(window.location.pathname.split('/').pop() || '0', 10) : null);
         
@@ -314,6 +353,7 @@ export default function CierresMesShow({
             return;
         }
         
+        setIsUpdatingCierre(true);
         // Preparar los datos para enviar
         const formData = {
             nombre: cierreData.nombre || null,
@@ -327,6 +367,13 @@ export default function CierresMesShow({
             onSuccess: () => {
                 setEditCierreDialogOpen(false);
                 resetCierre();
+                setIsUpdatingCierre(false);
+            },
+            onError: () => {
+                setIsUpdatingCierre(false);
+            },
+            onFinish: () => {
+                setIsUpdatingCierre(false);
             },
             onError: (errors) => {
                 console.error('Errores al actualizar:', errors);
@@ -454,7 +501,7 @@ export default function CierresMesShow({
                                 </CardDescription>
                             </div>
                             <Dialog open={dialogOpen} onOpenChange={(open) => {
-                                if (!processing) {
+                                if (!isAddingProducto && !isUpdatingProducto) {
                                     setDialogOpen(open);
                                     if (!open) {
                                         setProductoSearch('');
@@ -578,12 +625,12 @@ export default function CierresMesShow({
                                                     setProductoSearch('');
                                                     setEditingProducto(null);
                                                 }}
-                                                disabled={processing}
+                                                disabled={isAddingProducto || isUpdatingProducto}
                                             >
                                                 Cancelar
                                             </Button>
-                                            <Button type="submit" disabled={processing}>
-                                                {processing
+                                            <Button type="submit" disabled={isAddingProducto || isUpdatingProducto}>
+                                                {isAddingProducto || isUpdatingProducto
                                                     ? 'Guardando...'
                                                     : editingProducto
                                                       ? 'Actualizar'
@@ -700,7 +747,7 @@ export default function CierresMesShow({
                                 </CardDescription>
                             </div>
                             <Dialog open={gastoDialogOpen} onOpenChange={(open) => {
-                                if (!processingGasto) {
+                                if (!isAddingGasto && !isUpdatingGasto) {
                                     setGastoDialogOpen(open);
                                     if (!open) {
                                         resetGasto();
@@ -763,12 +810,12 @@ export default function CierresMesShow({
                                                     resetGasto();
                                                     setEditingGasto(null);
                                                 }}
-                                                disabled={processingGasto}
+                                                disabled={isAddingGasto || isUpdatingGasto}
                                             >
                                                 Cancelar
                                             </Button>
-                                            <Button type="submit" disabled={processingGasto}>
-                                                {processingGasto
+                                            <Button type="submit" disabled={isAddingGasto || isUpdatingGasto}>
+                                                {isAddingGasto || isUpdatingGasto
                                                     ? 'Guardando...'
                                                     : editingGasto
                                                       ? 'Actualizar'
@@ -847,7 +894,7 @@ export default function CierresMesShow({
 
                 {/* Modal de Edición del Cierre */}
                 <Dialog open={editCierreDialogOpen} onOpenChange={(open) => {
-                    if (!processingCierre) {
+                    if (!isUpdatingCierre) {
                         setEditCierreDialogOpen(open);
                         if (!open) {
                             resetCierre();
@@ -933,12 +980,12 @@ export default function CierresMesShow({
                                         setEditCierreDialogOpen(false);
                                         resetCierre();
                                     }}
-                                    disabled={processingCierre}
+                                    disabled={isUpdatingCierre}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button type="submit" disabled={processingCierre}>
-                                    {processingCierre ? 'Actualizando...' : 'Actualizar Cierre'}
+                                <Button type="submit" disabled={isUpdatingCierre}>
+                                    {isUpdatingCierre ? 'Actualizando...' : 'Actualizar Cierre'}
                                 </Button>
                             </DialogFooter>
                         </form>

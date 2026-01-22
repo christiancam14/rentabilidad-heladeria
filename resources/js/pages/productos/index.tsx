@@ -92,6 +92,8 @@ export default function ProductosIndex({ productos, filters }: Props) {
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
+    const [isCreating, setIsCreating] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         nombre: '',
@@ -193,10 +195,12 @@ export default function ProductosIndex({ productos, filters }: Props) {
 
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (isCreating) return;
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio_venta_publico as string);
         const precioNumerico = parseInt(cleanPrecio) || 0;
         
+        setIsCreating(true);
         // Enviar datos directamente con el valor limpio
         router.post('/productos', {
             nombre: data.nombre,
@@ -206,17 +210,25 @@ export default function ProductosIndex({ productos, filters }: Props) {
             onSuccess: () => {
                 setCreateDialogOpen(false);
                 reset();
+                setIsCreating(false);
+            },
+            onError: () => {
+                setIsCreating(false);
+            },
+            onFinish: () => {
+                setIsCreating(false);
             },
         });
     };
 
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingProducto) return;
+        if (!editingProducto || isUpdating) return;
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio_venta_publico as string);
         const precioNumerico = parseInt(cleanPrecio) || 0;
         
+        setIsUpdating(true);
         // Enviar datos directamente con el valor limpio
         router.put(`/productos/${editingProducto.id}`, {
             nombre: data.nombre,
@@ -227,6 +239,13 @@ export default function ProductosIndex({ productos, filters }: Props) {
                 setEditDialogOpen(false);
                 setEditingProducto(null);
                 reset();
+                setIsUpdating(false);
+            },
+            onError: () => {
+                setIsUpdating(false);
+            },
+            onFinish: () => {
+                setIsUpdating(false);
             },
         });
     };
@@ -404,7 +423,14 @@ export default function ProductosIndex({ productos, filters }: Props) {
                 </Card>
 
                 {/* Modal de Creación */}
-                <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                <Dialog open={createDialogOpen} onOpenChange={(open) => {
+                    if (!isCreating) {
+                        setCreateDialogOpen(open);
+                        if (!open) {
+                            reset();
+                        }
+                    }
+                }}>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Nuevo Producto</DialogTitle>
@@ -450,11 +476,12 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                         setCreateDialogOpen(false);
                                         reset();
                                     }}
+                                    disabled={isCreating}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    Crear Producto
+                                <Button type="submit" disabled={isCreating}>
+                                    {isCreating ? 'Creando...' : 'Crear Producto'}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -462,7 +489,15 @@ export default function ProductosIndex({ productos, filters }: Props) {
                 </Dialog>
 
                 {/* Modal de Edición */}
-                <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                <Dialog open={editDialogOpen} onOpenChange={(open) => {
+                    if (!isUpdating) {
+                        setEditDialogOpen(open);
+                        if (!open) {
+                            reset();
+                            setEditingProducto(null);
+                        }
+                    }
+                }}>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Editar Producto</DialogTitle>
@@ -508,11 +543,12 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                         setEditingProducto(null);
                                         reset();
                                     }}
+                                    disabled={isUpdating}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    Guardar Cambios
+                                <Button type="submit" disabled={isUpdating}>
+                                    {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
                                 </Button>
                             </DialogFooter>
                         </form>

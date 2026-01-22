@@ -113,6 +113,7 @@ const meses = [
 export default function CierresMesIndex({ cierres, anios, filters }: Props) {
     const [selectedAnio, setSelectedAnio] = useState<string>(filters.anio?.toString() || 'all');
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
     
     const currentYear = new Date().getFullYear();
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -324,7 +325,7 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
 
                 {/* Modal de Creación */}
                 <Dialog open={createDialogOpen} onOpenChange={(open) => {
-                    if (!processing) {
+                    if (!isCreating) {
                         setCreateDialogOpen(open);
                         if (!open) {
                             reset();
@@ -396,12 +397,12 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
                                         setCreateDialogOpen(false);
                                         reset();
                                     }}
-                                    disabled={processing}
+                                    disabled={isCreating}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    {processing ? 'Creando...' : 'Crear Cierre'}
+                                <Button type="submit" disabled={isCreating}>
+                                    {isCreating ? 'Creando...' : 'Crear Cierre'}
                                 </Button>
                             </DialogFooter>
                         </form>

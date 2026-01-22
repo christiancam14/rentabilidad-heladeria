@@ -73,6 +73,8 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [editingInsumo, setEditingInsumo] = useState<Insumo | null>(null);
+    const [isCreating, setIsCreating] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const { data, setData, put, post, processing, errors, reset } = useForm({
         nombre: '',
@@ -124,11 +126,12 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
 
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingInsumo) return;
+        if (!editingInsumo || isUpdating) return;
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio as string);
         const precioNumerico = parseInt(cleanPrecio) || 0;
         
+        setIsUpdating(true);
         // Enviar datos directamente con el valor limpio
         router.put(`/insumos/${editingInsumo.id}`, {
             nombre: data.nombre,
@@ -140,16 +143,25 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                 setEditDialogOpen(false);
                 setEditingInsumo(null);
                 reset();
+                setIsUpdating(false);
+            },
+            onError: () => {
+                setIsUpdating(false);
+            },
+            onFinish: () => {
+                setIsUpdating(false);
             },
         });
     };
 
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (isCreating) return;
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio as string);
         const precioNumerico = parseInt(cleanPrecio) || 0;
         
+        setIsCreating(true);
         // Enviar datos directamente con el valor limpio
         router.post('/insumos', {
             nombre: data.nombre,
@@ -160,6 +172,13 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
             onSuccess: () => {
                 setCreateDialogOpen(false);
                 reset();
+                setIsCreating(false);
+            },
+            onError: () => {
+                setIsCreating(false);
+            },
+            onFinish: () => {
+                setIsCreating(false);
             },
         });
     };
@@ -270,7 +289,14 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                 </Card>
 
                 {/* Modal de Creación */}
-                <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                <Dialog open={createDialogOpen} onOpenChange={(open) => {
+                    if (!isCreating) {
+                        setCreateDialogOpen(open);
+                        if (!open) {
+                            reset();
+                        }
+                    }
+                }}>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Nuevo Insumo</DialogTitle>
@@ -335,11 +361,12 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                         setCreateDialogOpen(false);
                                         reset();
                                     }}
+                                    disabled={isCreating}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    Crear Insumo
+                                <Button type="submit" disabled={isCreating}>
+                                    {isCreating ? 'Creando...' : 'Crear Insumo'}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -347,7 +374,15 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                 </Dialog>
 
                 {/* Modal de Edición */}
-                <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                <Dialog open={editDialogOpen} onOpenChange={(open) => {
+                    if (!isUpdating) {
+                        setEditDialogOpen(open);
+                        if (!open) {
+                            reset();
+                            setEditingInsumo(null);
+                        }
+                    }
+                }}>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Editar Insumo</DialogTitle>
@@ -413,11 +448,12 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                         setEditingInsumo(null);
                                         reset();
                                     }}
+                                    disabled={isUpdating}
                                 >
                                     Cancelar
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    Guardar Cambios
+                                <Button type="submit" disabled={isUpdating}>
+                                    {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
                                 </Button>
                             </DialogFooter>
                         </form>

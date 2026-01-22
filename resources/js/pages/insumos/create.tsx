@@ -1,4 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import { ArrowLeftIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function InsumosCreate({ unidades_disponibles }: Props) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { data, setData, post, processing, errors } = useForm({
         nombre: '',
         precio: '',
@@ -41,6 +43,8 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         // Limpiar formato y convertir precio a número entero antes de enviar
         const cleanPrecio = cleanNumberFormat(data.precio as string);
         const precioNumerico = parseInt(cleanPrecio) || 0;
@@ -52,6 +56,9 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
             unidad: data.unidad,
         }, {
             preserveScroll: true,
+            onFinish: () => {
+                setIsSubmitting(false);
+            },
         });
     };
 
@@ -137,8 +144,8 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
                                         Cancelar
                                     </Button>
                                 </Link>
-                                <Button type="submit" disabled={processing}>
-                                    Crear Insumo
+                                <Button type="submit" disabled={isSubmitting}>
+                                    {isSubmitting ? 'Creando...' : 'Crear Insumo'}
                                 </Button>
                             </div>
                         </form>

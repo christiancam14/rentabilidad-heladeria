@@ -41,6 +41,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     // Inicializar con valores del insumo si está disponible
     const initialData = insumo ? {
         nombre: insumo.nombre || '',
@@ -158,8 +159,8 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
                                         Cancelar
                                     </Button>
                                 </Link>
-                                <Button type="submit" disabled={processing}>
-                                    Guardar Cambios
+                                <Button type="submit" disabled={isSubmitting}>
+                                    {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
                                 </Button>
                             </div>
                         </form>

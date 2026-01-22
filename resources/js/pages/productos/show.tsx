@@ -124,6 +124,7 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
     const [editingInsumo, setEditingInsumo] = useState<InsumoProducto | null>(null);
     const [insumoSearch, setInsumoSearch] = useState('');
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         insumo_id: '',
@@ -151,6 +152,8 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
 
     const handleAddInsumo = (e: React.FormEvent) => {
         e.preventDefault();
+        if (isAdding) return;
+        setIsAdding(true);
         // Convertir valores a números decimales antes de enviar
         const formData = {
             insumo_id: data.insumo_id,
@@ -164,6 +167,13 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                 reset();
                 setInsumoSearch('');
                 setDialogOpen(false);
+                setIsAdding(false);
+            },
+            onError: () => {
+                setIsAdding(false);
+            },
+            onFinish: () => {
+                setIsAdding(false);
             },
         });
     };
@@ -317,13 +327,14 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                 </CardDescription>
                             </div>
                             <Dialog open={dialogOpen} onOpenChange={(open) => {
-                                if (!isUpdating && !processing) {
+                                if (!isUpdating && !isAdding && !processing) {
                                     setDialogOpen(open);
                                     if (!open) {
                                         setInsumoSearch('');
                                         reset();
                                         setEditingInsumo(null);
                                         setIsUpdating(false);
+                                        setIsAdding(false);
                                     }
                                 }
                             }}>
@@ -460,12 +471,12 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                         setDialogOpen(false);
                                                     }
                                                 }}
-                                                disabled={processing || isUpdating}
+                                                disabled={processing || isUpdating || isAdding}
                                             >
                                                 Cancelar
                                             </Button>
-                                            <Button type="submit" disabled={processing || isUpdating}>
-                                                {isUpdating || processing
+                                            <Button type="submit" disabled={processing || isUpdating || isAdding}>
+                                                {isUpdating || isAdding || processing
                                                     ? (editingInsumo ? 'Actualizando...' : 'Agregando...')
                                                     : (editingInsumo ? 'Actualizar' : 'Agregar')}
                                             </Button>
