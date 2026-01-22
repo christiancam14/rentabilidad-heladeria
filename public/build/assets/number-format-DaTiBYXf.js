@@ -1,0 +1,1 @@
+const a=n=>{if(!n&&n!==0)return"";const t=typeof n=="string"?n.replace(/\./g,""):String(n),e=parseInt(t,10);return isNaN(e)?"":e.toLocaleString("es-ES")},s=n=>n.replace(/\./g,""),c=(n,t)=>{const e=n.replace(/[^\d.]/g,""),r=s(e);(r===""||!isNaN(Number(r)))&&t(r===""?"":a(r))},o=(n,t)=>{const e=s(n);e!==""&&t(a(e))};export{c as a,s as c,a as f,o as h};
