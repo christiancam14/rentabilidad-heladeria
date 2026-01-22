@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { formatNumberWithSeparator, cleanNumberFormat, handleNumberInputChange, handleNumberInputBlur } from '@/lib/number-format';
 
 interface Insumo {
     id: number;
@@ -112,7 +113,7 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
     useEffect(() => {
         if (editDialogOpen && editingInsumo) {
             setData('nombre', editingInsumo.nombre || '');
-            setData('precio', editingInsumo.precio ? Math.round(Number(editingInsumo.precio)).toString() : '');
+            setData('precio', editingInsumo.precio ? formatNumberWithSeparator(Math.round(Number(editingInsumo.precio))) : '');
             setData('unidad', editingInsumo.unidad || unidades_disponibles[0] || '');
         } else if (!editDialogOpen && !createDialogOpen) {
             // Limpiar el formulario cuando se cierran ambos modales
@@ -124,7 +125,9 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingInsumo) return;
-
+        // Limpiar formato y convertir precio a número entero antes de enviar
+        const cleanPrecio = cleanNumberFormat(data.precio as string);
+        setData('precio', String(parseInt(cleanPrecio) || 0));
         put(`/insumos/${editingInsumo.id}`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -137,8 +140,9 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
 
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Convertir precio a número entero antes de enviar
-        setData('precio', String(parseInt(data.precio as string) || 0));
+        // Limpiar formato y convertir precio a número entero antes de enviar
+        const cleanPrecio = cleanNumberFormat(data.precio as string);
+        setData('precio', String(parseInt(cleanPrecio) || 0));
         post('/insumos', {
             preserveScroll: true,
             onSuccess: () => {
@@ -281,12 +285,11 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                     <Input
                                         id="create-precio"
                                         name="precio"
-                                        type="number"
-                                        step="1"
-                                        min="0"
+                                        type="text"
                                         placeholder="0"
                                         value={data.precio}
-                                        onChange={(e) => setData('precio', e.target.value)}
+                                        onChange={(e) => handleNumberInputChange(e.target.value, (val) => setData('precio', val))}
+                                        onBlur={(e) => handleNumberInputBlur(e.target.value, (val) => setData('precio', val))}
                                         required
                                     />
                                     <InputError message={errors.precio} />
@@ -359,11 +362,11 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                     <Input
                                         id="edit-precio"
                                         name="precio"
-                                        type="number"
-                                        step="1"
-                                        min="0"
-                                        value={data.precio || (editingInsumo?.precio ? Math.round(Number(editingInsumo.precio)).toString() : '')}
-                                        onChange={(e) => setData('precio', e.target.value)}
+                                        type="text"
+                                        value={data.precio || ''}
+                                        onChange={(e) => handleNumberInputChange(e.target.value, (val) => setData('precio', val))}
+                                        onBlur={(e) => handleNumberInputBlur(e.target.value, (val) => setData('precio', val))}
+                                        placeholder="0"
                                         required
                                     />
                                     <InputError message={errors.precio} />

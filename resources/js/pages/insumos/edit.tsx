@@ -15,6 +15,7 @@ import {
 import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { formatNumberWithSeparator, cleanNumberFormat, handleNumberInputChange, handleNumberInputBlur } from '@/lib/number-format';
 
 interface Insumo {
     id: number;
@@ -56,7 +57,9 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!insumo) return;
-        
+        // Limpiar formato y convertir precio a número entero antes de enviar
+        const cleanPrecio = cleanNumberFormat(data.precio as string);
+        setData('precio', String(parseInt(cleanPrecio) || 0));
         put(`/insumos/${insumo.id}`, {
             preserveScroll: true,
         });
@@ -113,11 +116,11 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
                                 <Input
                                     id="precio"
                                     name="precio"
-                                    type="number"
-                                    step="1"
-                                    min="0"
-                                    value={data.precio || (insumo.precio ? Math.round(Number(insumo.precio)).toString() : '')}
-                                    onChange={(e) => setData('precio', e.target.value)}
+                                    type="text"
+                                    value={data.precio || ''}
+                                    onChange={(e) => handleNumberInputChange(e.target.value, (val) => setData('precio', val))}
+                                    onBlur={(e) => handleNumberInputBlur(e.target.value, (val) => setData('precio', val))}
+                                    placeholder="0"
                                     required
                                 />
                                 <InputError message={errors.precio} />

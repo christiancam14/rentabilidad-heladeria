@@ -24,6 +24,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import InputError from '@/components/input-error';
+import { formatNumberWithSeparator, cleanNumberFormat, handleNumberInputChange, handleNumberInputBlur } from '@/lib/number-format';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
@@ -97,20 +98,6 @@ const toCamelCase = (text: string | null | undefined): string => {
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
-};
-
-// Función helper para formatear número con separadores de miles (puntos)
-const formatNumberWithSeparator = (value: string | number): string => {
-    if (!value && value !== 0) return '';
-    const numValue = typeof value === 'string' ? value.replace(/\./g, '') : String(value);
-    const num = parseInt(numValue, 10);
-    if (isNaN(num)) return '';
-    return num.toLocaleString('es-ES');
-};
-
-// Función helper para limpiar formato y obtener solo el número
-const cleanNumberFormat = (value: string): string => {
-    return value.replace(/\./g, '');
 };
 
 // Función helper para obtener nombre del mes
@@ -749,22 +736,8 @@ export default function CierresMesShow({
                                                     id="gasto_valor"
                                                     type="text"
                                                     value={gastoData.valor}
-                                                    onChange={(e) => {
-                                                        // Permitir solo números y puntos (para formato)
-                                                        const inputValue = e.target.value.replace(/[^\d.]/g, '');
-                                                        // Formatear con separadores de miles
-                                                        const cleaned = cleanNumberFormat(inputValue);
-                                                        if (cleaned === '' || !isNaN(Number(cleaned))) {
-                                                            setGastoData('valor', cleaned === '' ? '' : formatNumberWithSeparator(cleaned));
-                                                        }
-                                                    }}
-                                                    onBlur={(e) => {
-                                                        // Asegurar formato correcto al perder el foco
-                                                        const cleaned = cleanNumberFormat(e.target.value);
-                                                        if (cleaned !== '') {
-                                                            setGastoData('valor', formatNumberWithSeparator(cleaned));
-                                                        }
-                                                    }}
+                                                    onChange={(e) => handleNumberInputChange(e.target.value, (val) => setGastoData('valor', val))}
+                                                    onBlur={(e) => handleNumberInputBlur(e.target.value, (val) => setGastoData('valor', val))}
                                                     placeholder="0"
                                                     required
                                                 />

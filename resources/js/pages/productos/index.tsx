@@ -18,6 +18,7 @@ import {
 import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { formatNumberWithSeparator, cleanNumberFormat, handleNumberInputChange, handleNumberInputBlur } from '@/lib/number-format';
 
 interface Insumo {
     id: number;
@@ -174,7 +175,7 @@ export default function ProductosIndex({ productos, filters }: Props) {
     const openEditDialog = (producto: Producto) => {
         setEditingProducto(producto);
         setData('nombre', producto.nombre || '');
-        setData('precio_venta_publico', producto.precio_venta_publico ? Math.round(Number(producto.precio_venta_publico)).toString() : '');
+        setData('precio_venta_publico', producto.precio_venta_publico ? formatNumberWithSeparator(Math.round(Number(producto.precio_venta_publico))) : '');
         setEditDialogOpen(true);
     };
 
@@ -182,7 +183,7 @@ export default function ProductosIndex({ productos, filters }: Props) {
     useEffect(() => {
         if (editDialogOpen && editingProducto) {
             setData('nombre', editingProducto.nombre || '');
-            setData('precio_venta_publico', editingProducto.precio_venta_publico ? Math.round(Number(editingProducto.precio_venta_publico)).toString() : '');
+            setData('precio_venta_publico', editingProducto.precio_venta_publico ? formatNumberWithSeparator(Math.round(Number(editingProducto.precio_venta_publico))) : '');
         } else if (!editDialogOpen && !createDialogOpen) {
             // Limpiar el formulario cuando se cierran ambos modales
             reset();
@@ -192,8 +193,9 @@ export default function ProductosIndex({ productos, filters }: Props) {
 
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Convertir precio a número entero antes de enviar
-        setData('precio_venta_publico', String(parseInt(data.precio_venta_publico as string) || 0));
+        // Limpiar formato y convertir precio a número entero antes de enviar
+        const cleanPrecio = cleanNumberFormat(data.precio_venta_publico as string);
+        setData('precio_venta_publico', String(parseInt(cleanPrecio) || 0));
         post('/productos', {
             preserveScroll: true,
             onSuccess: () => {
@@ -419,12 +421,11 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                     <Input
                                         id="create-precio_venta_publico"
                                         name="precio_venta_publico"
-                                        type="number"
-                                        step="1"
-                                        min="0"
+                                        type="text"
                                         placeholder="0"
                                         value={data.precio_venta_publico}
-                                        onChange={(e) => setData('precio_venta_publico', e.target.value)}
+                                        onChange={(e) => handleNumberInputChange(e.target.value, (val) => setData('precio_venta_publico', val))}
+                                        onBlur={(e) => handleNumberInputBlur(e.target.value, (val) => setData('precio_venta_publico', val))}
                                         required
                                     />
                                     <InputError message={errors.precio_venta_publico} />
@@ -477,11 +478,11 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                     <Input
                                         id="edit-precio_venta_publico"
                                         name="precio_venta_publico"
-                                        type="number"
-                                        step="1"
-                                        min="0"
-                                        value={data.precio_venta_publico || (editingProducto?.precio_venta_publico ? Math.round(Number(editingProducto.precio_venta_publico)).toString() : '')}
-                                        onChange={(e) => setData('precio_venta_publico', e.target.value)}
+                                        type="text"
+                                        placeholder="0"
+                                        value={data.precio_venta_publico || ''}
+                                        onChange={(e) => handleNumberInputChange(e.target.value, (val) => setData('precio_venta_publico', val))}
+                                        onBlur={(e) => handleNumberInputBlur(e.target.value, (val) => setData('precio_venta_publico', val))}
                                         required
                                     />
                                     <InputError message={errors.precio_venta_publico} />
