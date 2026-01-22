@@ -18,9 +18,9 @@ import { type BreadcrumbItem } from '@/types';
 
 interface CierreMes {
     id: number;
+    nombre: string | null;
     anio: number;
     mes: number;
-    gastos: number;
 }
 
 interface Props {
@@ -54,10 +54,14 @@ const meses = [
 ];
 
 export default function CierresMesEdit({ cierre }: Props) {
+    if (!cierre) {
+        return null;
+    }
+
     const { data, setData, put, processing, errors } = useForm({
-        anio: cierre.anio.toString(),
-        mes: cierre.mes.toString(),
-        gastos: cierre.gastos.toString(),
+        nombre: cierre?.nombre || '',
+        anio: (cierre?.anio ?? new Date().getFullYear()).toString(),
+        mes: (cierre?.mes ?? new Date().getMonth() + 1).toString(),
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -93,7 +97,22 @@ export default function CierresMesEdit({ cierre }: Props) {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="nombre">Nombre del Cierre (Opcional)</Label>
+                                <Input
+                                    id="nombre"
+                                    type="text"
+                                    value={data.nombre}
+                                    onChange={(e) => setData('nombre', e.target.value)}
+                                    placeholder="Ej: Cierre Enero 2025"
+                                />
+                                <InputError message={errors.nombre} />
+                                <p className="text-xs text-muted-foreground">
+                                    Un nombre descriptivo para identificar este cierre
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="anio">Año *</Label>
                                     <Input
@@ -125,19 +144,6 @@ export default function CierresMesEdit({ cierre }: Props) {
                                     <InputError message={errors.mes} />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="gastos">Gastos del Mes *</Label>
-                                    <Input
-                                        id="gastos"
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        value={data.gastos}
-                                        onChange={(e) => setData('gastos', e.target.value)}
-                                        required
-                                    />
-                                    <InputError message={errors.gastos} />
-                                </div>
                             </div>
 
                             <div className="flex justify-end gap-4 pt-4">

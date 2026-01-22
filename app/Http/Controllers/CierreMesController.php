@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AgregarProductoCierreRequest;
 use App\Http\Requests\StoreCierreMesRequest;
+use App\Http\Requests\StoreGastoCierreRequest;
 use App\Models\CierreMes;
+use App\Models\GastoCierreMes;
 use App\Models\Producto;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +20,7 @@ class CierreMesController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = CierreMes::with('productosVendidos.producto');
+        $query = CierreMes::with('productosVendidos.producto', 'gastos');
 
         // Búsqueda por año
         if ($request->has('anio') && $request->anio) {
@@ -37,6 +39,7 @@ class CierreMesController extends Controller
         $cierres->getCollection()->transform(function ($cierre) {
             $cierre->ingresos = $cierre->calcularIngresos();
             $cierre->costos = $cierre->calcularCostos();
+            $cierre->total_gastos = $cierre->calcularTotalGastos();
             $cierre->ganancia_bruta = $cierre->calcularGananciaBruta();
             $cierre->ganancia_neta = $cierre->calcularGananciaNeta();
             return $cierre;
@@ -81,7 +84,7 @@ class CierreMesController extends Controller
 
         $cierre = CierreMes::create($request->validated());
 
-        return redirect()->route('cierres-mes.show', $cierre)
+        return redirect()->route('cierres-mes.show', ['cierres_me' => $cierre->id])
             ->with('success', 'Cierre de mes creado exitosamente.');
     }
 
@@ -90,12 +93,13 @@ class CierreMesController extends Controller
      */
     public function show(CierreMes $cierreMes): Response
     {
-        $cierreMes->load('productosVendidos.producto');
+        $cierreMes->load('productosVendidos.producto', 'gastos');
 
         // Calcular métricas
         $ingresos = $cierreMes->calcularIngresos();
         $costos = $cierreMes->calcularCostos();
         $gananciaBruta = $cierreMes->calcularGananciaBruta();
+        $totalGastos = $cierreMes->calcularTotalGastos();
         $gananciaNeta = $cierreMes->calcularGananciaNeta();
 
         // Obtener todos los productos para el select
@@ -121,6 +125,7 @@ class CierreMesController extends Controller
             'productos' => $productos,
             'ingresos' => $ingresos,
             'costos' => $costos,
+            'total_gastos' => $totalGastos,
             'ganancia_bruta' => $gananciaBruta,
             'ganancia_neta' => $gananciaNeta,
         ]);
@@ -155,7 +160,7 @@ class CierreMesController extends Controller
 
         $cierreMes->update($request->validated());
 
-        return redirect()->route('cierres-mes.show', $cierreMes)
+        return redirect()->route('cierres-mes.show', ['cierres_me' => $cierreMes->id])
             ->with('success', 'Cierre de mes actualizado exitosamente.');
     }
 
@@ -202,5 +207,38 @@ class CierreMesController extends Controller
 
         return redirect()->back()
             ->with('success', 'Producto eliminado del cierre exitosamente.');
+    }
+
+    /**
+     * Agregar un gasto al cierre.
+     */
+    public function agregarGasto(StoreGastoCierreRequest $request, CierreMes $cierreMes): RedirectResponse
+    {
+        $cierreMes->gastos()->create($request->validated());
+
+        return redirect()->back()
+            ->with('success', 'Gasto agregado exitosamente.');
+    }
+
+    /**
+     * Actualizar un gasto del cierre.
+     */
+    public function actualizarGasto(StoreGastoCierreRequest $request, CierreMes $cierreMes, GastoCierreMes $gasto): RedirectResponse
+    {
+        $gasto->update($request->validated());
+
+        return redirect()->back()
+            ->with('success', 'Gasto actualizado exitosamente.');
+    }
+
+    /**
+     * Eliminar un gasto del cierre.
+     */
+    public function eliminarGasto(CierreMes $cierreMes, GastoCierreMes $gasto): RedirectResponse
+    {
+        $gasto->delete();
+
+        return redirect()->back()
+            ->with('success', 'Gasto eliminado exitosamente.');
     }
 }

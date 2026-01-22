@@ -12,14 +12,21 @@ class CierreMes extends Model
     use HasFactory;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'cierres_mes';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'nombre',
         'anio',
         'mes',
-        'gastos',
     ];
 
     /**
@@ -32,7 +39,6 @@ class CierreMes extends Model
         return [
             'anio' => 'integer',
             'mes' => 'integer',
-            'gastos' => 'decimal:2',
         ];
     }
 
@@ -57,6 +63,14 @@ class CierreMes extends Model
     public function productosVendidos(): HasMany
     {
         return $this->hasMany(CierreMesProducto::class);
+    }
+
+    /**
+     * Los gastos del cierre de mes.
+     */
+    public function gastos(): HasMany
+    {
+        return $this->hasMany(GastoCierreMes::class);
     }
 
     /**
@@ -109,11 +123,19 @@ class CierreMes extends Model
     }
 
     /**
-     * Calcular ganancia neta (ganancia bruta - gastos).
+     * Calcular total de gastos del mes.
+     */
+    public function calcularTotalGastos(): float
+    {
+        return $this->gastos()->sum('valor');
+    }
+
+    /**
+     * Calcular ganancia neta (ganancia bruta - gastos totales).
      */
     public function calcularGananciaNeta(): float
     {
-        return $this->calcularGananciaBruta() - $this->gastos;
+        return $this->calcularGananciaBruta() - $this->calcularTotalGastos();
     }
 
     /**

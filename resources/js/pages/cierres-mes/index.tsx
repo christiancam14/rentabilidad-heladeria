@@ -17,9 +17,10 @@ import { type BreadcrumbItem } from '@/types';
 
 interface CierreMes {
     id: number;
+    nombre: string | null;
     anio: number;
     mes: number;
-    gastos: number;
+    total_gastos?: number;
     ingresos?: number;
     costos?: number;
     ganancia_bruta?: number;
@@ -64,6 +65,16 @@ const formatPrice = (price: number | string | null | undefined): string => {
     return `$${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 };
 
+// Función helper para convertir texto a Camel Case
+const toCamelCase = (text: string | null | undefined): string => {
+    if (!text) return '';
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 // Función helper para obtener nombre del mes
 const getNombreMes = (mes: number): string => {
     const meses = [
@@ -74,11 +85,11 @@ const getNombreMes = (mes: number): string => {
 };
 
 export default function CierresMesIndex({ cierres, anios, filters }: Props) {
-    const [selectedAnio, setSelectedAnio] = useState<string>(filters.anio?.toString() || '');
+    const [selectedAnio, setSelectedAnio] = useState<string>(filters.anio?.toString() || 'all');
 
     const handleFilterChange = (anio: string) => {
         setSelectedAnio(anio);
-        router.get('/cierres-mes', { anio: anio || null }, {
+        router.get('/cierres-mes', { anio: anio === 'all' ? null : anio }, {
             preserveState: true,
             preserveScroll: true,
         });
@@ -122,7 +133,7 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
                                         <SelectValue placeholder="Todos los años" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Todos los años</SelectItem>
+                                        <SelectItem value="all">Todos los años</SelectItem>
                                         {anios.map((anio) => (
                                             <SelectItem key={anio} value={anio.toString()}>
                                                 {anio}
@@ -165,7 +176,16 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
                                                         <td className="p-2">
                                                             <div className="flex items-center gap-2">
                                                                 <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                                                                <span className="font-medium">{periodo}</span>
+                                                                <div>
+                                                                    {cierre.nombre ? (
+                                                                        <div>
+                                                                            <span className="font-medium">{toCamelCase(cierre.nombre)}</span>
+                                                                            <span className="text-sm text-muted-foreground ml-2">({periodo})</span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="font-medium">{periodo}</span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </td>
                                                         <td className="text-right p-2">
@@ -175,7 +195,7 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
                                                             {formatPrice(cierre.costos)}
                                                         </td>
                                                         <td className="text-right p-2">
-                                                            {formatPrice(cierre.gastos)}
+                                                            {formatPrice(cierre.total_gastos || 0)}
                                                         </td>
                                                         <td className="text-right p-2">
                                                             <Badge

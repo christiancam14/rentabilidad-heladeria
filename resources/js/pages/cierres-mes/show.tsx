@@ -21,6 +21,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
@@ -43,11 +44,18 @@ interface ProductoVendido {
     };
 }
 
+interface Gasto {
+    id: number;
+    nombre: string;
+    valor: number;
+}
+
 interface CierreMes {
     id: number;
+    nombre: string | null;
     anio: number;
     mes: number;
-    gastos: number;
+    gastos?: Gasto[];
     productos_vendidos?: ProductoVendido[];
 }
 
@@ -56,6 +64,7 @@ interface Props {
     productos: Producto[];
     ingresos: number;
     costos: number;
+    total_gastos: number;
     ganancia_bruta: number;
     ganancia_neta: number;
 }
@@ -104,11 +113,14 @@ export default function CierresMesShow({
     productos,
     ingresos,
     costos,
+    total_gastos,
     ganancia_bruta,
     ganancia_neta,
 }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [gastoDialogOpen, setGastoDialogOpen] = useState(false);
     const [editingProducto, setEditingProducto] = useState<ProductoVendido | null>(null);
+    const [editingGasto, setEditingGasto] = useState<Gasto | null>(null);
     const [productoSearch, setProductoSearch] = useState('');
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
@@ -116,8 +128,14 @@ export default function CierresMesShow({
         cantidad_vendida: '',
     });
 
+    const { data: gastoData, setData: setGastoData, post: postGasto, put: putGasto, processing: processingGasto, errors: gastoErrors, reset: resetGasto } = useForm({
+        nombre: '',
+        valor: '',
+    });
+
     // Obtener productos vendidos desde la relación
     const productosVendidos = cierre.productos_vendidos || [];
+    const gastos = cierre.gastos || [];
 
     // Filtrar productos disponibles basado en la búsqueda
     const filteredProductos = useMemo(() => {
@@ -170,6 +188,38 @@ export default function CierresMesShow({
         }
     };
 
+    const handleAddGasto = (e: React.FormEvent) => {
+        e.preventDefault();
+        postGasto(`/cierres-mes/${cierre.id}/gastos`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setGastoDialogOpen(false);
+                resetGasto();
+            },
+        });
+    };
+
+    const handleUpdateGasto = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingGasto) return;
+        putGasto(`/cierres-mes/${cierre.id}/gastos/${editingGasto.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setGastoDialogOpen(false);
+                resetGasto();
+                setEditingGasto(null);
+            },
+        });
+    };
+
+    const handleDeleteGasto = (gastoId: number) => {
+        if (confirm('¿Está seguro de que desea eliminar este gasto?')) {
+            router.delete(`/cierres-mes/${cierre.id}/gastos/${gastoId}`, {
+                preserveScroll: true,
+            });
+        }
+    };
+
     const openEditDialog = (productoVendido: ProductoVendido) => {
         setEditingProducto(productoVendido);
         setData({
@@ -184,6 +234,21 @@ export default function CierresMesShow({
         setEditingProducto(null);
         setProductoSearch('');
         setDialogOpen(true);
+    };
+
+    const openEditGastoDialog = (gasto: Gasto) => {
+        setEditingGasto(gasto);
+        setGastoData({
+            nombre: gasto.nombre,
+            valor: gasto.valor.toString(),
+        });
+        setGastoDialogOpen(true);
+    };
+
+    const openAddGastoDialog = () => {
+        resetGasto();
+        setEditingGasto(null);
+        setGastoDialogOpen(true);
     };
 
     const periodo = `${getNombreMes(cierre.mes)} ${cierre.anio}`;
@@ -201,9 +266,11 @@ export default function CierresMesShow({
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-semibold">Cierre de {periodo}</h1>
+                            <h1 className="text-2xl font-semibold">
+                                {cierre.nombre ? toCamelCase(cierre.nombre) : `Cierre de ${periodo}`}
+                            </h1>
                             <p className="text-muted-foreground">
-                                Gestión de productos vendidos y rentabilidad mensual
+                                {cierre.nombre ? periodo : 'Gestión de productos vendidos y rentabilidad mensual'}
                             </p>
                         </div>
                     </div>
@@ -248,7 +315,7 @@ export default function CierresMesShow({
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {formatPrice(cierre.gastos)}
+                                {formatPrice(total_gastos)}
                             </div>
                         </CardContent>
                     </Card>
@@ -514,6 +581,163 @@ export default function CierresMesShow({
                                             );
                                         })}
                                     </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Lista de Gastos */}
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle>Gastos del Mes</CardTitle>
+                                <CardDescription>
+                                    Gestiona los gastos del mes
+                                </CardDescription>
+                            </div>
+                            <Dialog open={gastoDialogOpen} onOpenChange={(open) => {
+                                if (!processingGasto) {
+                                    setGastoDialogOpen(open);
+                                    if (!open) {
+                                        resetGasto();
+                                        setEditingGasto(null);
+                                    }
+                                }
+                            }}>
+                                <DialogTrigger asChild>
+                                    <Button onClick={openAddGastoDialog}>
+                                        <PlusIcon className="size-4 mr-2" />
+                                        Agregar Gasto
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            {editingGasto ? 'Editar Gasto' : 'Agregar Gasto'}
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            {editingGasto
+                                                ? 'Modifica la información del gasto'
+                                                : 'Agrega un nuevo gasto al cierre del mes'}
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <form onSubmit={editingGasto ? handleUpdateGasto : handleAddGasto}>
+                                        <div className="space-y-4 py-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="gasto_nombre">Nombre del Gasto</Label>
+                                                <Input
+                                                    id="gasto_nombre"
+                                                    type="text"
+                                                    value={gastoData.nombre}
+                                                    onChange={(e) => setGastoData('nombre', e.target.value)}
+                                                    placeholder="Ej: Arriendo, Servicios, etc."
+                                                    required
+                                                />
+                                                <InputError message={gastoErrors.nombre} />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="gasto_valor">Valor</Label>
+                                                <Input
+                                                    id="gasto_valor"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    value={gastoData.valor}
+                                                    onChange={(e) => setGastoData('valor', e.target.value)}
+                                                    placeholder="0"
+                                                    required
+                                                />
+                                                <InputError message={gastoErrors.valor} />
+                                            </div>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => {
+                                                    setGastoDialogOpen(false);
+                                                    resetGasto();
+                                                    setEditingGasto(null);
+                                                }}
+                                                disabled={processingGasto}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                            <Button type="submit" disabled={processingGasto}>
+                                                {processingGasto
+                                                    ? 'Guardando...'
+                                                    : editingGasto
+                                                      ? 'Actualizar'
+                                                      : 'Agregar'}
+                                            </Button>
+                                        </DialogFooter>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {gastos.length === 0 ? (
+                            <div className="text-center py-12">
+                                <p className="text-muted-foreground">
+                                    No hay gastos registrados para este mes.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="text-left p-2 font-medium">Nombre</th>
+                                            <th className="text-right p-2 font-medium">Valor</th>
+                                            <th className="text-right p-2 font-medium">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {gastos.map((gasto) => (
+                                            <tr
+                                                key={gasto.id}
+                                                className="border-b hover:bg-muted/50"
+                                            >
+                                                <td className="p-2">
+                                                    {toCamelCase(gasto.nombre)}
+                                                </td>
+                                                <td className="text-right p-2">
+                                                    {formatPrice(gasto.valor)}
+                                                </td>
+                                                <td className="text-right p-2">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => openEditGastoDialog(gasto)}
+                                                        >
+                                                            <PencilIcon className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => handleDeleteGasto(gasto.id)}
+                                                        >
+                                                            <TrashIcon className="h-4 w-4 text-destructive" />
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr className="border-t font-semibold">
+                                            <td className="p-2">Total</td>
+                                            <td className="text-right p-2">
+                                                {formatPrice(total_gastos)}
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         )}

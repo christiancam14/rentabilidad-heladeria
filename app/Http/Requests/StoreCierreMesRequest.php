@@ -25,9 +25,9 @@ class StoreCierreMesRequest extends FormRequest
         $cierreMesId = $this->route('cierre_mes')?->id;
 
         return [
+            'nombre' => ['nullable', 'string', 'max:255'],
             'anio' => ['required', 'integer', 'min:2000', 'max:2100'],
             'mes' => ['required', 'integer', 'min:1', 'max:12'],
-            'gastos' => ['required', 'numeric', 'min:0'],
         ];
     }
 
@@ -47,9 +47,6 @@ class StoreCierreMesRequest extends FormRequest
             'mes.integer' => 'El mes debe ser un número entero válido.',
             'mes.min' => 'El mes debe estar entre 1 y 12.',
             'mes.max' => 'El mes debe estar entre 1 y 12.',
-            'gastos.required' => 'Los gastos son obligatorios.',
-            'gastos.numeric' => 'Los gastos deben ser un número válido.',
-            'gastos.min' => 'Los gastos no pueden ser negativos.',
         ];
     }
 }
