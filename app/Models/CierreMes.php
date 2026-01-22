@@ -66,9 +66,10 @@ class CierreMes extends Model
     }
 
     /**
-     * Los gastos del cierre de mes.
+     * Los gastos del cierre de mes (relación con tabla gastos_cierre_mes).
+     * Nota: Se llama gastosItems() para evitar conflicto con la columna 'gastos' de la tabla.
      */
-    public function gastos(): HasMany
+    public function gastosItems(): HasMany
     {
         return $this->hasMany(GastoCierreMes::class);
     }
@@ -127,7 +128,7 @@ class CierreMes extends Model
      */
     public function calcularTotalGastos(): float
     {
-        return $this->gastos()->sum('valor');
+        return $this->gastosItems()->sum('valor');
     }
 
     /**

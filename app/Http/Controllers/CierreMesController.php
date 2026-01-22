@@ -20,7 +20,7 @@ class CierreMesController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = CierreMes::with('productosVendidos.producto', 'gastos');
+        $query = CierreMes::with('productosVendidos.producto', 'gastosItems');
 
         // Búsqueda por año
         if ($request->has('anio') && $request->anio) {
@@ -84,7 +84,7 @@ class CierreMesController extends Controller
 
         $cierre = CierreMes::create($request->validated());
 
-        return redirect()->route('cierres-mes.show', ['cierres_me' => $cierre->id])
+        return redirect()->route('cierres-mes.show', $cierre->id)
             ->with('success', 'Cierre de mes creado exitosamente.');
     }
 
@@ -93,7 +93,7 @@ class CierreMesController extends Controller
      */
     public function show(CierreMes $cierreMes): Response
     {
-        $cierreMes->load('productosVendidos.producto', 'gastos');
+        $cierreMes->load('productosVendidos.producto', 'gastosItems');
 
         // Calcular métricas
         $ingresos = $cierreMes->calcularIngresos();
@@ -118,10 +118,20 @@ class CierreMesController extends Controller
             ];
         });
 
+        // Asegurar que todos los campos necesarios estén presentes, incluyendo el ID
+        $cierreArray = [
+            'id' => $cierreMes->id,
+            'nombre' => $cierreMes->nombre,
+            'anio' => (int) ($cierreMes->anio ?? date('Y')),
+            'mes' => (int) ($cierreMes->mes ?? date('n')),
+            'created_at' => $cierreMes->created_at,
+            'updated_at' => $cierreMes->updated_at,
+        ];
+        $cierreArray['productos_vendidos'] = $productosVendidos;
+        $cierreArray['gastos'] = $cierreMes->gastosItems->toArray();
+
         return Inertia::render('cierres-mes/show', [
-            'cierre' => array_merge($cierreMes->toArray(), [
-                'productos_vendidos' => $productosVendidos,
-            ]),
+            'cierre' => $cierreArray,
             'productos' => $productos,
             'ingresos' => $ingresos,
             'costos' => $costos,
@@ -146,10 +156,19 @@ class CierreMesController extends Controller
      */
     public function update(StoreCierreMesRequest $request, CierreMes $cierreMes): RedirectResponse
     {
+        // Verificar que el modelo se haya cargado correctamente
+        if (!$cierreMes || !$cierreMes->id) {
+            return redirect()->route('cierres-mes.index')
+                ->withErrors(['error' => 'No se encontró el cierre de mes.']);
+        }
+        
+        // Guardar el ID antes del update
+        $cierreId = $cierreMes->id;
+        
         // Verificar si ya existe otro cierre para ese mes/año (excluyendo el actual)
         $existe = CierreMes::where('anio', $request->anio)
             ->where('mes', $request->mes)
-            ->where('id', '!=', $cierreMes->id)
+            ->where('id', '!=', $cierreId)
             ->exists();
 
         if ($existe) {
@@ -158,9 +177,14 @@ class CierreMesController extends Controller
                 ->withInput();
         }
 
-        $cierreMes->update($request->validated());
+        // Obtener los datos validados y actualizar
+        $validated = $request->validated();
+        $cierreMes->nombre = $validated['nombre'] ?? null;
+        $cierreMes->anio = $validated['anio'];
+        $cierreMes->mes = $validated['mes'];
+        $cierreMes->save();
 
-        return redirect()->route('cierres-mes.show', ['cierres_me' => $cierreMes->id])
+        return redirect()->to("/cierres-mes/{$cierreId}")
             ->with('success', 'Cierre de mes actualizado exitosamente.');
     }
 
@@ -214,7 +238,7 @@ class CierreMesController extends Controller
      */
     public function agregarGasto(StoreGastoCierreRequest $request, CierreMes $cierreMes): RedirectResponse
     {
-        $cierreMes->gastos()->create($request->validated());
+        $cierreMes->gastosItems()->create($request->validated());
 
         return redirect()->back()
             ->with('success', 'Gasto agregado exitosamente.');

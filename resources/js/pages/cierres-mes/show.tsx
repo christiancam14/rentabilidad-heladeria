@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeftIcon, PlusIcon, PencilIcon, TrashIcon, SearchIcon, EditIcon } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -119,9 +119,11 @@ export default function CierresMesShow({
 }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [gastoDialogOpen, setGastoDialogOpen] = useState(false);
+    const [editCierreDialogOpen, setEditCierreDialogOpen] = useState(false);
     const [editingProducto, setEditingProducto] = useState<ProductoVendido | null>(null);
     const [editingGasto, setEditingGasto] = useState<Gasto | null>(null);
     const [productoSearch, setProductoSearch] = useState('');
+    const [cierreId, setCierreId] = useState<number | null>(null);
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         producto_id: '',
@@ -133,9 +135,33 @@ export default function CierresMesShow({
         valor: '',
     });
 
+    const { data: cierreData, setData: setCierreData, processing: processingCierre, errors: cierreErrors, reset: resetCierre } = useForm({
+        nombre: '',
+        anio: '',
+        mes: '',
+    });
+
+    // Inicializar datos del formulario cuando se abre el modal
+    useEffect(() => {
+        if (editCierreDialogOpen && cierre && cierre.id) {
+            setCierreId(cierre.id);
+            setCierreData('nombre', cierre.nombre || '');
+            setCierreData('anio', (cierre.anio ?? new Date().getFullYear()).toString());
+            setCierreData('mes', (cierre.mes ?? new Date().getMonth() + 1).toString());
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editCierreDialogOpen, cierre]);
+    
+    // También actualizar cierreId cuando cierre cambia
+    useEffect(() => {
+        if (cierre?.id) {
+            setCierreId(cierre.id);
+        }
+    }, [cierre]);
+
     // Obtener productos vendidos desde la relación
-    const productosVendidos = cierre.productos_vendidos || [];
-    const gastos = cierre.gastos || [];
+    const productosVendidos = cierre?.productos_vendidos || [];
+    const gastos = cierre?.gastos || [];
 
     // Filtrar productos disponibles basado en la búsqueda
     const filteredProductos = useMemo(() => {
@@ -156,6 +182,7 @@ export default function CierresMesShow({
 
     const handleAddProducto = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!cierre?.id) return;
         post(`/cierres-mes/${cierre.id}/productos`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -168,7 +195,7 @@ export default function CierresMesShow({
 
     const handleUpdateProducto = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingProducto) return;
+        if (!editingProducto || !cierre?.id) return;
         put(`/cierres-mes/${cierre.id}/productos/${editingProducto.producto.id}`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -181,6 +208,7 @@ export default function CierresMesShow({
     };
 
     const handleDeleteProducto = (productoId: number) => {
+        if (!cierre?.id) return;
         if (confirm('¿Está seguro de que desea eliminar este producto del cierre?')) {
             router.delete(`/cierres-mes/${cierre.id}/productos/${productoId}`, {
                 preserveScroll: true,
@@ -190,6 +218,7 @@ export default function CierresMesShow({
 
     const handleAddGasto = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!cierre?.id) return;
         postGasto(`/cierres-mes/${cierre.id}/gastos`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -201,7 +230,7 @@ export default function CierresMesShow({
 
     const handleUpdateGasto = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingGasto) return;
+        if (!editingGasto || !cierre?.id) return;
         putGasto(`/cierres-mes/${cierre.id}/gastos/${editingGasto.id}`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -213,6 +242,7 @@ export default function CierresMesShow({
     };
 
     const handleDeleteGasto = (gastoId: number) => {
+        if (!cierre?.id) return;
         if (confirm('¿Está seguro de que desea eliminar este gasto?')) {
             router.delete(`/cierres-mes/${cierre.id}/gastos/${gastoId}`, {
                 preserveScroll: true,
@@ -251,11 +281,61 @@ export default function CierresMesShow({
         setGastoDialogOpen(true);
     };
 
-    const periodo = `${getNombreMes(cierre.mes)} ${cierre.anio}`;
+    const handleEditCierreSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Obtener el ID del cierre de forma robusta (usar estado, prop, o URL)
+        const currentCierreId = cierreId || cierre?.id || (typeof window !== 'undefined' ? parseInt(window.location.pathname.split('/').pop() || '0', 10) : null);
+        
+        if (!currentCierreId || currentCierreId === 0) {
+            return;
+        }
+        
+        // Validar que los campos requeridos estén llenos
+        if (!cierreData.anio || !cierreData.mes) {
+            return;
+        }
+        
+        // Preparar los datos para enviar
+        const formData = {
+            nombre: cierreData.nombre || null,
+            anio: parseInt(String(cierreData.anio), 10),
+            mes: parseInt(String(cierreData.mes), 10),
+        };
+        
+        // Usar router.put directamente para asegurar que funcione
+        router.put(`/cierres-mes/${currentCierreId}`, formData, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setEditCierreDialogOpen(false);
+                resetCierre();
+            },
+            onError: (errors) => {
+                console.error('Errores al actualizar:', errors);
+            },
+            onFinish: () => {
+                console.log('Request finished');
+            },
+        });
+    };
+
+    // Calcular período de forma segura con valores por defecto
+    const mesNum = cierre?.mes != null ? (typeof cierre.mes === 'number' ? cierre.mes : parseInt(String(cierre.mes), 10)) : new Date().getMonth() + 1;
+    const anioNum = cierre?.anio != null ? (typeof cierre.anio === 'number' ? cierre.anio : parseInt(String(cierre.anio), 10)) : new Date().getFullYear();
+    const periodo = `${getNombreMes(mesNum)} ${anioNum}`;
+    
+    const titulo = cierre?.nombre 
+        ? toCamelCase(cierre.nombre) 
+        : `Cierre de ${periodo}`;
+    
+    const subtitulo = cierre?.nombre 
+        ? periodo 
+        : 'Gestión de productos vendidos y rentabilidad mensual';
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Cierre de ${periodo}`} />
+            <Head title={titulo} />
 
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -267,10 +347,10 @@ export default function CierresMesShow({
                         </Link>
                         <div>
                             <h1 className="text-2xl font-semibold">
-                                {cierre.nombre ? toCamelCase(cierre.nombre) : `Cierre de ${periodo}`}
+                                {titulo}
                             </h1>
                             <p className="text-muted-foreground">
-                                {cierre.nombre ? periodo : 'Gestión de productos vendidos y rentabilidad mensual'}
+                                {subtitulo}
                             </p>
                         </div>
                     </div>
@@ -278,11 +358,16 @@ export default function CierresMesShow({
                         <Button variant="outline" asChild>
                             <Link href="/cierres-mes">Volver a Cierres</Link>
                         </Button>
-                        <Button variant="outline" asChild>
-                            <Link href={`/cierres-mes/${cierre.id}/edit`}>
-                                <EditIcon className="size-4 mr-2" />
-                                Editar Cierre
-                            </Link>
+                        <Button variant="outline" onClick={() => {
+                            if (cierre) {
+                                setCierreData('nombre', cierre.nombre || '');
+                                setCierreData('anio', (cierre.anio ?? new Date().getFullYear()).toString());
+                                setCierreData('mes', (cierre.mes ?? new Date().getMonth() + 1).toString());
+                            }
+                            setEditCierreDialogOpen(true);
+                        }}>
+                            <EditIcon className="size-4 mr-2" />
+                            Editar Cierre
                         </Button>
                     </div>
                 </div>
@@ -743,6 +828,106 @@ export default function CierresMesShow({
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Modal de Edición del Cierre */}
+                <Dialog open={editCierreDialogOpen} onOpenChange={(open) => {
+                    if (!processingCierre) {
+                        setEditCierreDialogOpen(open);
+                        if (!open) {
+                            resetCierre();
+                        }
+                    }
+                }}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Editar Cierre de Mes</DialogTitle>
+                            <DialogDescription>
+                                Modifica la información del cierre mensual
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleEditCierreSubmit}>
+                            <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit_nombre">Nombre del Cierre (Opcional)</Label>
+                                    <Input
+                                        id="edit_nombre"
+                                        type="text"
+                                        value={cierreData.nombre}
+                                        onChange={(e) => setCierreData('nombre', e.target.value)}
+                                        placeholder="Ej: Cierre Enero 2025"
+                                    />
+                                    <InputError message={cierreErrors.nombre} />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit_anio">Año *</Label>
+                                        <Input
+                                            id="edit_anio"
+                                            type="number"
+                                            min="2000"
+                                            max="2100"
+                                            value={cierreData.anio}
+                                            onChange={(e) => setCierreData('anio', e.target.value)}
+                                            required
+                                        />
+                                        <InputError message={cierreErrors.anio} />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit_mes">Mes *</Label>
+                                        <Select 
+                                            value={cierreData.mes || ''} 
+                                            onValueChange={(value) => setCierreData('mes', value)}
+                                            required
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecciona un mes" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {[
+                                                    { value: '1', label: 'Enero' },
+                                                    { value: '2', label: 'Febrero' },
+                                                    { value: '3', label: 'Marzo' },
+                                                    { value: '4', label: 'Abril' },
+                                                    { value: '5', label: 'Mayo' },
+                                                    { value: '6', label: 'Junio' },
+                                                    { value: '7', label: 'Julio' },
+                                                    { value: '8', label: 'Agosto' },
+                                                    { value: '9', label: 'Septiembre' },
+                                                    { value: '10', label: 'Octubre' },
+                                                    { value: '11', label: 'Noviembre' },
+                                                    { value: '12', label: 'Diciembre' },
+                                                ].map((mes) => (
+                                                    <SelectItem key={mes.value} value={mes.value}>
+                                                        {mes.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={cierreErrors.mes} />
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setEditCierreDialogOpen(false);
+                                        resetCierre();
+                                    }}
+                                    disabled={processingCierre}
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" disabled={processingCierre}>
+                                    {processingCierre ? 'Actualizando...' : 'Actualizar Cierre'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );
