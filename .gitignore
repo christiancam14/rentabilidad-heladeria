@@ -8,7 +8,7 @@
 /resources/js/wayfinder
 /storage/*.key
 /storage/pail
-/vendor
+
 .DS_Store
 .env
 .env.backup
