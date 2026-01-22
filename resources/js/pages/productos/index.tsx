@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { PlusIcon, SearchIcon, PencilIcon, TrashIcon, EyeIcon } from 'lucide-react';
+import { PlusIcon, SearchIcon, PencilIcon, TrashIcon, EyeIcon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -81,8 +81,13 @@ const toCamelCase = (text: string | null | undefined): string => {
         .join(' ');
 };
 
+type SortColumn = 'precio_venta_publico' | 'costo_total' | 'ganancia' | 'porcentaje_rentabilidad' | null;
+type SortDirection = 'asc' | 'desc';
+
 export default function ProductosIndex({ productos, filters }: Props) {
     const [search, setSearch] = useState('');
+    const [sortColumn, setSortColumn] = useState<SortColumn>(null);
+    const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
@@ -94,14 +99,64 @@ export default function ProductosIndex({ productos, filters }: Props) {
 
     // Filtrar productos en el frontend basado en la búsqueda
     const filteredProductos = useMemo(() => {
-        if (!search.trim()) {
-            return productos;
+        let result = productos;
+        
+        // Aplicar filtro de búsqueda
+        if (search.trim()) {
+            const searchLower = search.toLowerCase();
+            result = result.filter((producto) =>
+                producto.nombre.toLowerCase().includes(searchLower)
+            );
         }
-        const searchLower = search.toLowerCase();
-        return productos.filter((producto) =>
-            producto.nombre.toLowerCase().includes(searchLower)
-        );
-    }, [productos, search]);
+
+        // Aplicar ordenamiento
+        if (sortColumn) {
+            result = [...result].sort((a, b) => {
+                let aValue: number;
+                let bValue: number;
+
+                switch (sortColumn) {
+                    case 'precio_venta_publico':
+                        aValue = Number(a.precio_venta_publico) || 0;
+                        bValue = Number(b.precio_venta_publico) || 0;
+                        break;
+                    case 'costo_total':
+                        aValue = Number(a.costo_total) || 0;
+                        bValue = Number(b.costo_total) || 0;
+                        break;
+                    case 'ganancia':
+                        aValue = Number(a.ganancia) || 0;
+                        bValue = Number(b.ganancia) || 0;
+                        break;
+                    case 'porcentaje_rentabilidad':
+                        aValue = Number(a.porcentaje_rentabilidad) || 0;
+                        bValue = Number(b.porcentaje_rentabilidad) || 0;
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (sortDirection === 'asc') {
+                    return aValue - bValue;
+                } else {
+                    return bValue - aValue;
+                }
+            });
+        }
+
+        return result;
+    }, [productos, search, sortColumn, sortDirection]);
+
+    const handleSort = (column: SortColumn) => {
+        if (sortColumn === column) {
+            // Si es la misma columna, cambiar dirección
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            // Si es una columna diferente, ordenar ascendente
+            setSortColumn(column);
+            setSortDirection('asc');
+        }
+    };
 
     const handleDelete = (id: number) => {
         if (confirm('¿Está seguro de que desea eliminar este producto?')) {
@@ -208,10 +263,66 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                         <thead>
                                             <tr className="border-b">
                                                 <th className="px-4 py-3 text-left text-sm font-medium">Nombre</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Precio Venta</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Costo Total</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Ganancia</th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Rentabilidad</th>
+                                                <th 
+                                                    className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-muted/50 select-none"
+                                                    onClick={() => handleSort('precio_venta_publico')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        Precio Venta
+                                                        {sortColumn === 'precio_venta_publico' && (
+                                                            sortDirection === 'asc' ? (
+                                                                <ArrowUpIcon className="h-4 w-4" />
+                                                            ) : (
+                                                                <ArrowDownIcon className="h-4 w-4" />
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </th>
+                                                <th 
+                                                    className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-muted/50 select-none"
+                                                    onClick={() => handleSort('costo_total')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        Costo Total
+                                                        {sortColumn === 'costo_total' && (
+                                                            sortDirection === 'asc' ? (
+                                                                <ArrowUpIcon className="h-4 w-4" />
+                                                            ) : (
+                                                                <ArrowDownIcon className="h-4 w-4" />
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </th>
+                                                <th 
+                                                    className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-muted/50 select-none"
+                                                    onClick={() => handleSort('ganancia')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        Ganancia
+                                                        {sortColumn === 'ganancia' && (
+                                                            sortDirection === 'asc' ? (
+                                                                <ArrowUpIcon className="h-4 w-4" />
+                                                            ) : (
+                                                                <ArrowDownIcon className="h-4 w-4" />
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </th>
+                                                <th 
+                                                    className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-muted/50 select-none"
+                                                    onClick={() => handleSort('porcentaje_rentabilidad')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        Rentabilidad
+                                                        {sortColumn === 'porcentaje_rentabilidad' && (
+                                                            sortDirection === 'asc' ? (
+                                                                <ArrowUpIcon className="h-4 w-4" />
+                                                            ) : (
+                                                                <ArrowDownIcon className="h-4 w-4" />
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </th>
                                                 <th className="px-4 py-3 text-left text-sm font-medium">Insumos</th>
                                                 <th className="px-4 py-3 text-right text-sm font-medium">Acciones</th>
                                             </tr>
