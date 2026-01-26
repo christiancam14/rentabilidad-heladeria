@@ -19,6 +19,7 @@ class Insumo extends Model
         'nombre',
         'precio',
         'unidad',
+        'presentacion',
     ];
 
     /**
@@ -30,6 +31,7 @@ class Insumo extends Model
     {
         return [
             'precio' => 'decimal:2',
+            'presentacion' => 'decimal:2',
         ];
     }
 
@@ -41,7 +43,6 @@ class Insumo extends Model
         return $this->belongsToMany(Producto::class, 'insumo_producto')
             ->using(InsumoProducto::class)
             ->withPivot([
-                'presentacion',
                 'cantidad_preparacion',
                 'valor_unidad',
                 'costo_preparacion',

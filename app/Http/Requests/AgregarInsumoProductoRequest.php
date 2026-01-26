@@ -24,7 +24,6 @@ class AgregarInsumoProductoRequest extends FormRequest
     {
         return [
             'insumo_id' => ['sometimes', 'required', 'exists:insumos,id'],
-            'presentacion' => ['required', 'numeric', 'min:0.01'],
             'cantidad_preparacion' => ['required', 'numeric', 'min:0'],
         ];
     }
@@ -39,9 +38,6 @@ class AgregarInsumoProductoRequest extends FormRequest
         return [
             'insumo_id.required' => 'Debe seleccionar un insumo.',
             'insumo_id.exists' => 'El insumo seleccionado no existe.',
-            'presentacion.required' => 'La presentación es obligatoria.',
-            'presentacion.numeric' => 'La presentación debe ser un número válido.',
-            'presentacion.min' => 'La presentación debe ser mayor a 0.',
             'cantidad_preparacion.required' => 'La cantidad de preparación es obligatoria.',
             'cantidad_preparacion.numeric' => 'La cantidad de preparación debe ser un número válido.',
             'cantidad_preparacion.min' => 'La cantidad de preparación no puede ser negativa.',

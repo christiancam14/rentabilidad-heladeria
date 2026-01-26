@@ -29,7 +29,6 @@ class InsumoProducto extends Pivot
     protected $fillable = [
         'producto_id',
         'insumo_id',
-        'presentacion',
         'cantidad_preparacion',
         'valor_unidad',
         'costo_preparacion',
@@ -43,7 +42,6 @@ class InsumoProducto extends Pivot
     protected function casts(): array
     {
         return [
-            'presentacion' => 'decimal:2',
             'cantidad_preparacion' => 'decimal:2',
             'valor_unidad' => 'decimal:2',
             'costo_preparacion' => 'decimal:2',
@@ -74,11 +72,17 @@ class InsumoProducto extends Pivot
     {
         $insumo = $this->insumo;
 
-        if (! $insumo || $this->presentacion <= 0) {
+        if (! $insumo) {
             return 0;
         }
 
-        return round($insumo->precio / $this->presentacion, 2);
+        $presentacion = $insumo->presentacion ?? 0;
+
+        if ($presentacion <= 0) {
+            return 0;
+        }
+
+        return round($insumo->precio / $presentacion, 2);
     }
 
     /**

@@ -46,7 +46,6 @@ class Producto extends Model
         return $this->belongsToMany(Insumo::class, 'insumo_producto')
             ->using(InsumoProducto::class)
             ->withPivot([
-                'presentacion',
                 'cantidad_preparacion',
                 'valor_unidad',
                 'costo_preparacion',
@@ -73,11 +72,13 @@ class Producto extends Model
      * Agregar un insumo al producto con cálculos automáticos.
      *
      * @param  Insumo  $insumo  El insumo a agregar
-     * @param  float  $presentacion  Número de unidades en la presentación
      * @param  float  $cantidadPreparacion  Cantidad usada en la preparación
      */
-    public function agregarInsumo(Insumo $insumo, float $presentacion, float $cantidadPreparacion): void
+    public function agregarInsumo(Insumo $insumo, float $cantidadPreparacion): void
     {
+        // Usar la presentación del insumo
+        $presentacion = $insumo->presentacion ?? 0;
+
         // Calcular valor_unidad = precio del insumo / presentación
         $valorUnidad = $presentacion > 0 ? $insumo->precio / $presentacion : 0;
 
@@ -87,7 +88,6 @@ class Producto extends Model
         // Agregar o actualizar el insumo en la tabla pivot
         $this->insumos()->syncWithoutDetaching([
             $insumo->id => [
-                'presentacion' => $presentacion,
                 'cantidad_preparacion' => $cantidadPreparacion,
                 'valor_unidad' => round($valorUnidad, 2),
                 'costo_preparacion' => round($costoPreparacion, 2),
@@ -102,12 +102,11 @@ class Producto extends Model
      * Actualizar un insumo existente del producto.
      *
      * @param  Insumo  $insumo  El insumo a actualizar
-     * @param  float  $presentacion  Número de unidades en la presentación
      * @param  float  $cantidadPreparacion  Cantidad usada en la preparación
      */
-    public function actualizarInsumo(Insumo $insumo, float $presentacion, float $cantidadPreparacion): void
+    public function actualizarInsumo(Insumo $insumo, float $cantidadPreparacion): void
     {
-        $this->agregarInsumo($insumo, $presentacion, $cantidadPreparacion);
+        $this->agregarInsumo($insumo, $cantidadPreparacion);
     }
 
     /**
@@ -153,7 +152,8 @@ class Producto extends Model
     public function recalcularCostosInsumos(): void
     {
         foreach ($this->insumos as $insumo) {
-            $presentacion = $insumo->pivot->presentacion;
+            // Usar la presentación del insumo
+            $presentacion = $insumo->presentacion ?? 0;
             $cantidadPreparacion = $insumo->pivot->cantidad_preparacion;
 
             // Recalcular con el precio actualizado del insumo
@@ -185,7 +185,7 @@ class Producto extends Model
                     'nombre' => $insumo->nombre,
                     'precio_insumo' => $insumo->precio,
                     'unidad' => $insumo->unidad,
-                    'presentacion' => $insumo->pivot->presentacion,
+                    'presentacion' => $insumo->presentacion,
                     'valor_unidad' => $insumo->pivot->valor_unidad,
                     'cantidad_preparacion' => $insumo->pivot->cantidad_preparacion,
                     'costo_preparacion' => $insumo->pivot->costo_preparacion,

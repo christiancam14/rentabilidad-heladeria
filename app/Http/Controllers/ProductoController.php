@@ -100,7 +100,6 @@ class ProductoController extends Controller
 
         $producto->agregarInsumo(
             $insumo,
-            $request->presentacion,
             $request->cantidad_preparacion
         );
 
@@ -115,7 +114,6 @@ class ProductoController extends Controller
     {
         $producto->actualizarInsumo(
             $insumo,
-            $request->presentacion,
             $request->cantidad_preparacion
         );
 
