@@ -27,6 +27,7 @@ class UpdateInsumoRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:255'],
             'precio' => ['required', 'integer', 'min:0'],
             'unidad' => ['required', 'string', Rule::in(Insumo::unidadesDisponibles())],
+            'presentacion' => ['required', 'integer', 'min:1'],
         ];
     }
 
@@ -44,6 +45,9 @@ class UpdateInsumoRequest extends FormRequest
             'precio.min' => 'El precio no puede ser negativo.',
             'unidad.required' => 'La unidad es obligatoria.',
             'unidad.in' => 'La unidad seleccionada no es válida.',
+            'presentacion.required' => 'La presentación es obligatoria.',
+            'presentacion.integer' => 'La presentación debe ser un número entero válido.',
+            'presentacion.min' => 'La presentación debe ser mayor a 0.',
         ];
     }
 }

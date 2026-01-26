@@ -40,6 +40,7 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
         nombre: '',
         precio: '',
         unidad: unidades_disponibles[0] || '',
+        presentacion: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -50,11 +51,16 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
         const cleanPrecio = cleanNumberFormat(data.precio as string);
         const precioNumerico = parseInt(cleanPrecio) || 0;
         
+        // Limpiar formato y convertir presentacion a número entero antes de enviar
+        const cleanPresentacion = cleanNumberFormat(data.presentacion as string);
+        const presentacionNumerica = parseInt(cleanPresentacion) || 0;
+        
         // Enviar datos directamente con el valor limpio
         router.post('/insumos', {
             nombre: data.nombre,
             precio: precioNumerico,
             unidad: data.unidad,
+            presentacion: presentacionNumerica,
         }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -144,6 +150,31 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.unidad} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="presentacion">Presentación</Label>
+                                <Input
+                                    id="presentacion"
+                                    type="number"
+                                    step="1"
+                                    min="1"
+                                    name="presentacion"
+                                    value={data.presentacion}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        // Solo permitir números enteros
+                                        if (value === '' || /^\d+$/.test(value)) {
+                                            setData('presentacion', value);
+                                        }
+                                    }}
+                                    placeholder="0"
+                                    required
+                                />
+                                <InputError message={errors.presentacion} />
+                                <p className="text-xs text-muted-foreground">
+                                    Cantidad total de unidades en la presentación del insumo
+                                </p>
                             </div>
 
                             <div className="flex justify-end gap-2">

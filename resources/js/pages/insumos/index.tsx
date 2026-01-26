@@ -34,6 +34,7 @@ interface Insumo {
     nombre: string;
     precio: number;
     unidad: string;
+    presentacion: number | null;
     created_at: string;
     updated_at: string;
 }
@@ -84,6 +85,7 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
         nombre: '',
         precio: '',
         unidad: unidades_disponibles[0] || '',
+        presentacion: '',
     });
 
     // Filtrar insumos en el frontend basado en la búsqueda
@@ -133,6 +135,7 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
             setData('nombre', editingInsumo.nombre || '');
             setData('precio', editingInsumo.precio ? formatNumberWithSeparator(Math.round(Number(editingInsumo.precio))) : '');
             setData('unidad', editingInsumo.unidad || unidades_disponibles[0] || '');
+            setData('presentacion', editingInsumo.presentacion ? Math.round(Number(editingInsumo.presentacion)).toString() : '');
         } else if (!editDialogOpen && !createDialogOpen) {
             // Limpiar el formulario cuando se cierran ambos modales
             reset();
@@ -148,11 +151,16 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
         const precioNumerico = parseInt(cleanPrecio) || 0;
         
         setIsUpdating(true);
+        // Limpiar formato y convertir presentacion a número entero antes de enviar
+        const cleanPresentacion = cleanNumberFormat(data.presentacion as string);
+        const presentacionNumerica = parseInt(cleanPresentacion) || 0;
+        
         // Enviar datos directamente con el valor limpio
         router.put(`/insumos/${editingInsumo.id}`, {
             nombre: data.nombre,
             precio: precioNumerico,
             unidad: data.unidad,
+            presentacion: presentacionNumerica,
         }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -180,11 +188,16 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
         const precioNumerico = parseInt(cleanPrecio) || 0;
         
         setIsCreating(true);
+        // Limpiar formato y convertir presentacion a número entero antes de enviar
+        const cleanPresentacion = cleanNumberFormat(data.presentacion as string);
+        const presentacionNumerica = parseInt(cleanPresentacion) || 0;
+        
         // Enviar datos directamente con el valor limpio
         router.post('/insumos', {
             nombre: data.nombre,
             precio: precioNumerico,
             unidad: data.unidad,
+            presentacion: presentacionNumerica,
         }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -256,6 +269,7 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                                         <th className="px-4 py-3 text-left text-sm font-medium">Nombre</th>
                                                         <th className="px-4 py-3 text-left text-sm font-medium">Precio</th>
                                                         <th className="px-4 py-3 text-left text-sm font-medium">Unidad</th>
+                                                        <th className="px-4 py-3 text-left text-sm font-medium">Presentación</th>
                                                         <th className="px-4 py-3 text-left text-sm font-medium">Última actualización</th>
                                                         <th className="px-4 py-3 text-right text-sm font-medium">Acciones</th>
                                                     </tr>
@@ -269,6 +283,9 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                                             </td>
                                                             <td className="px-4 py-3">
                                                                 <Badge variant="outline">{insumo.unidad}</Badge>
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                {insumo.presentacion ? Math.round(Number(insumo.presentacion)).toLocaleString('es-ES') : '-'}
                                                             </td>
                                                             <td className="px-4 py-3 text-sm text-muted-foreground">
                                                                 {new Date(insumo.updated_at).toLocaleDateString('es-ES')}
@@ -372,6 +389,31 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                     </Select>
                                     <InputError message={errors.unidad} />
                                 </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="create-presentacion">Presentación</Label>
+                                    <Input
+                                        id="create-presentacion"
+                                        name="presentacion"
+                                        type="number"
+                                        step="1"
+                                        min="1"
+                                        placeholder="0"
+                                        value={data.presentacion}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            // Solo permitir números enteros
+                                            if (value === '' || /^\d+$/.test(value)) {
+                                                setData('presentacion', value);
+                                            }
+                                        }}
+                                        required
+                                    />
+                                    <InputError message={errors.presentacion} />
+                                    <p className="text-xs text-muted-foreground">
+                                        Cantidad total de unidades en la presentación del insumo
+                                    </p>
+                                </div>
                             </div>
                             <DialogFooter>
                                 <Button
@@ -457,6 +499,31 @@ export default function InsumosIndex({ insumos, unidades_disponibles }: Props) {
                                         </SelectContent>
                                     </Select>
                                     <InputError message={errors.unidad} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-presentacion">Presentación</Label>
+                                    <Input
+                                        id="edit-presentacion"
+                                        name="presentacion"
+                                        type="number"
+                                        step="1"
+                                        min="1"
+                                        placeholder="0"
+                                        value={data.presentacion || (editingInsumo?.presentacion ? Math.round(Number(editingInsumo.presentacion)).toString() : '') || ''}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            // Solo permitir números enteros
+                                            if (value === '' || /^\d+$/.test(value)) {
+                                                setData('presentacion', value);
+                                            }
+                                        }}
+                                        required
+                                    />
+                                    <InputError message={errors.presentacion} />
+                                    <p className="text-xs text-muted-foreground">
+                                        Cantidad total de unidades en la presentación del insumo
+                                    </p>
                                 </div>
                             </div>
                             <DialogFooter>

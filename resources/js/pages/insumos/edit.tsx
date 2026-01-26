@@ -24,6 +24,7 @@ interface Insumo {
     nombre: string;
     precio: number;
     unidad: string;
+    presentacion: number | null;
 }
 
 interface Props {
@@ -49,10 +50,12 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
         nombre: insumo.nombre || '',
         precio: insumo.precio ? Math.round(Number(insumo.precio)).toString() : '',
         unidad: insumo.unidad || unidades_disponibles[0] || '',
+        presentacion: insumo.presentacion ? Math.round(Number(insumo.presentacion)).toString() : '',
     } : {
         nombre: '',
         precio: '',
         unidad: unidades_disponibles[0] || '',
+        presentacion: '',
     };
 
     const { data, setData, put, processing, errors } = useForm(initialData);
@@ -64,11 +67,16 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
         const cleanPrecio = cleanNumberFormat(data.precio as string);
         const precioNumerico = parseInt(cleanPrecio) || 0;
         
+        // Limpiar formato y convertir presentacion a número entero antes de enviar
+        const cleanPresentacion = cleanNumberFormat(data.presentacion as string);
+        const presentacionNumerica = parseInt(cleanPresentacion) || 0;
+        
         // Enviar datos directamente con el valor limpio
         router.put(`/insumos/${insumo.id}`, {
             nombre: data.nombre,
             precio: precioNumerico,
             unidad: data.unidad,
+            presentacion: presentacionNumerica,
         }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -159,6 +167,31 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.unidad} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="presentacion">Presentación</Label>
+                                <Input
+                                    id="presentacion"
+                                    name="presentacion"
+                                    type="number"
+                                    step="1"
+                                    min="1"
+                                    value={data.presentacion || (insumo.presentacion ? Math.round(Number(insumo.presentacion)).toString() : '') || ''}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        // Solo permitir números enteros
+                                        if (value === '' || /^\d+$/.test(value)) {
+                                            setData('presentacion', value);
+                                        }
+                                    }}
+                                    placeholder="0"
+                                    required
+                                />
+                                <InputError message={errors.presentacion} />
+                                <p className="text-xs text-muted-foreground">
+                                    Cantidad total de unidades en la presentación del insumo
+                                </p>
                             </div>
 
                             <div className="flex justify-end gap-2">

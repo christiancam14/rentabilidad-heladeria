@@ -63,7 +63,6 @@ class InsumoController extends Controller
                 return [
                     'id' => $producto->id,
                     'nombre' => $producto->nombre,
-                    'presentacion' => $producto->pivot->presentacion,
                     'cantidad_preparacion' => $producto->pivot->cantidad_preparacion,
                     'costo_preparacion' => $producto->pivot->costo_preparacion,
                 ];
@@ -77,12 +76,13 @@ class InsumoController extends Controller
     public function update(UpdateInsumoRequest $request, Insumo $insumo): RedirectResponse
     {
         $precioAnterior = $insumo->precio;
+        $presentacionAnterior = $insumo->presentacion;
         $insumo->update($request->validated());
 
-        // Si cambió el precio, recalcular costos en todos los productos que usan este insumo
-        if ($precioAnterior != $insumo->fresh()->precio) {
+        // Si cambió el precio o la presentación, recalcular costos en todos los productos que usan este insumo
+        $insumo->refresh();
+        if ($precioAnterior != $insumo->precio || $presentacionAnterior != $insumo->presentacion) {
             // Recargar la relación de productos para asegurar que tenemos los datos actualizados
-            $insumo->refresh();
             $insumo->load('productos');
 
             // Recalcular costos en todos los productos que usan este insumo

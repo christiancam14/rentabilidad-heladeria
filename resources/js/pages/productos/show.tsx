@@ -34,6 +34,7 @@ interface Insumo {
     nombre: string;
     precio: number;
     unidad: string;
+    presentacion: number | null;
 }
 
 interface InsumoProducto {
@@ -41,8 +42,8 @@ interface InsumoProducto {
     nombre: string;
     precio: number;
     unidad: string;
+    presentacion: number | null;
     pivot: {
-        presentacion: number;
         cantidad_preparacion: number;
         valor_unidad: number;
         costo_preparacion: number;
@@ -66,7 +67,7 @@ interface DetalleCostos {
         nombre: string;
         precio_insumo: number;
         unidad: string;
-        presentacion: number;
+        presentacion: number | null;
         valor_unidad: number;
         cantidad_preparacion: number;
         costo_preparacion: number;
@@ -132,7 +133,6 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         insumo_id: '',
-        presentacion: '',
         cantidad_preparacion: '',
     });
 
@@ -161,7 +161,6 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
         // Convertir valores a números decimales antes de enviar
         const formData = {
             insumo_id: data.insumo_id,
-            presentacion: parseFloat(data.presentacion as string) || 0,
             cantidad_preparacion: parseFloat(data.cantidad_preparacion as string) || 0,
         };
         post(`/productos/${producto.id}/insumos`, {
@@ -192,7 +191,6 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
 
         // Preparar los datos para enviar (convertir a números decimales)
         const formData = {
-            presentacion: parseFloat(data.presentacion as string) || 0,
             cantidad_preparacion: parseFloat(data.cantidad_preparacion as string) || 0,
         };
 
@@ -253,7 +251,6 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
         setEditingInsumo(insumo);
         setData({
             insumo_id: insumo.id.toString(),
-            presentacion: Number(insumo.pivot.presentacion).toString(),
             cantidad_preparacion: Number(insumo.pivot.cantidad_preparacion).toString(),
         });
         setDialogOpen(true);
@@ -452,23 +449,19 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                 </div>
                                             )}
 
-                                            <div className="space-y-2">
-                                                <Label htmlFor="presentacion">Presentación</Label>
-                                                <Input
-                                                    id="presentacion"
-                                                    type="number"
-                                                    step="any"
-                                                    min="0.01"
-                                                    value={data.presentacion}
-                                                    onChange={(e) => setData('presentacion', e.target.value)}
-                                                    placeholder="Ej: 10 o 0.5"
-                                                    required
-                                                />
-                                                <InputError message={errors.presentacion} />
-                                                <p className="text-xs text-muted-foreground">
-                                                    Cantidad total de unidades en la presentación del insumo
-                                                </p>
-                                            </div>
+                                            {selectedInsumo && (
+                                                <div className="space-y-2">
+                                                    <Label>Presentación del Insumo</Label>
+                                                    <div className="rounded-md border bg-muted px-3 py-2 text-sm">
+                                                        {selectedInsumo.presentacion 
+                                                            ? Number(selectedInsumo.presentacion).toLocaleString('es-ES')
+                                                            : 'No definida'}
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        La presentación está definida en el insumo
+                                                    </p>
+                                                </div>
+                                            )}
 
                                             <div className="space-y-2">
                                                 <Label htmlFor="cantidad_preparacion">Cantidad en Preparación</Label>
@@ -544,10 +537,12 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                                                     {formatPrice(insumo.precio)}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {Number(insumo.pivot.presentacion).toLocaleString('es-ES', { 
-                                                        minimumFractionDigits: 0, 
-                                                        maximumFractionDigits: 2 
-                                                    })}
+                                                    {insumo.presentacion 
+                                                        ? Number(insumo.presentacion).toLocaleString('es-ES', { 
+                                                            minimumFractionDigits: 0, 
+                                                            maximumFractionDigits: 2 
+                                                        })
+                                                        : '-'}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {formatPrice(insumo.pivot.valor_unidad)}
