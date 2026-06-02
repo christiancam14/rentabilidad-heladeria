@@ -1,28 +1,41 @@
+# --- PHP / Laravel ---
 /.phpunit.cache
-/bootstrap/ssr
-/node_modules
-/public/build/*
-/public/hot
-/public/storage
-/resources/js/actions
-/resources/js/routes
-/resources/js/wayfinder
-/storage/*.key
-/storage/pail
+.phpunit.result.cache
+.phpactor.json
+/auth.json
 /vendor
-.DS_Store
+/bootstrap/ssr
+
+# --- Entorno (configurar en panel Hostinger, no en Git) ---
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
+
+# --- Node (instalar solo en desarrollo; build sí va al repo) ---
+/node_modules
 npm-debug.log
 yarn-error.log
-/auth.json
+
+# --- Vite / frontend ---
+# public/build SÍ se sube (Hostinger suele no tener Node en el servidor)
+/public/hot
+
+# Generados por Wayfinder en local (se incluyen en public/build al hacer npm run build)
+/resources/js/actions
+/resources/js/routes
+/resources/js/wayfinder
+
+# --- Storage / runtime (no subir datos de sesión, caché ni logs) ---
+/storage/*.key
+/storage/pail
+/public/storage
+
+# --- IDE / OS ---
+.DS_Store
 /.fleet
 /.idea
 /.nova
 /.vscode
 /.zed
+Homestead.json
+Homestead.yaml
