@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, Package, IceCream, Calendar } from 'lucide-react';
+import { LayoutGrid, Package, IceCream, Calendar, Wallet } from 'lucide-react';
 
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -38,6 +38,11 @@ const mainNavItems: NavItem[] = [
         title: 'Cierres de Mes',
         href: '/cierres-mes',
         icon: Calendar,
+    },
+    {
+        title: 'Finanzas',
+        href: '/finanzas/consolidado',
+        icon: Wallet,
     },
 ];
 

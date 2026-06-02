@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call([
+            FinanzasSeeder::class,
             InsumoSeeder::class,
             ProductoSeeder::class,
         ]);
