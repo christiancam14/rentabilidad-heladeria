@@ -2,9 +2,13 @@
     "$schema": "https://www.schemastore.org/package.json",
     "private": true,
     "type": "module",
+    "engines": {
+        "node": ">=20.0.0"
+    },
     "scripts": {
-        "build": "vite build",
-        "build:ssr": "vite build && vite build --ssr",
+        "build": "node scripts/hostinger-build.mjs",
+        "build:vite": "vite build",
+        "build:ssr": "npm run build:vite && vite build --ssr",
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",

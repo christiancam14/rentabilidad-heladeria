@@ -1,56 +1,65 @@
 # Despliegue en Hostinger (GitHub)
 
+## Checklist si sale "Deployment failed"
+
+1. **Tipo de sitio:** debe ser **PHP** (Laravel), no una app **Node.js** separada en hPanel.
+2. **Rama en Git:** `master` (la que uses en GitHub con `package.json` en la raíz).
+3. **Carpeta de instalación:** raíz del clone (ej. `domains/tudominio.com/public_html`), **vacía** antes del primer deploy.
+4. **Carpeta pública / Document root:** `public` (subcarpeta de Laravel).
+5. **PHP:** 8.3.19 o superior en hPanel.
+6. **`.env` en el servidor** antes del primer deploy (copiar de `.env.example` en File Manager o variables de Hostinger).
+7. **Repo privado:** reconectar GitHub o añadir deploy key en GitHub → Settings → Deploy keys.
+8. Abrir el **log** del deploy fallido (botón en la fila del deployment) y leer la última línea de error.
+
 ## Qué sube Git
 
 | Sí en el repo | No en el repo |
 |---------------|----------------|
 | Código PHP, `public/build/` (assets Vite) | `.env`, `vendor/`, `node_modules/` |
-| Migraciones, vistas, `resources/js` fuente | `public/hot`, logs, caché de `storage/` |
+| `package.json`, `composer.json`, `.htaccess` raíz | `public/hot`, logs, caché |
 
-Antes de cada **push** a la rama que despliega Hostinger:
+Antes de cada **push** a `master`:
 
 ```bash
 npm ci
-npm run build
+npm run build:vite
+git add public/build
+git commit -m "Build assets"
+git push
 ```
 
-Así `public/build/` queda actualizado y la app carga CSS/JS en producción.
+En el servidor, `npm run build` **detecta** `public/build` sin `vendor` y **no** ejecuta Vite (evita fallo de Wayfinder).
 
-## Panel Hostinger → Git / Deploy
+## Panel Hostinger → Git
 
-1. Conecta el repositorio de GitHub.
-2. **Directorio público (document root):** `public` (no la raíz del proyecto).
-3. Rama: `main` (o la que uses).
-4. Variables de entorno: copia `.env.example` y configura en Hostinger (o archivo `.env` en el servidor **fuera** de Git):
-   - `APP_ENV=production`
-   - `APP_DEBUG=false`
-   - `APP_URL=https://tu-dominio.com`
-   - Credenciales MySQL de Hostinger
-   - `CACHE_STORE=file`, `SESSION_DRIVER=file`, `QUEUE_CONNECTION=sync`
-
-## Comandos en el servidor (SSH o “Run script” del deploy)
-
-Tras cada despliegue:
+1. Conecta el repositorio `rentabilidad-heladeria`.
+2. Rama: **master**.
+3. Directorio de instalación: raíz del sitio (donde quedarán `package.json` y `app/`).
+4. Document root: **public**.
+5. Tras el primer clone exitoso, por SSH o Terminal:
 
 ```bash
 composer install --no-dev --optimize-autoloader
 php artisan migrate --force
 php artisan storage:link
 php artisan config:cache
-php artisan route:cache
-php artisan view:cache
 ```
 
-Si no hay SSH, usa el instalador de Composer del panel y ejecuta migraciones desde **Terminal** de hPanel cuando esté disponible.
+## Variables `.env` en producción
 
-## Primera vez
-
-```bash
-php artisan db:seed --class=FinanzasSeeder --force
-# Opcional: php artisan db:seed --force
+```
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://tu-dominio.com
+CACHE_STORE=file
+SESSION_DRIVER=file
+QUEUE_CONNECTION=sync
 ```
 
-## Comprobar
+## GitHub Actions (opcional)
 
-- Abre `/login` y revisa que carguen estilos (sin errores 404 a `/build/assets/...`).
-- `php artisan migrate:status` debe listar todas las migraciones como **Ran**.
+El workflow `.github/workflows/hostinger-build-check.yml` valida que el proyecto compile en cada push. No despliega solo; confirma que el código está bien antes de depender de Hostinger.
+
+## Si Git de Hostinger sigue fallando
+
+Usa **SFTP/FileZilla** o **GitHub Actions + SSH** (ver guías de Hostinger) subiendo el repo ya con `vendor` generado localmente (`composer install --no-dev`) y `public/build/`, o pide a soporte el **log completo** del deployment.
