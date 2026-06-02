@@ -71,15 +71,15 @@ class GenerateCommand extends Command
             return new Route($route, $globalUrlDefaults->merge($defaults), $this->forcedScheme, $this->forcedRoot);
         });
 
-        if (! $this->option('skip-actions')) {
-            $this->files->deleteDirectory($this->base());
+        $this->writeWayfinderHelperFile();
 
+        if (! $this->option('skip-actions')) {
             $controllers = $routes->filter(fn (Route $route) => $route->hasController())->groupBy(fn (Route $route) => $route->dotNamespace());
 
             $controllers->undot()->each($this->writeBarrelFiles(...));
             $controllers->each($this->writeControllerFile(...));
 
-            $this->writeContent();
+            $this->pruneStaleFiles($this->base(), $this->writeContent());
 
             info('[Wayfinder] Generated actions in '.$this->base());
         }
@@ -87,25 +87,33 @@ class GenerateCommand extends Command
         $this->pathDirectory = 'routes';
 
         if (! $this->option('skip-routes')) {
-            $this->files->deleteDirectory($this->base());
-
             $named = $routes->filter(fn (Route $route) => $route->name())->groupBy(fn (Route $route) => $route->name());
 
             $named->each($this->writeNamedFile(...));
             $named->undot()->each($this->writeBarrelFiles(...));
 
-            $this->writeContent();
+            $this->pruneStaleFiles($this->base(), $this->writeContent());
 
             info('[Wayfinder] Generated routes in '.$this->base());
         }
+    }
 
+    private function writeWayfinderHelperFile(): void
+    {
+        $previousPathDirectory = $this->pathDirectory;
         $this->pathDirectory = 'wayfinder';
 
         $this->files->ensureDirectoryExists($this->base());
-        $this->files->copy(__DIR__.'/../resources/js/wayfinder.ts', join_paths($this->base(), 'index.ts'));
+
+        $source = __DIR__.'/../resources/js/wayfinder.ts';
+        $destination = join_paths($this->base(), 'index.ts');
+
+        $this->writeContentIfChanged($destination, $this->files->get($source));
+
+        $this->pathDirectory = $previousPathDirectory;
     }
 
-    private function appendContent($path, $content): void
+    private function appendContent(string $path, string $content): void
     {
         $this->content[$path] ??= [];
 
@@ -114,27 +122,85 @@ class GenerateCommand extends Command
         }
     }
 
-    private function prependContent($path, $content): void
+    private function prependContent(string $path, string $content): void
     {
         $this->content[$path] ??= [];
 
         array_unshift($this->content[$path], $content);
     }
 
-    private function writeContent(): void
+    /**
+     * @return string[] paths that were written
+     */
+    private function writeContent(): array
     {
+        $written = [];
+
         foreach ($this->content as $path => $content) {
             $this->files->ensureDirectoryExists(dirname($path));
-            $this->files->put($path, TypeScript::cleanUp(implode(PHP_EOL, $content)));
 
-            // Prepend the imports to the file
+            $body = TypeScript::cleanUp(implode(PHP_EOL, $content));
+
             if (isset($this->imports[$path])) {
-                $importLines = collect($this->imports[$path])->map(fn ($imports, $key) => 'import { '.implode(', ', array_unique($imports))." } from '{$key}'")->implode(PHP_EOL);
-                $this->files->prepend($path, $importLines.PHP_EOL);
+                $importLines = collect($this->imports[$path])
+                    ->map(fn ($imports, $key) => 'import { '.implode(', ', array_unique($imports))." } from '{$key}'")
+                    ->implode(PHP_EOL);
+
+                $body = $importLines.PHP_EOL.$body;
             }
+
+            $this->writeContentIfChanged($path, $body);
+
+            $written[] = $path;
         }
 
         $this->content = [];
+        $this->imports = [];
+
+        return $written;
+    }
+
+    private function writeContentIfChanged(string $path, string $content): void
+    {
+        $this->files->ensureDirectoryExists(dirname($path));
+
+        if (! $this->files->exists($path) || $this->files->get($path) !== $content) {
+            $this->files->put($path, $content);
+        }
+    }
+
+    private function pruneStaleFiles(string $base, array $writtenPaths): void
+    {
+        if (! $this->files->isDirectory($base)) {
+            return;
+        }
+
+        $kept = collect($writtenPaths)->map(fn ($path) => realpath($path) ?: $path)->flip();
+
+        foreach ($this->files->allFiles($base) as $file) {
+            $path = $file->getPathname();
+
+            if (! $kept->has(realpath($path) ?: $path)) {
+                $this->files->delete($path);
+            }
+        }
+
+        $this->pruneEmptyDirectories($base);
+    }
+
+    private function pruneEmptyDirectories(string $dir): void
+    {
+        if (! $this->files->isDirectory($dir)) {
+            return;
+        }
+
+        foreach ($this->files->directories($dir) as $sub) {
+            $this->pruneEmptyDirectories($sub);
+        }
+
+        if (empty($this->files->files($dir)) && empty($this->files->directories($dir))) {
+            $this->files->deleteDirectory($dir);
+        }
     }
 
     private function writeControllerFile(Collection $routes, string $namespace): void
@@ -174,12 +240,26 @@ class GenerateCommand extends Command
         JAVASCRIPT);
     }
 
+    private function safeParamNames(string $method): array
+    {
+        $reserved = [
+            'args' => 'routeArgs',
+            'options' => 'routeOptions',
+            'parsedArgs' => 'routeParsedArgs',
+        ];
+
+        $params = array_map(fn ($default, $name) => $method === $name ? $default : $name, $reserved, array_keys($reserved));
+
+        return array_combine(array_keys($reserved), $params);
+    }
+
     private function writeMultiRouteControllerMethodExport(Collection $routes, string $path): void
     {
         $isInvokable = $routes->first()->hasInvokableController();
+        $method = $routes->first()->jsMethod();
 
         $this->appendContent($path, $this->view->make('wayfinder::multi-method', [
-            'method' => $routes->first()->jsMethod(),
+            'method' => $method,
             'original_method' => $routes->first()->originalJsMethod(),
             'path' => $routes->first()->controllerPath(),
             'line' => $routes->first()->controllerMethodLineNumber(),
@@ -187,6 +267,7 @@ class GenerateCommand extends Command
             'isInvokable' => $isInvokable,
             'shouldExport' => ! $isInvokable,
             'withForm' => $this->option('with-form') ?? false,
+            ...$this->safeParamNames($method),
             'routes' => $routes->map(fn ($r) => [
                 'method' => $r->jsMethod(),
                 'tempMethod' => $r->jsMethod().hash('xxh128', $r->uri()),
@@ -194,14 +275,16 @@ class GenerateCommand extends Command
                 'verbs' => $r->verbs(),
                 'uri' => $r->uri(),
             ]),
-        ]));
+        ])->render());
     }
 
     private function writeControllerMethodExport(Route $route, string $path): void
     {
+        $method = $route->jsMethod();
+
         $this->appendContent($path, $this->view->make('wayfinder::method', [
             'controller' => $route->controller(),
-            'method' => $route->jsMethod(),
+            'method' => $method,
             'original_method' => $route->originalJsMethod(),
             'isInvokable' => $route->hasInvokableController(),
             'shouldExport' => ! $route->hasInvokableController(),
@@ -211,7 +294,8 @@ class GenerateCommand extends Command
             'verbs' => $route->verbs(),
             'uri' => $route->uri(),
             'withForm' => $this->option('with-form') ?? false,
-        ]));
+            ...$this->safeParamNames($method),
+        ])->render());
     }
 
     private function writeNamedFile(Collection $routes, string $namespace): void
@@ -255,9 +339,11 @@ class GenerateCommand extends Command
 
     private function writeNamedMethodExport(Route $route, string $path): void
     {
+        $method = $route->namedMethod();
+
         $this->appendContent($path, $this->view->make('wayfinder::method', [
             'controller' => $route->controller(),
-            'method' => $route->namedMethod(),
+            'method' => $method,
             'original_method' => $route->originalJsMethod(),
             'isInvokable' => $route->hasInvokableController(),
             'shouldExport' => true,
@@ -267,7 +353,8 @@ class GenerateCommand extends Command
             'verbs' => $route->verbs(),
             'uri' => $route->uri(),
             'withForm' => $this->option('with-form') ?? false,
-        ]));
+            ...$this->safeParamNames($method),
+        ])->render());
     }
 
     private function writeBarrelFiles(array|Collection $children, string $parent): void

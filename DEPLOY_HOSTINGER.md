@@ -6,7 +6,7 @@
 2. **Rama en Git:** `master` (la que uses en GitHub con `package.json` en la raíz).
 3. **Carpeta de instalación:** raíz del clone (ej. `domains/tudominio.com/public_html`), **vacía** antes del primer deploy.
 4. **Carpeta pública / Document root:** `public` (subcarpeta de Laravel).
-5. **PHP:** 8.3.19 o superior en hPanel.
+5. **PHP:** 8.3.19–8.3.x en hPanel (el `composer.lock` está fijado para **8.3.31**, no 8.4).
 6. **`.env` en el servidor** antes del primer deploy (copiar de `.env.example` en File Manager o variables de Hostinger).
 7. **Repo privado:** reconectar GitHub o añadir deploy key en GitHub → Settings → Deploy keys.
 8. Abrir el **log** del deploy fallido (botón en la fila del deployment) y leer la última línea de error.
