@@ -74,6 +74,9 @@ class Producto extends Model
      * @param  Insumo  $insumo  El insumo a agregar
      * @param  float  $cantidadPreparacion  Cantidad usada en la preparación
      */
+    /** Evita recalcular en cada insumo (p. ej. durante seed masivo). */
+    public static bool $omitirRecalculoEnAgregar = false;
+
     public function agregarInsumo(Insumo $insumo, float $cantidadPreparacion): void
     {
         // Usar la presentación del insumo
@@ -94,7 +97,33 @@ class Producto extends Model
             ],
         ]);
 
-        // Recalcular totales del producto
+        if (! static::$omitirRecalculoEnAgregar) {
+            $this->recalcularTotales();
+        }
+    }
+
+    /**
+     * Sincroniza todos los insumos de una receta en una sola operación (ideal para seeders).
+     *
+     * @param  array<int, array{0: Insumo, 1: float}>  $lineas  Pares [insumo, cantidad_preparacion]
+     */
+    public function sincronizarInsumosReceta(array $lineas): void
+    {
+        $sync = [];
+
+        foreach ($lineas as [$insumo, $cantidadPreparacion]) {
+            $presentacion = $insumo->presentacion ?? 0;
+            $valorUnidad = $presentacion > 0 ? $insumo->precio / $presentacion : 0;
+            $costoPreparacion = $valorUnidad * $cantidadPreparacion;
+
+            $sync[$insumo->id] = [
+                'cantidad_preparacion' => $cantidadPreparacion,
+                'valor_unidad' => round($valorUnidad, 2),
+                'costo_preparacion' => round($costoPreparacion, 2),
+            ];
+        }
+
+        $this->insumos()->sync($sync);
         $this->recalcularTotales();
     }
 
