@@ -194,7 +194,7 @@ export default function FinanzasTarjetaBbva({ periodo, heladeria, casa, totales 
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold">Tarjeta BBVA</h1>
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Tarjeta BBVA</h1>
                         <p className="text-muted-foreground text-sm">Control aparte — no afecta el consolidado</p>
                     </div>
                     <PeriodSelector periodo={periodo} basePath="/finanzas/tarjeta-bbva" />

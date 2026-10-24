@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Pedido;
+use App\Models\Sede;
+use App\Support\SedeActiva;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -42,6 +45,27 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'admin' => fn () => $request->user() ? $this->datosAdmin($request) : null,
+        ];
+    }
+
+    /**
+     * Datos del shell administrativo: sede activa y pedidos por atender.
+     *
+     * @return array<string, mixed>
+     */
+    private function datosAdmin(Request $request): array
+    {
+        $sede = SedeActiva::obtener($request);
+
+        return [
+            'sedes' => Sede::orderBy('id')->get(['id', 'nombre']),
+            'sede_activa' => $sede ? [
+                'id' => $sede->id,
+                'nombre' => $sede->nombre,
+                'recibiendo_pedidos' => (bool) $sede->recibiendo_pedidos,
+            ] : null,
+            'pedidos_nuevos' => $sede ? Pedido::where('sede_id', $sede->id)->where('estado', 'nuevo')->count() : 0,
         ];
     }
 }

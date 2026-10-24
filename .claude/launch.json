@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "heladeria-local",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "DB_CONNECTION=sqlite DB_DATABASE=/Users/christiancamachogalvis/Desktop/Heladeria/rentabilidad-heladeria/database/local.sqlite APP_URL=http://127.0.0.1:8010 php artisan serve --host=127.0.0.1 --port=8010"],
+      "port": 8010
+    }
+  ]
+}

@@ -1,0 +1,288 @@
+{
+ "sabores": [
+  "Ron con pasas",
+  "Brownie",
+  "Vainilla chips",
+  "Chocolate",
+  "Lulo-Maracuyá",
+  "Natamaní",
+  "Arequipe",
+  "Fresa",
+  "Chicle",
+  "Vainilla",
+  "Tres Leches",
+  "Maracuyá",
+  "Mandarina",
+  "Frutos rojos",
+  "Capuchino",
+  "Caramelo",
+  "Yogurt",
+  "Veteado de mora"
+ ],
+ "productos": {
+  "Obleas": [
+   {
+    "name": "Oblea #1",
+    "description": "Oblea con arequipe",
+    "price": 5000,
+    "image": "oblea.webp"
+   },
+   {
+    "name": "Oblea #2",
+    "description": "Oblea con arequipe y queso",
+    "price": 6000,
+    "image": "oblea.webp"
+   },
+   {
+    "name": "Oblea #3",
+    "description": "Oblea con arequipe, queso, chantilly y salsa de frutos rojos",
+    "price": 7000,
+    "image": "oblea.webp"
+   },
+   {
+    "name": "Oblea #4",
+    "description": "Oblea con arequipe, queso, salsa de frutos rojos, chantilly y fresa",
+    "price": 8000,
+    "image": "oblea.webp"
+   }
+  ],
+  "Ensaladas": [
+   {
+    "name": "Ensalada especial",
+    "description": "Mango, banano, piña en almíbar, papaya, patilla, melón, crema de la casa, manzana, fresa, queso, granola, kiwi, durazno, chantilly, cereza y 2 sabores de helado.",
+    "price": 12000,
+    "image": "ensalada.webp"
+   },
+   {
+    "name": "Ensalada pequeña",
+    "description": "Mango, banano, piña en almíbar, papaya, patilla, melón, crema de la casa, manzana, fresa, queso, granola y helado",
+    "price": 8000,
+    "image": "ensalada.webp"
+   }
+  ],
+  "Malteadas": [
+   {
+    "name": "Brownie",
+    "description": "Malteada de chocolate, nutella, mini chips, brownie, chantilly, oreo triturada, salsa de arequipe, Galleta oreo, salsa de chocolate.",
+    "price": 10000,
+    "image": "milkshakeBrownie.webp"
+   },
+   {
+    "name": "Waffle",
+    "description": "Malteada de frutos rojos, chantilly, waffle, chocmelos, maní, arequipe, fresas, salsa de chocolate y de frutos rojos",
+    "price": 11000,
+    "image": "milkshakeWaffle.webp"
+   },
+   {
+    "name": "Sweet Ron",
+    "description": "Malteada de 3 leches con ron, nutella, chantilly, oreo triturado, salsa de chocolate, chocmelos, barquillo.",
+    "price": 12000,
+    "image": "milkshakeSweetRon.webp"
+   },
+   {
+    "name": "Cono",
+    "description": "Malteada de vainilla arequipe, m&m's. cono, chantilly, golochips salsa de frutos rojos, marshmallows, pepitas de colores.",
+    "price": 10000,
+    "image": "milkshakeCono.webp"
+   },
+   {
+    "name": "Strawberry",
+    "description": "Malteada de maracuyá chantilly, arequipe. chococrispys, salsa de chocolate, chocmelos y fresas.",
+    "price": 11000,
+    "image": "milkshakeStrawberry.webp"
+   }
+  ],
+  "Infantil": [
+   {
+    "name": "Pollito",
+    "description": "",
+    "price": 6000,
+    "image": "pollito.webp"
+   },
+   {
+    "name": "Payasito",
+    "description": "",
+    "price": 6500,
+    "image": "payasito.webp"
+   },
+   {
+    "name": "Osito",
+    "description": "",
+    "price": 6500,
+    "image": "osito.webp"
+   },
+   {
+    "name": "Arañita",
+    "description": "",
+    "price": 6000,
+    "image": "arana.webp"
+   },
+   {
+    "name": "Buho",
+    "description": "",
+    "price": 7000,
+    "image": "buho.webp"
+   },
+   {
+    "name": "Mariposa",
+    "description": "",
+    "price": 7000,
+    "image": "mariposa.webp"
+   },
+   {
+    "name": "Gatico",
+    "description": "",
+    "price": 6500,
+    "image": "gatico.webp"
+   },
+   {
+    "name": "Gusanito",
+    "description": "",
+    "price": 6000,
+    "image": "gusanito.webp"
+   },
+   {
+    "name": "Ratoncito",
+    "description": "",
+    "price": 7000,
+    "image": "ratoncito.webp"
+   }
+  ],
+  "Copas": [
+   {
+    "name": "Maracumango",
+    "description": "Chantilly, maracuyá, (mango, piña), helado, lechera, barquillo.",
+    "price": 9000,
+    "image": "maracumango.webp"
+   },
+   {
+    "name": "Gelatina con Helado",
+    "description": "Gelatina, 2 bolas de helado, queso, chantilly, morita, salsa de frutos rojos, pepitas de colores, barquillo, crema de la casa.",
+    "price": 8500,
+    "image": "copaGelatinaHelado.webp"
+   },
+   {
+    "name": "Copa durazno",
+    "description": "2 bolas de helado, chantillí, durazno, arequipe, lluvia de chocolate.",
+    "price": 8000,
+    "image": "copaDurazno.webp"
+   },
+   {
+    "name": "Fresas con crema",
+    "description": "Chantilly, helado, salsa de frutos rojos, fresa, cereza.",
+    "price": 7500,
+    "image": "copaFresas.webp"
+   },
+   {
+    "name": "Copa de Baileys",
+    "description": "Malteada, crema de baileys, chantilly, oreo triturado, gala.",
+    "price": 10000,
+    "image": "copaBaileys.webp"
+   }
+  ],
+  "Crepes": [
+   {
+    "name": "Crepe Tropical",
+    "description": "Tortilla, salsa de arequipe, salsa de frutos rojos, piña en almíbar, maracuyá, chantilly y helado.",
+    "price": 9000,
+    "image": "crepeTropical.webp"
+   },
+   {
+    "name": "Crepe Choco-fresa",
+    "description": "Tortilla, Crema de la casa, Fresa, Crema Chantilly, Salsa de chocolate, Cobertura de chocolate, Helado.",
+    "price": 9500,
+    "image": "crepeChocoFresa.webp"
+   },
+   {
+    "name": "Crepe",
+    "description": "Tortilla, Nutella, banano, fresa, salsa de chocolate, chantilly y helado.",
+    "price": 10000,
+    "image": "crepe.webp"
+   }
+  ],
+  "Waffles": [
+   {
+    "name": "Waffle Pan de Yuca",
+    "description": "Waffle de pan de yuca, Queso doble crema, Salsa de arequipe, Barquillo, Crema Chantilly, Helado.",
+    "price": 8500,
+    "image": "waffleYuca.webp"
+   },
+   {
+    "name": "Waffle",
+    "description": "Waffle, fresa, durazno, banano, kiwi, arequipe, salsa de chocolate y una bola de helado.",
+    "price": 9000,
+    "image": "waffle.webp"
+   },
+   {
+    "name": "Waffle éxtasis de chocolate",
+    "description": "Waffle de chocolate, cobertura de chocolate, oreo triturado, m&m's, chocmelos, barquillos chantilly, helado y salsa de chocolate.",
+    "price": 10000,
+    "image": "waffleExtasis.webp"
+   }
+  ],
+  "Cholaos": [
+   {
+    "name": "Cholao",
+    "description": "Raspao', lechera, mango, fresa, maracuyá, guanábana, milo, helado, manzana, piña, banano.",
+    "price": 7000,
+    "image": "cholao.webp"
+   },
+   {
+    "name": "Parfait",
+    "description": "Yogurt, granola, mango, fresa, banano, chantilly, manzana, salsa de frutos rojos.",
+    "price": 7500,
+    "image": "parfait.webp"
+   },
+   {
+    "name": "Matrimonio",
+    "description": "Guanábana, salpicón, queso, lechera, manzana, bola de helado.",
+    "price": 8000,
+    "image": "salpicon.webp"
+   },
+   {
+    "name": "Merengón",
+    "description": "Merengon, Chantilly, Crema de la casa.",
+    "price": 8500,
+    "image": "merengon.webp"
+   },
+   {
+    "name": "Cono XL",
+    "description": "Banano, Fresa, 3 Bolas de helado, Crema Chantilly, Cobertura de chocolate , 2 salsas.",
+    "price": 9000,
+    "image": "conoXL.webp"
+   }
+  ],
+  "Frappés": [
+   {
+    "name": "Milo",
+    "description": "",
+    "variations": [
+     "Con helado",
+     "Sin helado"
+    ],
+    "price": 6000,
+    "image": "frappe.webp"
+   },
+   {
+    "name": "Café",
+    "description": "",
+    "variations": [
+     "Con helado",
+     "Sin helado"
+    ],
+    "price": 6500,
+    "image": "frappe.webp"
+   },
+   {
+    "name": "Oreo",
+    "description": "",
+    "variations": [
+     "Con helado",
+     "Sin helado"
+    ],
+    "price": 7000,
+    "image": "frappe.webp"
+   }
+  ]
+ }
+}

@@ -88,7 +88,7 @@ export default function InsumosCreate({ unidades_disponibles }: Props) {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-semibold">Crear Insumo</h1>
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Crear Insumo</h1>
                         <p className="text-muted-foreground">
                             Agrega un nuevo insumo o materia prima
                         </p>

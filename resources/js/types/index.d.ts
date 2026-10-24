@@ -22,10 +22,22 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface SedeResumen {
+    id: number;
+    nombre: string;
+}
+
+export interface AdminShared {
+    sedes: SedeResumen[];
+    sede_activa: (SedeResumen & { recibiendo_pedidos: boolean }) | null;
+    pedidos_nuevos: number;
+}
+
 export interface SharedData {
     name: string;
     auth: Auth;
     sidebarOpen: boolean;
+    admin: AdminShared | null;
     [key: string]: unknown;
 }
 

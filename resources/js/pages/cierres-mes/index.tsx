@@ -183,7 +183,7 @@ export default function CierresMesIndex({ cierres, anios, filters }: Props) {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Cierres de Mes</h1>
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Cierres de Mes</h1>
                         <p className="text-muted-foreground">
                             Gestión de cierres mensuales y rentabilidad
                         </p>

@@ -109,7 +109,7 @@ export default function InsumosEdit({ insumo, unidades_disponibles }: Props) {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-semibold">Editar Insumo</h1>
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Editar Insumo</h1>
                         <p className="text-muted-foreground">
                             Modifica la información del insumo
                         </p>

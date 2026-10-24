@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Insumo;
+use App\Models\Pedido;
 use App\Models\Producto;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $totalProductos = Producto::count();
         $totalInsumos = Insumo::count();
         $productosIncompletos = Producto::doesntHave('insumos')->count();
-        
+
         // Rentabilidad promedio
         $rentabilidadPromedio = Producto::whereHas('insumos')
             ->avg('porcentaje_rentabilidad') ?? 0;
@@ -185,7 +185,18 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Actividad de hoy en el menú digital (todas las sedes)
+        $pedidosHoy = Pedido::where('created_at', '>=', now()->startOfDay())->where('estado', '!=', 'cancelado');
+        $tienda = [
+            'ventas_hoy' => (int) (clone $pedidosHoy)->sum('total'),
+            'pedidos_hoy' => (clone $pedidosHoy)->count(),
+            'en_curso' => Pedido::whereIn('estado', Pedido::EN_CURSO)->count(),
+            'productos_visibles' => Producto::where('visible_menu', true)->count(),
+            'agotados' => Producto::where('visible_menu', true)->where('agotado', true)->count(),
+        ];
+
         return Inertia::render('dashboard', [
+            'tienda' => $tienda,
             'kpis' => [
                 'total_productos' => $totalProductos,
                 'total_insumos' => $totalInsumos,

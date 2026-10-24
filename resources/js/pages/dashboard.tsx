@@ -1,5 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
-import { Package, IceCream, AlertTriangle, TrendingUp } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import { type ReactNode } from 'react';
+
+import { PageHeader } from '@/components/brand/panel';
+import { PillLink } from '@/components/brand/pill-button';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,10 +13,28 @@ import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Resumen',
         href: dashboard().url,
     },
 ];
+
+function Tile({ fondo, etiqueta, valor, href, children }: { fondo: string; etiqueta: string; valor: string; href?: string; children: ReactNode }) {
+    const contenido = (
+        <>
+            <p className="text-meta text-[11px] opacity-80">{etiqueta}</p>
+            <p className="font-display text-[30px] leading-none font-extrabold tracking-[-0.04em] md:text-[34px]">{valor}</p>
+            <p className="text-xs font-medium opacity-80">{children}</p>
+        </>
+    );
+    const clase = `flex flex-col gap-1.5 rounded-[24px] border border-tinta/8 p-[22px] ${fondo}`;
+    return href ? (
+        <Link href={href} className={`${clase} transition-transform hover:-translate-y-0.5`}>
+            {contenido}
+        </Link>
+    ) : (
+        <div className={clase}>{contenido}</div>
+    );
+}
 
 interface Producto {
     id: number;
@@ -39,6 +61,13 @@ interface ProductoVendido {
 }
 
 interface Props {
+    tienda: {
+        ventas_hoy: number;
+        pedidos_hoy: number;
+        en_curso: number;
+        productos_visibles: number;
+        agotados: number;
+    };
     kpis: {
         total_productos: number;
         total_insumos: number;
@@ -99,6 +128,7 @@ const toCamelCase = (text: string | null | undefined): string => {
 };
 
 export default function Dashboard({
+    tienda,
     kpis,
     top_productos_rentabilidad,
     top_productos_ganancia,
@@ -112,68 +142,36 @@ export default function Dashboard({
 }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title="Resumen" />
             <div className="space-y-6">
-                <div>
-                    <h1 className="text-2xl font-semibold">Dashboard</h1>
-                    <p className="text-muted-foreground">
-                        Resumen y analítica de tu heladería
-                    </p>
-                </div>
+                <PageHeader
+                    titulo="Resumen"
+                    descripcion="Lo que pasa hoy en tu heladería y qué tan rentable es cada producto."
+                    acciones={
+                        <PillLink href="/admin/pedidos" tamano="lg" flecha>
+                            Ver pedidos
+                        </PillLink>
+                    }
+                />
 
-                {/* KPIs Principales */}
-                <div className="grid gap-4 md:grid-cols-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Productos</CardTitle>
-                            <IceCream className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{kpis.total_productos}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Productos registrados
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Insumos</CardTitle>
-                            <Package className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{kpis.total_insumos}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Insumos disponibles
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Rentabilidad Promedio</CardTitle>
-                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{formatPercentage(kpis.rentabilidad_promedio)}%</div>
-                            <p className="text-xs text-muted-foreground">
-                                Rentabilidad promedio general
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Productos Incompletos</CardTitle>
-                            <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-yellow-600">{kpis.productos_incompletos}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Sin insumos configurados
-                            </p>
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+                    <Tile fondo="bg-turquesa text-white" etiqueta="Ventas de hoy" valor={formatPrice(tienda.ventas_hoy)}>
+                        {tienda.pedidos_hoy} pedidos por el menú digital
+                    </Tile>
+                    <Tile fondo="bg-white" etiqueta="Pedidos en curso" valor={String(tienda.en_curso)} href="/admin/pedidos">
+                        Nuevos, preparando o listos
+                    </Tile>
+                    <Tile fondo="bg-amarillo" etiqueta="Rentabilidad promedio" valor={`${formatPercentage(kpis.rentabilidad_promedio)}%`}>
+                        {kpis.total_productos} productos · {kpis.total_insumos} insumos
+                    </Tile>
+                    <Tile
+                        fondo={kpis.productos_incompletos > 0 ? 'bg-rosa-suave' : 'bg-white'}
+                        etiqueta="Sin receta"
+                        valor={String(kpis.productos_incompletos)}
+                        href="/productos"
+                    >
+                        {tienda.productos_visibles} en el menú · {tienda.agotados} agotados
+                    </Tile>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">

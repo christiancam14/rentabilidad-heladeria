@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,7 +20,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'heladeriaatugusto@gmail.com'],
             [
                 'name' => 'Admin',
-                'password' => \Illuminate\Support\Facades\Hash::make('1099202734'),
+                'password' => Hash::make('1099202734'),
                 'email_verified_at' => now(),
             ]
         );
@@ -27,7 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             FinanzasSeeder::class,
             InsumoSeeder::class,
-            ProductoSeeder::class,
+            MenuSeeder::class,
         ]);
     }
 }

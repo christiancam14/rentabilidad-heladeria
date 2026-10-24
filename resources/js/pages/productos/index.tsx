@@ -51,7 +51,7 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Productos',
+        title: 'Costeo y recetas',
         href: '/productos',
     },
 ];
@@ -272,14 +272,18 @@ export default function ProductosIndex({ productos, filters }: Props) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Productos" />
+            <Head title="Costeo y recetas" />
 
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold">Productos</h1>
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Costeo y recetas</h1>
                         <p className="text-muted-foreground">
-                            Gestiona los productos de tu heladería
+                            Insumos, costo y margen de cada producto. Lo que ve el cliente se edita en{' '}
+                            <Link href="/admin/productos" className="font-semibold text-rosa">
+                                Productos del menú
+                            </Link>
+                            .
                         </p>
                     </div>
                     <Button onClick={openCreateDialog}>

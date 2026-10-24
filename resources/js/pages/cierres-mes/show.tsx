@@ -444,7 +444,7 @@ export default function CierresMesShow({
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-semibold">
+                            <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">
                                 {titulo}
                             </h1>
                             <p className="text-muted-foreground">

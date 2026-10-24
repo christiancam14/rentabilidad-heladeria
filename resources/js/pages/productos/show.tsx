@@ -85,7 +85,7 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Productos',
+        title: 'Costeo y recetas',
         href: '/productos',
     },
     {
@@ -276,15 +276,18 @@ export default function ProductosShow({ producto, insumos, detalle_costos }: Pro
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-semibold">{toCamelCase(producto.nombre)}</h1>
+                            <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">{toCamelCase(producto.nombre)}</h1>
                             <p className="text-muted-foreground">
                                 Gestión de insumos y cálculo de rentabilidad
                             </p>
                         </div>
                     </div>
                     <div className="flex gap-2">
+                        <Link href={`/admin/productos/${producto.id}/edit`}>
+                            <Button variant="outline">Editar en el menú</Button>
+                        </Link>
                         <Link href="/productos">
-                            <Button variant="outline">Volver a Productos</Button>
+                            <Button variant="outline">Volver al costeo</Button>
                         </Link>
                         <Button onClick={handleRecalcular} variant="outline">
                             <CalculatorIcon className="size-4 mr-2" />

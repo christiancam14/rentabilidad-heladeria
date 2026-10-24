@@ -20,16 +20,16 @@ export default function FinanzasNav({ active, periodo }: Props) {
     const qs = `?anio=${periodo.anio}&mes=${periodo.mes}`;
 
     return (
-        <nav className="flex flex-wrap gap-2 border-b pb-3">
+        <nav className="flex w-fit max-w-full flex-wrap gap-1 rounded-full border border-tinta/8 bg-white p-1.5">
             {items.map((item) => (
                 <Link
                     key={item.href}
                     href={`${item.href}${qs}`}
                     className={cn(
-                        'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                        'font-display rounded-full px-4 py-2 text-sm font-bold transition-colors',
                         active === item.href
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                            ? 'bg-tinta text-hueso'
+                            : 'text-tinta hover:bg-tinta/5',
                     )}
                 >
                     {item.title}

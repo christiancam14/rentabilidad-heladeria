@@ -164,7 +164,7 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold">Nómina</h1>
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Nómina</h1>
                         <p className="text-muted-foreground text-sm">
                             Turno completo + medio turno por semana. Sueldo fijo: cargar el monto en una sola semana.
                         </p>

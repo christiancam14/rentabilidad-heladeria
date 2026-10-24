@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Producto extends Model
 {
@@ -21,7 +24,29 @@ class Producto extends Model
         'costo_total',
         'ganancia',
         'porcentaje_rentabilidad',
+        'categoria_id',
+        'descripcion',
+        'imagen',
+        'color',
+        'etiqueta',
+        'precio_anterior',
+        'visible_menu',
+        'agotado',
+        'orden',
     ];
+
+    /** Etiquetas destacadas disponibles en el menú (máximo una por producto). */
+    public const ETIQUETAS = [
+        'mas_pedido' => '🔥 Más pedido',
+        'nuevo' => 'Nuevo',
+        'combo' => 'Combo',
+        'para_compartir' => 'Para compartir',
+    ];
+
+    /** Colores de fondo de la foto en el menú. */
+    public const COLORES = ['turquesa', 'rosa', 'amarillo'];
+
+    protected $appends = ['imagen_url'];
 
     /**
      * Get the attributes that should be cast.
@@ -35,7 +60,64 @@ class Producto extends Model
             'costo_total' => 'decimal:2',
             'ganancia' => 'decimal:2',
             'porcentaje_rentabilidad' => 'decimal:2',
+            'precio_anterior' => 'integer',
+            'visible_menu' => 'boolean',
+            'agotado' => 'boolean',
+            'orden' => 'integer',
         ];
+    }
+
+    public function getImagenUrlAttribute(): ?string
+    {
+        if (! $this->imagen) {
+            return null;
+        }
+
+        if (str_starts_with($this->imagen, 'http') || str_starts_with($this->imagen, '/')) {
+            return $this->imagen;
+        }
+
+        return Storage::disk('public')->url($this->imagen);
+    }
+
+    /** Precio base del menú en pesos enteros. */
+    public function precioBase(): int
+    {
+        return (int) round((float) $this->precio_venta_publico);
+    }
+
+    public function categoria(): BelongsTo
+    {
+        return $this->belongsTo(Categoria::class);
+    }
+
+    public function tamanos(): HasMany
+    {
+        return $this->hasMany(ProductoTamano::class)->orderBy('orden');
+    }
+
+    public function grupos(): HasMany
+    {
+        return $this->hasMany(ProductoGrupo::class)->orderBy('orden');
+    }
+
+    /** Sedes con disponibilidad explícita (sin fila = disponible). */
+    public function sedes(): BelongsToMany
+    {
+        return $this->belongsToMany(Sede::class, 'producto_sede')->withPivot('disponible');
+    }
+
+    public function disponibleEnSede(?int $sedeId): bool
+    {
+        if (! $sedeId) {
+            return true;
+        }
+
+        $sede = $this->relationLoaded('sedes')
+            ? $this->sedes->firstWhere('id', $sedeId)
+            : $this->sedes()->where('sedes.id', $sedeId)->first();
+
+        return $sede === null || (bool) $sede->pivot->disponible;
     }
 
     /**
