@@ -48,6 +48,11 @@ interface Props {
 
 const CLAVE_CLIENTE = 'atg-cliente';
 
+/** Crédito del footer: abre WhatsApp con un mensaje listo para pedir un menú similar. */
+const CREDITO_URL = `https://wa.me/573186898839?text=${encodeURIComponent(
+    'Hola Christian, vi el menú digital de A Tu Gusto y quiero uno para mi negocio.',
+)}`;
+
 export default function MenuDigital({
     negocio,
     sedes,
@@ -739,6 +744,17 @@ export default function MenuDigital({
                                         {sede.direccion}
                                     </p>
                                 )}
+                                <p className="mt-6 text-xs font-medium text-tinta/45">
+                                    Diseño y desarrollo -{' '}
+                                    <a
+                                        href={CREDITO_URL}
+                                        target="_blank"
+                                        rel="noopener"
+                                        className="font-semibold text-rosa underline-offset-2 hover:underline"
+                                    >
+                                        ChristianDev
+                                    </a>
+                                </p>
                             </footer>
                         </div>
 
