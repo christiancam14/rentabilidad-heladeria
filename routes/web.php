@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 // Menú digital público (pedidos para recoger)
 Route::get('/', [MenuController::class, 'index'])->name('home');
 Route::get('menu', [MenuController::class, 'index'])->name('menu');
+Route::get('links', [MenuController::class, 'links'])->name('links');
 Route::post('pedidos', [PedidoPublicoController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('pedido.store');

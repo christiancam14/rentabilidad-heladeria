@@ -1,7 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { Credito } from '@/components/brand/credito';
 import { Logo } from '@/components/brand/logo';
 import { formatPrice } from '@/lib/format-price';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,12 @@ interface Props {
             total: number;
         }[];
     };
-    sede: { nombre: string; slug: string; direccion: string | null };
+    sede: {
+        nombre: string;
+        slug: string;
+        direccion: string | null;
+        maps_url: string | null;
+    };
     whatsapp_url: string | null;
     enviar: boolean;
     cupon: { codigo: string; porcentaje: number } | null;
@@ -140,6 +146,17 @@ export default function PedidoConfirmado({
                                             ? ` · ${sede.direccion}`
                                             : ''}
                                     </p>
+                                    {sede.maps_url && (
+                                        <a
+                                            href={sede.maps_url}
+                                            target="_blank"
+                                            rel="noopener"
+                                            className="mt-2 inline-flex items-center gap-1.5 text-meta text-rosa"
+                                        >
+                                            <MapPin className="size-3.5" />
+                                            Cómo llegar
+                                        </a>
+                                    )}
                                     <div className="mt-4 grid grid-cols-3 gap-1.5">
                                         {PASOS.map((p, i) => (
                                             <div key={p.clave}>
@@ -247,6 +264,7 @@ export default function PedidoConfirmado({
                                 />
                             </Link>
                         </div>
+                        <Credito claro className="mt-8 text-center" />
                     </div>
                 </div>
             </div>

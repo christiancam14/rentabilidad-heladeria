@@ -147,6 +147,7 @@ class PedidoPublicoController extends Controller
                 'nombre' => $pedido->sede->nombre,
                 'slug' => $pedido->sede->slug,
                 'direccion' => $pedido->sede->direccion,
+                'maps_url' => $pedido->sede->maps_url,
             ],
             'whatsapp_url' => $this->whatsappUrl($pedido),
             'enviar' => $request->boolean('enviar') && $pedido->created_at->gt(now()->subMinutes(5)),
@@ -156,12 +157,8 @@ class PedidoPublicoController extends Controller
 
     private function whatsappUrl(Pedido $pedido): ?string
     {
-        $numero = preg_replace('/\D/', '', (string) $pedido->sede->whatsapp);
-        if (! $numero) {
+        if (! $pedido->sede->whatsappUrl()) {
             return null;
-        }
-        if (strlen($numero) === 10) {
-            $numero = '57'.$numero;
         }
 
         $peso = fn (int $v) => '$'.number_format($v, 0, ',', '.');
@@ -185,6 +182,6 @@ class PedidoPublicoController extends Controller
             $lineas[] = "Notas: {$pedido->notas}";
         }
 
-        return 'https://wa.me/'.$numero.'?text='.rawurlencode(implode("\n", $lineas));
+        return $pedido->sede->whatsappUrl(implode("\n", $lineas));
     }
 }

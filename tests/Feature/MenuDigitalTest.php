@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Categoria;
+use App\Models\Configuracion;
 use App\Models\Opcion;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -105,4 +106,31 @@ it('permite al admin avanzar el estado del pedido', function () {
         ->assertRedirect();
 
     expect($pedido->fresh()->estado)->toBe('preparando');
+});
+
+it('muestra la página de enlaces con redes, WhatsApp y ubicación de cada sede', function () {
+    $this->sede->update(['maps_url' => 'https://maps.app.goo.gl/abc']);
+
+    $this->get('/links')->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->component('links')
+        ->where('negocio.redes.instagram', 'https://www.instagram.com/heladeriaatugusto/')
+        ->where('sedes.0.maps_url', 'https://maps.app.goo.gl/abc')
+        ->where('sedes.0.whatsapp_url', fn ($url) => str_starts_with($url, 'https://wa.me/573046155628?text='))
+    );
+});
+
+it('guarda las redes sociales y el enlace de Maps desde la configuración', function () {
+    $this->actingAs(User::factory()->create());
+    $props = $this->get('/admin/configuracion')->viewData('page')['props'];
+
+    $config = [...$props['config'], 'negocio_tiktok' => 'https://www.tiktok.com/@otra'];
+    $sedes = collect($props['sedes'])->map(fn ($s) => [...$s, 'maps_url' => 'https://maps.app.goo.gl/nuevo'])->all();
+
+    $this->put('/admin/configuracion', ['config' => $config, 'sedes' => $sedes])->assertSessionHasNoErrors();
+
+    expect(Configuracion::obtener('negocio_tiktok'))->toBe('https://www.tiktok.com/@otra')
+        ->and($this->sede->fresh()->maps_url)->toBe('https://maps.app.goo.gl/nuevo');
+
+    $this->put('/admin/configuracion', ['config' => [...$config, 'negocio_facebook' => 'no es un enlace'], 'sedes' => $sedes])
+        ->assertSessionHasErrors('config.negocio_facebook');
 });

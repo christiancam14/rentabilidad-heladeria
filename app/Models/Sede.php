@@ -12,6 +12,7 @@ class Sede extends Model
         'slug',
         'direccion',
         'whatsapp',
+        'maps_url',
         'tiempo_preparacion',
         'recibiendo_pedidos',
         'en_menu',
@@ -33,6 +34,20 @@ class Sede extends Model
             'en_menu' => 'boolean',
             'horarios' => 'array',
         ];
+    }
+
+    /** Enlace de WhatsApp para escribirle a la sede con un saludo listo. */
+    public function whatsappUrl(?string $texto = null): ?string
+    {
+        $numero = preg_replace('/\D/', '', (string) $this->whatsapp);
+        if (! $numero) {
+            return null;
+        }
+        if (strlen($numero) === 10) {
+            $numero = '57'.$numero;
+        }
+
+        return 'https://wa.me/'.$numero.($texto ? '?text='.rawurlencode($texto) : '');
     }
 
     public function pedidos(): HasMany

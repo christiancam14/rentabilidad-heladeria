@@ -22,6 +22,7 @@ interface Sede {
     nombre: string;
     direccion: string;
     whatsapp: string;
+    maps_url: string;
     tiempo_preparacion: number;
     recibiendo_pedidos: boolean;
     en_menu: boolean;
@@ -32,6 +33,8 @@ interface Config {
     negocio_nombre: string;
     negocio_eslogan: string;
     negocio_instagram: string;
+    negocio_facebook: string;
+    negocio_tiktok: string;
     pedido_minimo: number;
     meta_regalo_activa: boolean;
     meta_regalo_desde: number;
@@ -228,18 +231,45 @@ export default function Configuracion({ config, sedes, cupones }: Props) {
                                     error={err['config.negocio_nombre']}
                                 />
                                 <Campo
-                                    etiqueta="Instagram"
-                                    placeholder="@heladeriaatugusto"
-                                    value={data.config.negocio_instagram ?? ''}
-                                    onChange={(e) => conf('negocio_instagram', e.target.value)}
-                                />
-                                <Campo
-                                    className="md:col-span-2"
                                     etiqueta="Eslogan"
                                     value={data.config.negocio_eslogan ?? ''}
                                     onChange={(e) => conf('negocio_eslogan', e.target.value)}
                                 />
                             </div>
+                            <h3 className="font-display mt-6 mb-3 text-base font-bold">Redes sociales</h3>
+                            <div className="grid gap-4 md:grid-cols-3">
+                                <Campo
+                                    etiqueta="Instagram"
+                                    type="url"
+                                    placeholder="https://www.instagram.com/…"
+                                    value={data.config.negocio_instagram ?? ''}
+                                    onChange={(e) => conf('negocio_instagram', e.target.value)}
+                                    error={err['config.negocio_instagram']}
+                                />
+                                <Campo
+                                    etiqueta="Facebook"
+                                    type="url"
+                                    placeholder="https://www.facebook.com/…"
+                                    value={data.config.negocio_facebook ?? ''}
+                                    onChange={(e) => conf('negocio_facebook', e.target.value)}
+                                    error={err['config.negocio_facebook']}
+                                />
+                                <Campo
+                                    etiqueta="TikTok"
+                                    type="url"
+                                    placeholder="https://www.tiktok.com/@…"
+                                    value={data.config.negocio_tiktok ?? ''}
+                                    onChange={(e) => conf('negocio_tiktok', e.target.value)}
+                                    error={err['config.negocio_tiktok']}
+                                />
+                            </div>
+                            <p className="mt-3 text-xs text-tinta/55">
+                                Se muestran en el footer del menú y en la página de enlaces.{' '}
+                                <a href="/links" target="_blank" rel="noopener" className="font-semibold text-rosa">
+                                    Ver /links ↗
+                                </a>{' '}
+                                · úsala como enlace en la bio de Instagram y TikTok.
+                            </p>
                             <div className="mt-6 flex flex-wrap gap-4 border-t border-tinta/6 pt-5 text-sm">
                                 <Link href="/settings/profile" className="font-display font-bold text-rosa">
                                     Mi perfil →
@@ -296,6 +326,14 @@ export default function Configuracion({ config, sedes, cupones }: Props) {
                                             inputMode="tel"
                                             value={s.whatsapp}
                                             onChange={(e) => sede(i, { whatsapp: e.target.value })}
+                                        />
+                                        <Campo
+                                            etiqueta="Enlace de Google Maps"
+                                            type="url"
+                                            placeholder="https://maps.app.goo.gl/…"
+                                            value={s.maps_url}
+                                            onChange={(e) => sede(i, { maps_url: e.target.value })}
+                                            error={err[`sedes.${i}.maps_url`]}
                                         />
                                         <Campo
                                             etiqueta="Tiempo de preparación"

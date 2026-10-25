@@ -1,11 +1,19 @@
-import { Head, router } from '@inertiajs/react';
-import { ArrowRight, ChevronDown, Search, ShoppingBag } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    ArrowRight,
+    ChevronDown,
+    MapPin,
+    Search,
+    ShoppingBag,
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Chip } from '@/components/brand/chip';
+import { Credito } from '@/components/brand/credito';
 import { Logo } from '@/components/brand/logo';
 import { ProductoFoto } from '@/components/brand/producto-foto';
+import { IconoWhatsapp, RedesSociales } from '@/components/brand/redes';
 import { Carrito, type DatosCliente } from '@/components/menu/carrito';
 import { FichaProducto } from '@/components/menu/ficha-producto';
 import {
@@ -32,10 +40,11 @@ import {
     type MenuProducto,
     type MenuReglas,
     type MenuSede,
+    type Negocio,
 } from '@/types/menu';
 
 interface Props {
-    negocio: { nombre: string; eslogan: string };
+    negocio: Negocio;
     sedes: MenuSede[];
     sede_id: number;
     categorias: MenuCategoria[];
@@ -47,11 +56,6 @@ interface Props {
 }
 
 const CLAVE_CLIENTE = 'atg-cliente';
-
-/** Crédito del footer: abre WhatsApp con un mensaje listo para pedir un menú similar. */
-const CREDITO_URL = `https://wa.me/573186898839?text=${encodeURIComponent(
-    'Hola Christian, vi el menú digital de A Tu Gusto y quiero uno para mi negocio.',
-)}`;
 
 export default function MenuDigital({
     negocio,
@@ -744,17 +748,43 @@ export default function MenuDigital({
                                         {sede.direccion}
                                     </p>
                                 )}
-                                <p className="mt-6 text-xs font-medium text-tinta/45">
-                                    Diseño y desarrollo -{' '}
-                                    <a
-                                        href={CREDITO_URL}
-                                        target="_blank"
-                                        rel="noopener"
-                                        className="font-semibold text-rosa underline-offset-2 hover:underline"
-                                    >
-                                        ChristianDev
-                                    </a>
-                                </p>
+                                {(sede.whatsapp_url || sede.maps_url) && (
+                                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                                        {sede.whatsapp_url && (
+                                            <a
+                                                href={sede.whatsapp_url}
+                                                target="_blank"
+                                                rel="noopener"
+                                                className="flex h-10 items-center gap-2 rounded-full bg-tinta px-4 font-display text-[13px] font-bold text-hueso"
+                                            >
+                                                <IconoWhatsapp className="size-4" />{' '}
+                                                Escríbenos
+                                            </a>
+                                        )}
+                                        {sede.maps_url && (
+                                            <a
+                                                href={sede.maps_url}
+                                                target="_blank"
+                                                rel="noopener"
+                                                className="flex h-10 items-center gap-2 rounded-full border-[1.5px] border-tinta px-4 font-display text-[13px] font-bold"
+                                            >
+                                                <MapPin className="size-4" />{' '}
+                                                Cómo llegar
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
+                                <RedesSociales
+                                    redes={negocio.redes}
+                                    className="mt-4"
+                                />
+                                <Link
+                                    href="/links"
+                                    className="mt-1 text-meta text-tinta/50 hover:text-rosa"
+                                >
+                                    Todas las sedes y enlaces
+                                </Link>
+                                <Credito className="mt-5" />
                             </footer>
                         </div>
 

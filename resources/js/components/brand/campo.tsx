@@ -12,7 +12,18 @@ interface CampoProps extends Omit<ComponentProps<'input'>, 'prefix'> {
 }
 
 /** Admin / Campo: etiqueta en negrita + caja blanca con sufijo (COP, min, contador). */
-export function Campo({ etiqueta, sufijo, error, ayuda, contador, className, id, maxLength, value, ...props }: CampoProps) {
+export function Campo({
+    etiqueta,
+    sufijo,
+    error,
+    ayuda,
+    contador,
+    className,
+    id,
+    maxLength,
+    value,
+    ...props
+}: CampoProps) {
     const autoId = useId();
     const inputId = id ?? autoId;
     const largo = typeof value === 'string' ? value.length : 0;
@@ -20,14 +31,19 @@ export function Campo({ etiqueta, sufijo, error, ayuda, contador, className, id,
     return (
         <div className={cn('flex flex-col gap-2', className)}>
             {etiqueta && (
-                <label htmlFor={inputId} className="font-display text-[13px] font-bold text-tinta">
+                <label
+                    htmlFor={inputId}
+                    className="font-display text-[13px] font-bold text-tinta"
+                >
                     {etiqueta}
                 </label>
             )}
             <div
                 className={cn(
                     'flex h-[50px] items-center gap-2 rounded-[14px] border bg-white px-4 transition-colors focus-within:border-2 focus-within:border-turquesa focus-within:px-[15px]',
-                    error ? 'border-2 border-rosa px-[15px]' : 'border-tinta/15',
+                    error
+                        ? 'border-2 border-rosa px-[15px]'
+                        : 'border-tinta/15',
                 )}
             >
                 <input
@@ -43,7 +59,11 @@ export function Campo({ etiqueta, sufijo, error, ayuda, contador, className, id,
                         {largo}/{maxLength}
                     </span>
                 ) : null}
-                {sufijo && <span className="text-[13px] font-medium text-tinta/50">{sufijo}</span>}
+                {sufijo && (
+                    <span className="text-[13px] font-medium text-tinta/50">
+                        {sufijo}
+                    </span>
+                )}
             </div>
             {error ? (
                 <p className="text-xs font-medium text-rosa">{error}</p>
@@ -59,7 +79,15 @@ interface AreaProps extends ComponentProps<'textarea'> {
     error?: string;
 }
 
-export function CampoArea({ etiqueta, error, className, id, maxLength, value, ...props }: AreaProps) {
+export function CampoArea({
+    etiqueta,
+    error,
+    className,
+    id,
+    maxLength,
+    value,
+    ...props
+}: AreaProps) {
     const autoId = useId();
     const inputId = id ?? autoId;
     const largo = typeof value === 'string' ? value.length : 0;
@@ -67,7 +95,10 @@ export function CampoArea({ etiqueta, error, className, id, maxLength, value, ..
     return (
         <div className={cn('flex flex-col gap-2', className)}>
             {etiqueta && (
-                <label htmlFor={inputId} className="font-display text-[13px] font-bold text-tinta">
+                <label
+                    htmlFor={inputId}
+                    className="font-display text-[13px] font-bold text-tinta"
+                >
                     {etiqueta}
                 </label>
             )}
@@ -101,14 +132,24 @@ interface SelectorProps extends ComponentProps<'select'> {
     error?: string;
 }
 
-export function CampoSelector({ etiqueta, error, className, id, children, ...props }: SelectorProps) {
+export function CampoSelector({
+    etiqueta,
+    error,
+    className,
+    id,
+    children,
+    ...props
+}: SelectorProps) {
     const autoId = useId();
     const inputId = id ?? autoId;
 
     return (
         <div className={cn('flex flex-col gap-2', className)}>
             {etiqueta && (
-                <label htmlFor={inputId} className="font-display text-[13px] font-bold text-tinta">
+                <label
+                    htmlFor={inputId}
+                    className="font-display text-[13px] font-bold text-tinta"
+                >
                     {etiqueta}
                 </label>
             )}

@@ -48,6 +48,17 @@ export interface MenuSede {
     direccion: string | null;
     tiempo_preparacion: number;
     recibiendo_pedidos: boolean;
+    maps_url: string | null;
+    whatsapp_url: string | null;
+    horarios: { dias: string; abre: string; cierra: string; activo: boolean }[];
+}
+
+export type RedSocial = 'instagram' | 'facebook' | 'tiktok';
+
+export interface Negocio {
+    nombre: string;
+    eslogan: string;
+    redes: Partial<Record<RedSocial, string>>;
 }
 
 export interface MenuReglas {

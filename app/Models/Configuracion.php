@@ -29,7 +29,9 @@ class Configuracion extends Model
     public const DEFAULTS = [
         'negocio_nombre' => 'Heladería A Tu Gusto',
         'negocio_eslogan' => '¿Qué se te antoja hoy?',
-        'negocio_instagram' => '',
+        'negocio_instagram' => 'https://www.instagram.com/heladeriaatugusto/',
+        'negocio_facebook' => 'https://www.facebook.com/HeladeriaATuGustoBucaramanga',
+        'negocio_tiktok' => 'https://www.tiktok.com/@heladeriaatugusto',
         'pedido_minimo' => 10000,
         'meta_regalo_activa' => true,
         'meta_regalo_desde' => 40000,

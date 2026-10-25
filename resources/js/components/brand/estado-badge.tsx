@@ -1,7 +1,11 @@
 import { cn } from '@/lib/utils';
 
 const ESTILOS = {
-    disponible: { fondo: 'bg-turquesa-suave', punto: 'bg-turquesa', texto: 'Disponible' },
+    disponible: {
+        fondo: 'bg-turquesa-suave',
+        punto: 'bg-turquesa',
+        texto: 'Disponible',
+    },
     agotado: { fondo: 'bg-rosa-suave/70', punto: 'bg-rosa', texto: 'Agotado' },
     oculto: { fondo: 'bg-tinta/5', punto: 'bg-tinta/40', texto: 'Oculto' },
     nuevo: { fondo: 'bg-amarillo-suave', punto: 'bg-amarillo', texto: 'Nuevo' },
@@ -9,7 +13,15 @@ const ESTILOS = {
 
 export type Estado = keyof typeof ESTILOS;
 
-export function EstadoBadge({ estado, texto, className }: { estado: Estado; texto?: string; className?: string }) {
+export function EstadoBadge({
+    estado,
+    texto,
+    className,
+}: {
+    estado: Estado;
+    texto?: string;
+    className?: string;
+}) {
     const e = ESTILOS[estado];
 
     return (

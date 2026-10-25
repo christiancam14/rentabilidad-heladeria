@@ -28,20 +28,55 @@ class MenuController extends Controller
         $config = Configuracion::todas();
 
         return Inertia::render('menu/index', [
-            'negocio' => [
-                'nombre' => $config['negocio_nombre'],
-                'eslogan' => $config['negocio_eslogan'],
-            ],
-            'sedes' => $sedes->map(fn (Sede $s) => [
-                'id' => $s->id,
-                'nombre' => $s->nombre,
-                'slug' => $s->slug,
-                'direccion' => $s->direccion,
-                'tiempo_preparacion' => $s->tiempo_preparacion,
-                'recibiendo_pedidos' => $s->recibiendo_pedidos,
-            ])->values(),
+            'negocio' => $this->negocio($config),
+            'sedes' => $sedes->map(fn (Sede $s) => $this->sede($s))->values(),
             'sede_id' => $sede->id,
             ...$catalogo->datosMenu($sede),
         ]);
+    }
+
+    /** Página de enlaces tipo Linktree para la bio de Instagram y TikTok. */
+    public function links(): Response
+    {
+        $config = Configuracion::todas();
+
+        return Inertia::render('links', [
+            'negocio' => $this->negocio($config),
+            'sedes' => Sede::query()->where('en_menu', true)->orderBy('id')->get()
+                ->map(fn (Sede $s) => $this->sede($s))->values(),
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $config
+     * @return array<string, mixed>
+     */
+    private function negocio(array $config): array
+    {
+        return [
+            'nombre' => $config['negocio_nombre'],
+            'eslogan' => $config['negocio_eslogan'],
+            'redes' => array_filter([
+                'instagram' => $config['negocio_instagram'] ?: null,
+                'facebook' => $config['negocio_facebook'] ?: null,
+                'tiktok' => $config['negocio_tiktok'] ?: null,
+            ]),
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function sede(Sede $s): array
+    {
+        return [
+            'id' => $s->id,
+            'nombre' => $s->nombre,
+            'slug' => $s->slug,
+            'direccion' => $s->direccion,
+            'tiempo_preparacion' => $s->tiempo_preparacion,
+            'recibiendo_pedidos' => $s->recibiendo_pedidos,
+            'maps_url' => $s->maps_url,
+            'whatsapp_url' => $s->whatsappUrl('¡Hola! Buen día. ¿Tienen servicio? 😁'),
+            'horarios' => collect($s->horarios ?: Sede::HORARIOS_DEFAULT)->where('activo', true)->values(),
+        ];
     }
 }

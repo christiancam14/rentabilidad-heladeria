@@ -13,7 +13,8 @@ const pill = cva(
                 rosa: 'bg-rosa text-white hover:bg-[#f2456f]',
                 tinta: 'bg-tinta text-hueso hover:bg-[#123a44]',
                 turquesa: 'bg-turquesa text-white hover:bg-[#00b3c5]',
-                contorno: 'border-[1.5px] border-tinta text-tinta hover:bg-tinta/5',
+                contorno:
+                    'border-[1.5px] border-tinta text-tinta hover:bg-tinta/5',
                 suave: 'border border-tinta/15 bg-white text-tinta hover:bg-tinta/5',
                 fantasma: 'text-tinta/70 hover:bg-tinta/5 hover:text-tinta',
             },
@@ -38,7 +39,10 @@ export function PillButton({
     ...props
 }: ComponentProps<'button'> & PillProps) {
     return (
-        <button className={cn(pill({ variante, tamano }), className)} {...props}>
+        <button
+            className={cn(pill({ variante, tamano }), className)}
+            {...props}
+        >
             {children}
             {flecha && <ArrowRight className="size-[18px]" strokeWidth={2.5} />}
         </button>

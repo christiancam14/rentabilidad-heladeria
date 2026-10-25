@@ -15,13 +15,32 @@ interface ProductoFotoProps {
 }
 
 /** Foto PNG/WebP sin fondo sobre un color pastel de la marca. */
-export function ProductoFoto({ src, color, alt = '', className }: ProductoFotoProps) {
+export function ProductoFoto({
+    src,
+    color,
+    alt = '',
+    className,
+}: ProductoFotoProps) {
     return (
-        <div className={cn('relative overflow-hidden', FONDOS_FOTO[color ?? 'turquesa'] ?? FONDOS_FOTO.turquesa, className)}>
+        <div
+            className={cn(
+                'relative overflow-hidden',
+                FONDOS_FOTO[color ?? 'turquesa'] ?? FONDOS_FOTO.turquesa,
+                className,
+            )}
+        >
             {src ? (
-                <img src={src} alt={alt} loading="lazy" className="absolute inset-0 size-full object-contain p-[6%]" />
+                <img
+                    src={src}
+                    alt={alt}
+                    loading="lazy"
+                    className="absolute inset-0 size-full object-contain p-[6%]"
+                />
             ) : (
-                <span className="absolute inset-0 grid place-items-center text-3xl opacity-40" aria-hidden>
+                <span
+                    className="absolute inset-0 grid place-items-center text-3xl opacity-40"
+                    aria-hidden
+                >
                     🍨
                 </span>
             )}

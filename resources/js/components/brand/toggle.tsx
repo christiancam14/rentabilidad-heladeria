@@ -9,7 +9,13 @@ interface ToggleProps {
 }
 
 /** Admin / Toggle: interruptor turquesa de 44×26. */
-export function Toggle({ checked, onChange, disabled, label, className }: ToggleProps) {
+export function Toggle({
+    checked,
+    onChange,
+    disabled,
+    label,
+    className,
+}: ToggleProps) {
     return (
         <button
             type="button"
