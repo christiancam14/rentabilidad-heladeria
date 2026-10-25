@@ -7,6 +7,7 @@ use App\Models\Cupon;
 use App\Models\Pedido;
 use App\Models\Sede;
 use App\Services\MenuCatalogo;
+use App\Services\TelegramPedidos;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -101,6 +102,10 @@ class PedidoPublicoController extends Controller
 
             return $pedido;
         });
+
+        // Aviso al grupo de Telegram una vez respondido al cliente (no retrasa la confirmación)
+        $pedidoId = $pedido->id;
+        dispatch(fn () => app(TelegramPedidos::class)->notificarNuevo($pedidoId))->afterResponse();
 
         return redirect()->route('pedido.show', ['token' => $pedido->token, 'enviar' => 1]);
     }

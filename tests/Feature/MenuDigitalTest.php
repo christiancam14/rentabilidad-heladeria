@@ -7,6 +7,8 @@ use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\Sede;
 use App\Models\User;
+use Illuminate\Http\Client\Request as HttpRequest;
+use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
@@ -133,4 +135,34 @@ it('guarda las redes sociales y el enlace de Maps desde la configuración', func
 
     $this->put('/admin/configuracion', ['config' => [...$config, 'negocio_facebook' => 'no es un enlace'], 'sedes' => $sedes])
         ->assertSessionHasErrors('config.negocio_facebook');
+});
+
+it('avisa al grupo de Telegram cuando entra un pedido', function () {
+    config(['services.telegram.bot_token' => '123:abc', 'services.telegram.chat_id' => '-100555']);
+    Http::fake(['api.telegram.org/*' => Http::response(['ok' => true])]);
+
+    $this->post('/pedidos', pedidoValido(['notas' => 'Sin <cereza>']))->assertRedirect();
+
+    Http::assertSent(function (HttpRequest $request) {
+        return $request->url() === 'https://api.telegram.org/bot123:abc/sendMessage'
+            && $request['chat_id'] === '-100555'
+            && $request['parse_mode'] === 'HTML'
+            && str_contains($request['text'], 'Nuevo pedido #A-')
+            && str_contains($request['text'], '2×</b> Copa Brownie')
+            && str_contains($request['text'], 'Sin &lt;cereza&gt;')
+            && str_contains($request['text'], 'Total: $35.000')
+            && str_starts_with($request['reply_markup']['inline_keyboard'][0][0]['url'], 'https://wa.me/573100000000');
+    });
+});
+
+it('guarda el pedido aunque Telegram falle o no esté configurado', function () {
+    config(['services.telegram.bot_token' => '123:abc', 'services.telegram.chat_id' => '-100555']);
+    Http::fake(['api.telegram.org/*' => Http::response(['ok' => false, 'description' => 'chat not found'], 400)]);
+
+    $this->post('/pedidos', pedidoValido())->assertRedirect();
+    expect(Pedido::count())->toBe(1);
+
+    config(['services.telegram.bot_token' => null]);
+    $this->post('/pedidos', pedidoValido())->assertRedirect();
+    expect(Pedido::count())->toBe(2);
 });
