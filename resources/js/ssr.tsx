@@ -3,7 +3,8 @@ import createServer from '@inertiajs/react/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+// Nombre fijo de la marca: no depende del APP_NAME del entorno donde se compila
+const appName = 'A Tu Gusto';
 
 createServer((page) =>
     createInertiaApp({

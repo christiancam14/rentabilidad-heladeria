@@ -190,10 +190,10 @@ class MenuSeeder extends Seeder
     /** @return array<string, string> nombre en minúsculas => ruta pública */
     private function imagenesDisponibles(): array
     {
-        $archivos = glob(public_path('menu/productos/*.webp')) ?: [];
+        $archivos = glob(public_path('img/productos/*.webp')) ?: [];
 
         return collect($archivos)->mapWithKeys(fn ($ruta) => [
-            strtolower(basename($ruta)) => '/menu/productos/'.basename($ruta),
+            strtolower(basename($ruta)) => '/img/productos/'.basename($ruta),
         ])->all();
     }
 

@@ -166,3 +166,16 @@ it('guarda el pedido aunque Telegram falle o no esté configurado', function () 
     $this->post('/pedidos', pedidoValido())->assertRedirect();
     expect(Pedido::count())->toBe(2);
 });
+
+it('sirve el menú también en /menu', function () {
+    $this->get('/menu')->assertOk()->assertInertia(fn (Assert $page) => $page->component('menu/index'));
+});
+
+it('actualiza las fotos del catálogo a la nueva carpeta', function () {
+    $this->copa->update(['imagen' => '/menu/productos/copaBrownie.webp']);
+
+    (require database_path('migrations/2026_10_25_120000_mover_imagenes_menu_a_img.php'))->up();
+
+    expect($this->copa->fresh()->imagen)->toBe('/img/productos/copaBrownie.webp')
+        ->and(file_exists(public_path('img/productos/copaBrownie.webp')))->toBeTrue();
+});

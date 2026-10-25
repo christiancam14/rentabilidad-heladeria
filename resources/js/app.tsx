@@ -8,7 +8,8 @@ import { Toaster } from 'react-hot-toast';
 
 import { initializeTheme } from './hooks/use-appearance';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+// Nombre fijo de la marca: no depende del APP_NAME del entorno donde se compila
+const appName = 'A Tu Gusto';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
