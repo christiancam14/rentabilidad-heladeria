@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class CierreMes extends Model
 {
@@ -76,13 +77,21 @@ class CierreMes extends Model
 
     /**
      * Agregar o actualizar un producto vendido en el cierre.
+     * Si el producto ya estaba, solo cambia la cantidad: el precio y el costo
+     * quedan congelados con los valores del momento en que se registró.
      *
      * @param  Producto  $producto  El producto
      * @param  int  $cantidadVendida  Cantidad vendida
      */
     public function agregarProducto(Producto $producto, int $cantidadVendida): void
     {
-        $this->productos()->syncWithoutDetaching([
+        if ($this->productos()->where('productos.id', $producto->id)->exists()) {
+            $this->productos()->updateExistingPivot($producto->id, ['cantidad_vendida' => $cantidadVendida]);
+
+            return;
+        }
+
+        $this->productos()->attach([
             $producto->id => [
                 'cantidad_vendida' => $cantidadVendida,
                 'precio_venta_snapshot' => $producto->precio_venta_publico,
@@ -96,8 +105,7 @@ class CierreMes extends Model
      */
     public function calcularIngresos(): float
     {
-        return $this->productosVendidos()
-            ->get()
+        return $this->lineasVendidas()
             ->sum(function ($pivot) {
                 return $pivot->cantidad_vendida * $pivot->precio_venta_snapshot;
             });
@@ -108,8 +116,7 @@ class CierreMes extends Model
      */
     public function calcularCostos(): float
     {
-        return $this->productosVendidos()
-            ->get()
+        return $this->lineasVendidas()
             ->sum(function ($pivot) {
                 return $pivot->cantidad_vendida * $pivot->costo_unitario_snapshot;
             });
@@ -128,7 +135,9 @@ class CierreMes extends Model
      */
     public function calcularTotalGastos(): float
     {
-        return $this->gastosItems()->sum('valor');
+        return $this->relationLoaded('gastosItems')
+            ? (float) $this->gastosItems->sum('valor')
+            : (float) $this->gastosItems()->sum('valor');
     }
 
     /**
@@ -137,6 +146,18 @@ class CierreMes extends Model
     public function calcularGananciaNeta(): float
     {
         return $this->calcularGananciaBruta() - $this->calcularTotalGastos();
+    }
+
+    /**
+     * Líneas vendidas del cierre, reutilizando la relación si ya viene cargada.
+     *
+     * @return Collection<int, CierreMesProducto>
+     */
+    private function lineasVendidas()
+    {
+        return $this->relationLoaded('productosVendidos')
+            ? $this->productosVendidos
+            : $this->productosVendidos()->get();
     }
 
     /**

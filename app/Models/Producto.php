@@ -107,6 +107,12 @@ class Producto extends Model
         return $this->belongsToMany(Sede::class, 'producto_sede')->withPivot('disponible');
     }
 
+    /** Un producto con ventas en cierres no se elimina para no alterar meses pasados. */
+    public function tieneVentasRegistradas(): bool
+    {
+        return $this->cierresMes()->exists();
+    }
+
     public function disponibleEnSede(?int $sedeId): bool
     {
         if (! $sedeId) {

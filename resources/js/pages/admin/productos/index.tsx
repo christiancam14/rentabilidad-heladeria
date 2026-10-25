@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { GripVertical, MoreHorizontal } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 
 import { Chip } from '@/components/brand/chip';
 import { EstadoBadge } from '@/components/brand/estado-badge';
@@ -55,7 +56,9 @@ function hace(iso: string | null): string {
 }
 
 function resumen(p: Producto): string {
-    const partes = [`${p.tamanos || 1} ${p.tamanos === 1 || !p.tamanos ? 'tamaño' : 'tamaños'}`];
+    const partes = [
+        `${p.tamanos || 1} ${p.tamanos === 1 || !p.tamanos ? 'tamaño' : 'tamaños'}`,
+    ];
     if (p.grupos_sabor) partes.push('sabores');
     if (p.grupos_adicional) partes.push('adicionales');
     if (!p.tiene_receta) partes.push('sin receta');
@@ -64,7 +67,9 @@ function resumen(p: Producto): string {
 
 /** A · Productos del menú */
 export default function ProductosMenu({ productos, categorias }: Props) {
-    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const params = new URLSearchParams(
+        typeof window !== 'undefined' ? window.location.search : '',
+    );
     const [filtro, setFiltro] = useState<number | 'todos' | 'sin'>('todos');
     const [buscar, setBuscar] = useState(params.get('buscar') ?? '');
     const [pagina, setPagina] = useState(1);
@@ -75,21 +80,43 @@ export default function ProductosMenu({ productos, categorias }: Props) {
     const filtrados = useMemo(() => {
         const t = buscar.trim().toLowerCase();
         let lista = productos.filter((p) =>
-            filtro === 'todos' ? true : filtro === 'sin' ? p.categoria_id === null : p.categoria_id === filtro,
+            filtro === 'todos'
+                ? true
+                : filtro === 'sin'
+                  ? p.categoria_id === null
+                  : p.categoria_id === filtro,
         );
         if (t) lista = lista.filter((p) => p.nombre.toLowerCase().includes(t));
-        if (orden) lista = [...lista].sort((a, b) => orden.indexOf(a.id) - orden.indexOf(b.id));
+        if (orden)
+            lista = [...lista].sort(
+                (a, b) => orden.indexOf(a.id) - orden.indexOf(b.id),
+            );
         return lista;
     }, [productos, filtro, buscar, orden]);
 
     const paginas = Math.max(1, Math.ceil(filtrados.length / POR_PAGINA));
-    const visibles = filtrados.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
-    const ultimaEdicion = productos.reduce<string | null>((m, p) => (!m || (p.actualizado && p.actualizado > m) ? p.actualizado : m), null);
-    const sinCategoria = productos.filter((p) => p.categoria_id === null).length;
+    const visibles = filtrados.slice(
+        (pagina - 1) * POR_PAGINA,
+        pagina * POR_PAGINA,
+    );
+    const ultimaEdicion = productos.reduce<string | null>(
+        (m, p) =>
+            !m || (p.actualizado && p.actualizado > m) ? p.actualizado : m,
+        null,
+    );
+    const sinCategoria = productos.filter(
+        (p) => p.categoria_id === null,
+    ).length;
     const puedeOrdenar = typeof filtro === 'number' && !buscar;
 
-    const cambiar = (p: Producto, data: Partial<Pick<Producto, 'visible_menu' | 'agotado'>>) =>
-        router.patch(`/admin/productos/${p.id}/visibilidad`, data, { preserveScroll: true, preserveState: true });
+    const cambiar = (
+        p: Producto,
+        data: Partial<Pick<Producto, 'visible_menu' | 'agotado'>>,
+    ) =>
+        router.patch(`/admin/productos/${p.id}/visibilidad`, data, {
+            preserveScroll: true,
+            preserveState: true,
+        });
 
     const soltar = (destino: number) => {
         if (arrastrando === null || arrastrando === destino) return;
@@ -98,7 +125,15 @@ export default function ProductosMenu({ productos, categorias }: Props) {
         const a = ids.indexOf(destino);
         ids.splice(a, 0, ids.splice(de, 1)[0]);
         setOrden(ids);
-        router.post('/admin/productos/ordenar', { ids }, { preserveScroll: true, preserveState: true, onFinish: () => setOrden(null) });
+        router.post(
+            '/admin/productos/ordenar',
+            { ids },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => setOrden(null),
+            },
+        );
     };
 
     const elegir = (f: typeof filtro) => {
@@ -115,10 +150,19 @@ export default function ProductosMenu({ productos, categorias }: Props) {
                 descripcion={`${productos.length} productos · ${categorias.length} categorías${ultimaEdicion ? ` · última edición ${hace(ultimaEdicion)}` : ''}`}
                 acciones={
                     <>
-                        <PillLink href="/productos" variante="contorno" tamano="lg" flecha>
+                        <PillLink
+                            href="/productos"
+                            variante="contorno"
+                            tamano="lg"
+                            flecha
+                        >
                             Costeo
                         </PillLink>
-                        <PillLink href="/admin/productos/create" tamano="lg" flecha>
+                        <PillLink
+                            href="/admin/productos/create"
+                            tamano="lg"
+                            flecha
+                        >
                             Nuevo producto
                         </PillLink>
                     </>
@@ -126,7 +170,12 @@ export default function ProductosMenu({ productos, categorias }: Props) {
             />
 
             <div className="flex flex-wrap gap-2">
-                <Chip activo={filtro === 'todos'} emoji="✨" contador={productos.length} onClick={() => elegir('todos')}>
+                <Chip
+                    activo={filtro === 'todos'}
+                    emoji="✨"
+                    contador={productos.length}
+                    onClick={() => elegir('todos')}
+                >
                     Todos
                 </Chip>
                 {categorias.map((c) => (
@@ -134,14 +183,22 @@ export default function ProductosMenu({ productos, categorias }: Props) {
                         key={c.id}
                         activo={filtro === c.id}
                         emoji={c.emoji}
-                        contador={productos.filter((p) => p.categoria_id === c.id).length}
+                        contador={
+                            productos.filter((p) => p.categoria_id === c.id)
+                                .length
+                        }
                         onClick={() => elegir(c.id)}
                     >
                         {c.nombre}
                     </Chip>
                 ))}
                 {sinCategoria > 0 && (
-                    <Chip activo={filtro === 'sin'} emoji="🫥" contador={sinCategoria} onClick={() => elegir('sin')}>
+                    <Chip
+                        activo={filtro === 'sin'}
+                        emoji="🫥"
+                        contador={sinCategoria}
+                        onClick={() => elegir('sin')}
+                    >
                         Sin categoría
                     </Chip>
                 )}
@@ -150,7 +207,11 @@ export default function ProductosMenu({ productos, categorias }: Props) {
             {buscar && (
                 <p className="-mt-2 text-sm text-tinta/60">
                     Buscando “{buscar}” ·{' '}
-                    <button type="button" className="text-rosa" onClick={() => setBuscar('')}>
+                    <button
+                        type="button"
+                        className="text-rosa"
+                        onClick={() => setBuscar('')}
+                    >
                         limpiar
                     </button>
                 </p>
@@ -167,7 +228,9 @@ export default function ProductosMenu({ productos, categorias }: Props) {
                                 <th className="py-3.5">Precio</th>
                                 <th className="py-3.5">Estado</th>
                                 <th className="py-3.5">Visible</th>
-                                <th className="py-3.5 pr-5 text-right">Acciones</th>
+                                <th className="py-3.5 pr-5 text-right">
+                                    Acciones
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -176,7 +239,9 @@ export default function ProductosMenu({ productos, categorias }: Props) {
                                     key={p.id}
                                     draggable={puedeOrdenar}
                                     onDragStart={() => setArrastrando(p.id)}
-                                    onDragOver={(e) => puedeOrdenar && e.preventDefault()}
+                                    onDragOver={(e) =>
+                                        puedeOrdenar && e.preventDefault()
+                                    }
                                     onDrop={() => soltar(p.id)}
                                     onDragEnd={() => setArrastrando(null)}
                                     className={cn(
@@ -187,56 +252,121 @@ export default function ProductosMenu({ productos, categorias }: Props) {
                                 >
                                     <td className="pl-5">
                                         <GripVertical
-                                            className={cn('size-4 text-tinta/30', puedeOrdenar ? 'cursor-grab' : 'opacity-40')}
-                                            aria-label={puedeOrdenar ? 'Arrastra para ordenar' : 'Filtra por categoría para ordenar'}
+                                            className={cn(
+                                                'size-4 text-tinta/30',
+                                                puedeOrdenar
+                                                    ? 'cursor-grab'
+                                                    : 'opacity-40',
+                                            )}
+                                            aria-label={
+                                                puedeOrdenar
+                                                    ? 'Arrastra para ordenar'
+                                                    : 'Filtra por categoría para ordenar'
+                                            }
                                         />
                                     </td>
                                     <td className="py-3 pl-2">
-                                        <Link href={`/admin/productos/${p.id}/edit`} className="flex items-center gap-4">
+                                        <Link
+                                            href={`/admin/productos/${p.id}/edit`}
+                                            className="flex items-center gap-4"
+                                        >
                                             <ProductoFoto
                                                 src={p.imagen_url}
                                                 color={p.color}
-                                                className={cn('size-12 shrink-0 rounded-[12px]', !p.visible_menu && 'opacity-50')}
+                                                className={cn(
+                                                    'size-12 shrink-0 rounded-[12px]',
+                                                    !p.visible_menu &&
+                                                        'opacity-50',
+                                                )}
                                             />
                                             <span className="min-w-0">
-                                                <span className="font-display block truncate text-[15px] font-bold tracking-[-0.02em]">{p.nombre}</span>
-                                                <span className="block truncate text-xs font-medium text-tinta/55">{resumen(p)}</span>
+                                                <span className="block truncate font-display text-[15px] font-bold tracking-[-0.02em]">
+                                                    {p.nombre}
+                                                </span>
+                                                <span className="block truncate text-xs font-medium text-tinta/55">
+                                                    {resumen(p)}
+                                                </span>
                                             </span>
                                         </Link>
                                     </td>
-                                    <td className="text-sm font-medium">{p.categoria ?? <span className="text-tinta/40">—</span>}</td>
-                                    <td className="font-display text-[15px] font-bold tracking-[-0.02em]">{formatPrice(p.precio)}</td>
+                                    <td className="text-sm font-medium">
+                                        {p.categoria ?? (
+                                            <span className="text-tinta/40">
+                                                —
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="font-display text-[15px] font-bold tracking-[-0.02em]">
+                                        {formatPrice(p.precio)}
+                                    </td>
                                     <td>
                                         <EstadoBadge
-                                            estado={!p.visible_menu ? 'oculto' : p.agotado ? 'agotado' : p.etiqueta === 'nuevo' ? 'nuevo' : 'disponible'}
+                                            estado={
+                                                !p.visible_menu
+                                                    ? 'oculto'
+                                                    : p.agotado
+                                                      ? 'agotado'
+                                                      : p.etiqueta === 'nuevo'
+                                                        ? 'nuevo'
+                                                        : 'disponible'
+                                            }
                                         />
                                     </td>
                                     <td>
                                         <Toggle
                                             checked={p.visible_menu}
                                             label={`Mostrar ${p.nombre} en el menú`}
-                                            onChange={(v) => cambiar(p, { visible_menu: v })}
+                                            onChange={(v) =>
+                                                cambiar(p, { visible_menu: v })
+                                            }
                                         />
                                     </td>
                                     <td className="pr-5 text-right">
-                                        <div className="font-display inline-flex items-center gap-1 text-[13px] font-bold text-tinta/60">
-                                            <Link href={`/admin/productos/${p.id}/edit`} className="rounded-full px-2 py-1 hover:bg-tinta/5 hover:text-tinta">
+                                        <div className="inline-flex items-center gap-1 font-display text-[13px] font-bold text-tinta/60">
+                                            <Link
+                                                href={`/admin/productos/${p.id}/edit`}
+                                                className="rounded-full px-2 py-1 hover:bg-tinta/5 hover:text-tinta"
+                                            >
                                                 Editar
                                             </Link>
                                             <span>·</span>
                                             <DropdownMenu>
-                                                <DropdownMenuTrigger className="rounded-full p-1 hover:bg-tinta/5 hover:text-tinta" aria-label="Más acciones">
+                                                <DropdownMenuTrigger
+                                                    className="rounded-full p-1 hover:bg-tinta/5 hover:text-tinta"
+                                                    aria-label="Más acciones"
+                                                >
                                                     <MoreHorizontal className="size-4" />
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="rounded-xl">
-                                                    <DropdownMenuItem onClick={() => cambiar(p, { agotado: !p.agotado })}>
-                                                        {p.agotado ? 'Marcar disponible' : 'Marcar agotado'}
+                                                <DropdownMenuContent
+                                                    align="end"
+                                                    className="rounded-xl"
+                                                >
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            cambiar(p, {
+                                                                agotado:
+                                                                    !p.agotado,
+                                                            })
+                                                        }
+                                                    >
+                                                        {p.agotado
+                                                            ? 'Marcar disponible'
+                                                            : 'Marcar agotado'}
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem asChild>
-                                                        <Link href={`/productos/${p.id}`}>Receta y costos</Link>
+                                                        <Link
+                                                            href={`/productos/${p.id}`}
+                                                        >
+                                                            Receta y costos
+                                                        </Link>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="text-rosa" onClick={() => setEliminar(p)}>
+                                                    <DropdownMenuItem
+                                                        className="text-rosa"
+                                                        onClick={() =>
+                                                            setEliminar(p)
+                                                        }
+                                                    >
                                                         Eliminar
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -247,7 +377,10 @@ export default function ProductosMenu({ productos, categorias }: Props) {
                             ))}
                             {visibles.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="py-14 text-center text-sm text-tinta/55">
+                                    <td
+                                        colSpan={7}
+                                        className="py-14 text-center text-sm text-tinta/55"
+                                    >
                                         No hay productos en esta vista.
                                     </td>
                                 </tr>
@@ -258,19 +391,34 @@ export default function ProductosMenu({ productos, categorias }: Props) {
                 <div className="flex items-center justify-between border-t border-tinta/6 px-5 py-3.5 text-[13px] font-medium text-tinta/70">
                     <span>
                         Mostrando {visibles.length} de {filtrados.length}
-                        {puedeOrdenar ? ' · arrastra ⋮⋮ para ordenar el menú' : ''}
+                        {puedeOrdenar
+                            ? ' · arrastra ⋮⋮ para ordenar el menú'
+                            : ''}
                     </span>
                     {paginas > 1 && (
-                        <div className="font-display flex items-center gap-1 font-bold">
-                            <button type="button" disabled={pagina === 1} onClick={() => setPagina(pagina - 1)} className="px-1.5 disabled:opacity-30">
+                        <div className="flex items-center gap-1 font-display font-bold">
+                            <button
+                                type="button"
+                                disabled={pagina === 1}
+                                onClick={() => setPagina(pagina - 1)}
+                                className="px-1.5 disabled:opacity-30"
+                            >
                                 ‹
                             </button>
-                            {Array.from({ length: paginas }, (_, i) => i + 1).map((n) => (
+                            {Array.from(
+                                { length: paginas },
+                                (_, i) => i + 1,
+                            ).map((n) => (
                                 <button
                                     key={n}
                                     type="button"
                                     onClick={() => setPagina(n)}
-                                    className={cn('grid size-7 place-items-center rounded-full', n === pagina ? 'bg-tinta text-hueso' : 'hover:bg-tinta/5')}
+                                    className={cn(
+                                        'grid size-7 place-items-center rounded-full',
+                                        n === pagina
+                                            ? 'bg-tinta text-hueso'
+                                            : 'hover:bg-tinta/5',
+                                    )}
                                 >
                                     {n}
                                 </button>
@@ -296,7 +444,18 @@ export default function ProductosMenu({ productos, categorias }: Props) {
                 confirmText="Eliminar"
                 variant="destructive"
                 onConfirm={() => {
-                    if (eliminar) router.delete(`/admin/productos/${eliminar.id}`, { preserveScroll: true });
+                    if (eliminar)
+                        router.delete(`/admin/productos/${eliminar.id}`, {
+                            preserveScroll: true,
+                            onSuccess: () =>
+                                toast.success('Producto eliminado'),
+                            onError: (errors) =>
+                                toast.error(
+                                    errors.producto ??
+                                        'No se pudo eliminar el producto',
+                                    { duration: 6000 },
+                                ),
+                        });
                     setEliminar(null);
                 }}
             />

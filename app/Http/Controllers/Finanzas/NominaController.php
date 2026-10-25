@@ -30,7 +30,7 @@ class NominaController extends Controller
             ->groupBy('empleado_id');
 
         $filas = $empleados->map(function (Empleado $empleado) use ($semanasPorEmpleado) {
-            $semanas = collect(range(1, 4))->map(function (int $num) use ($empleado, $semanasPorEmpleado) {
+            $semanas = collect(range(1, 5))->map(function (int $num) use ($empleado, $semanasPorEmpleado) {
                 $registro = $semanasPorEmpleado->get($empleado->id)?->firstWhere('semana', $num);
 
                 return [
@@ -119,10 +119,10 @@ class NominaController extends Controller
 
         $data = $request->validate([
             'empleado_id' => 'required|exists:empleados,id',
-            'semana' => 'required|integer|min:1|max:4',
-            'dias_turno_completo' => 'required|integer|min:0',
+            'semana' => 'required|integer|min:1|max:5',
+            'dias_turno_completo' => 'required|integer|min:0|max:7',
             'valor_turno_completo' => 'required|integer|min:0',
-            'dias_medio_turno' => 'required|integer|min:0',
+            'dias_medio_turno' => 'required|integer|min:0|max:7',
             'valor_medio_turno' => 'required|integer|min:0',
         ]);
 

@@ -32,7 +32,7 @@ class CierreMesController extends Controller
             ->orderBy('mes', 'desc');
 
         // Paginación
-        $perPage = $request->get('per_page', 15);
+        $perPage = min(max((int) $request->get('per_page', 15), 1), 100);
         $cierres = $query->paginate($perPage)->withQueryString();
 
         // Calcular métricas para cada cierre
@@ -42,6 +42,7 @@ class CierreMesController extends Controller
             $cierre->total_gastos = $cierre->calcularTotalGastos();
             $cierre->ganancia_bruta = $cierre->calcularGananciaBruta();
             $cierre->ganancia_neta = $cierre->calcularGananciaNeta();
+
             return $cierre;
         });
 
@@ -138,14 +139,14 @@ class CierreMesController extends Controller
     public function update(StoreCierreMesRequest $request, CierreMes $cierreMes): RedirectResponse
     {
         // Verificar que el modelo se haya cargado correctamente
-        if (!$cierreMes || !$cierreMes->id) {
+        if (! $cierreMes || ! $cierreMes->id) {
             return redirect()->route('cierres-mes.index')
                 ->withErrors(['error' => 'No se encontró el cierre de mes.']);
         }
-        
+
         // Guardar el ID antes del update
         $cierreId = $cierreMes->id;
-        
+
         // Obtener los datos validados y actualizar
         $validated = $request->validated();
         $cierreMes->nombre = $validated['nombre'] ?? null;

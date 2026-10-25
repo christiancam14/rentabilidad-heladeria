@@ -20,8 +20,9 @@ class ProductoController extends Controller
     public function index(Request $request): Response
     {
         // Cargar todos los productos sin paginación para búsqueda en frontend
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
+        // Solo columnas conocidas: un valor arbitrario en la URL no debe romper la consulta
+        $sortBy = in_array($request->get('sort_by'), ['nombre', 'precio_venta_publico', 'costo_total', 'ganancia', 'porcentaje_rentabilidad', 'created_at', 'updated_at'], true) ? $request->get('sort_by') : 'created_at';
+        $sortOrder = $request->get('sort_order') === 'asc' ? 'asc' : 'desc';
         $productos = Producto::with('insumos')
             ->orderBy($sortBy, $sortOrder)
             ->get();
@@ -85,6 +86,10 @@ class ProductoController extends Controller
      */
     public function destroy(Producto $producto): RedirectResponse
     {
+        if ($producto->tieneVentasRegistradas()) {
+            return back()->withErrors(['producto' => 'No se puede eliminar: tiene ventas registradas en cierres de mes. Ocúltalo del menú para dejar de venderlo.']);
+        }
+
         $producto->delete();
 
         return redirect()->route('productos.index')

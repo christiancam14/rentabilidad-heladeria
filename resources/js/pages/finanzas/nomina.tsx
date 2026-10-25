@@ -58,12 +58,23 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Nómina', href: '/finanzas/nomina' },
 ];
 
-export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) {
+export default function FinanzasNomina({
+    periodo,
+    filas,
+    total_nomina,
+}: Props) {
     const [empleadoDialog, setEmpleadoDialog] = useState(false);
     const [semanaDialog, setSemanaDialog] = useState(false);
-    const [editingEmpleado, setEditingEmpleado] = useState<FilaNomina | null>(null);
-    const [semanaCtx, setSemanaCtx] = useState<{ empleado: FilaNomina; semana: SemanaData } | null>(null);
-    const [deleteEmpleadoId, setDeleteEmpleadoId] = useState<number | null>(null);
+    const [editingEmpleado, setEditingEmpleado] = useState<FilaNomina | null>(
+        null,
+    );
+    const [semanaCtx, setSemanaCtx] = useState<{
+        empleado: FilaNomina;
+        semana: SemanaData;
+    } | null>(null);
+    const [deleteEmpleadoId, setDeleteEmpleadoId] = useState<number | null>(
+        null,
+    );
 
     const empleadoForm = useForm({
         nombre: '',
@@ -107,11 +118,15 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
             semana: semana.semana,
             dias_turno_completo: String(semana.dias_turno_completo || ''),
             valor_turno_completo: formatNumberWithSeparator(
-                semana.valor_turno_completo || empleado.valor_turno_completo_default || 0,
+                semana.valor_turno_completo ||
+                    empleado.valor_turno_completo_default ||
+                    0,
             ),
             dias_medio_turno: String(semana.dias_medio_turno || ''),
             valor_medio_turno: formatNumberWithSeparator(
-                semana.valor_medio_turno || empleado.valor_medio_turno_default || 0,
+                semana.valor_medio_turno ||
+                    empleado.valor_medio_turno_default ||
+                    0,
             ),
             anio: periodo.anio,
             mes: periodo.mes,
@@ -124,17 +139,33 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
         const payload = {
             nombre: empleadoForm.data.nombre,
             valor_turno_completo: empleadoForm.data.valor_turno_completo
-                ? parseInt(cleanNumberFormat(empleadoForm.data.valor_turno_completo), 10)
+                ? parseInt(
+                      cleanNumberFormat(empleadoForm.data.valor_turno_completo),
+                      10,
+                  )
                 : null,
             valor_medio_turno: empleadoForm.data.valor_medio_turno
-                ? parseInt(cleanNumberFormat(empleadoForm.data.valor_medio_turno), 10)
+                ? parseInt(
+                      cleanNumberFormat(empleadoForm.data.valor_medio_turno),
+                      10,
+                  )
                 : null,
             anio: periodo.anio,
             mes: periodo.mes,
         };
-        const opts = { preserveScroll: true, onSuccess: () => { toast.success('Guardado'); setEmpleadoDialog(false); } };
+        const opts = {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Guardado');
+                setEmpleadoDialog(false);
+            },
+        };
         if (editingEmpleado) {
-            router.put(`/finanzas/nomina/empleados/${editingEmpleado.id}`, payload, opts);
+            router.put(
+                `/finanzas/nomina/empleados/${editingEmpleado.id}`,
+                payload,
+                opts,
+            );
         } else {
             router.post('/finanzas/nomina/empleados', payload, opts);
         }
@@ -147,14 +178,30 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
             {
                 empleado_id: semanaForm.data.empleado_id,
                 semana: semanaForm.data.semana,
-                dias_turno_completo: parseInt(semanaForm.data.dias_turno_completo, 10) || 0,
-                valor_turno_completo: parseInt(cleanNumberFormat(semanaForm.data.valor_turno_completo), 10) || 0,
-                dias_medio_turno: parseInt(semanaForm.data.dias_medio_turno, 10) || 0,
-                valor_medio_turno: parseInt(cleanNumberFormat(semanaForm.data.valor_medio_turno), 10) || 0,
+                dias_turno_completo:
+                    parseInt(semanaForm.data.dias_turno_completo, 10) || 0,
+                valor_turno_completo:
+                    parseInt(
+                        cleanNumberFormat(semanaForm.data.valor_turno_completo),
+                        10,
+                    ) || 0,
+                dias_medio_turno:
+                    parseInt(semanaForm.data.dias_medio_turno, 10) || 0,
+                valor_medio_turno:
+                    parseInt(
+                        cleanNumberFormat(semanaForm.data.valor_medio_turno),
+                        10,
+                    ) || 0,
                 anio: periodo.anio,
                 mes: periodo.mes,
             },
-            { preserveScroll: true, onSuccess: () => { toast.success('Semana guardada'); setSemanaDialog(false); } },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Semana guardada');
+                    setSemanaDialog(false);
+                },
+            },
         );
     };
 
@@ -164,13 +211,19 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Nómina</h1>
-                        <p className="text-muted-foreground text-sm">
-                            Turno completo + medio turno por semana. Sueldo fijo: cargar el monto en una sola semana.
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">
+                            Nómina
+                        </h1>
+                        <p className="text-sm text-muted-foreground">
+                            Turno completo + medio turno por semana. Sueldo
+                            fijo: cargar el monto en una sola semana.
                         </p>
                     </div>
                     <div className="flex flex-wrap items-end gap-3">
-                        <PeriodSelector periodo={periodo} basePath="/finanzas/nomina" />
+                        <PeriodSelector
+                            periodo={periodo}
+                            basePath="/finanzas/nomina"
+                        />
                         <Button onClick={() => openEmpleado()}>
                             <PlusIcon className="mr-2 size-4" />
                             Empleado
@@ -183,42 +236,75 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
                 <Card>
                     <CardHeader className="flex flex-row justify-between">
                         <CardTitle>Empleados</CardTitle>
-                        <span className="font-medium">Total mes: {formatPrice(total_nomina)}</span>
+                        <span className="font-medium">
+                            Total mes: {formatPrice(total_nomina)}
+                        </span>
                     </CardHeader>
                     <CardContent className="overflow-x-auto">
                         <table className="w-full text-xs md:text-sm">
                             <thead>
                                 <tr className="border-b">
                                     <th className="p-2 text-left">Empleado</th>
-                                    {[1, 2, 3, 4].map((s) => (
-                                        <th key={s} className="p-2 text-center">Sem. {s}</th>
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <th key={s} className="p-2 text-center">
+                                            Sem. {s}
+                                        </th>
                                     ))}
-                                    <th className="p-2 text-right">Total mes</th>
-                                    <th className="p-2 w-16" />
+                                    <th className="p-2 text-right">
+                                        Total mes
+                                    </th>
+                                    <th className="w-16 p-2" />
                                 </tr>
                             </thead>
                             <tbody>
                                 {filas.map((fila) => (
                                     <tr key={fila.id} className="border-b">
-                                        <td className="p-2 font-medium">{fila.nombre}</td>
+                                        <td className="p-2 font-medium">
+                                            {fila.nombre}
+                                        </td>
                                         {fila.semanas.map((sem) => (
-                                            <td key={sem.semana} className="p-2 text-center">
+                                            <td
+                                                key={sem.semana}
+                                                className="p-2 text-center"
+                                            >
                                                 <button
                                                     type="button"
-                                                    className="hover:bg-muted w-full rounded px-1 py-1"
-                                                    onClick={() => openSemana(fila, sem)}
+                                                    className="w-full rounded px-1 py-1 hover:bg-muted"
+                                                    onClick={() =>
+                                                        openSemana(fila, sem)
+                                                    }
                                                 >
-                                                    {sem.pago_semana > 0 ? formatPrice(sem.pago_semana) : '—'}
+                                                    {sem.pago_semana > 0
+                                                        ? formatPrice(
+                                                              sem.pago_semana,
+                                                          )
+                                                        : '—'}
                                                 </button>
                                             </td>
                                         ))}
-                                        <td className="p-2 text-right font-semibold">{formatPrice(fila.total_mes)}</td>
+                                        <td className="p-2 text-right font-semibold">
+                                            {formatPrice(fila.total_mes)}
+                                        </td>
                                         <td className="p-2">
                                             <div className="flex gap-0">
-                                                <Button variant="ghost" size="icon" onClick={() => openEmpleado(fila)}>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() =>
+                                                        openEmpleado(fila)
+                                                    }
+                                                >
                                                     <PencilIcon className="size-4" />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" onClick={() => setDeleteEmpleadoId(fila.id)}>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() =>
+                                                        setDeleteEmpleadoId(
+                                                            fila.id,
+                                                        )
+                                                    }
+                                                >
                                                     <TrashIcon className="size-4" />
                                                 </Button>
                                             </div>
@@ -234,32 +320,69 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
             <Dialog open={empleadoDialog} onOpenChange={setEmpleadoDialog}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{editingEmpleado ? 'Editar empleado' : 'Nuevo empleado'}</DialogTitle>
+                        <DialogTitle>
+                            {editingEmpleado
+                                ? 'Editar empleado'
+                                : 'Nuevo empleado'}
+                        </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submitEmpleado} className="space-y-4">
                         <div className="space-y-2">
                             <Label>Nombre</Label>
-                            <Input value={empleadoForm.data.nombre} onChange={(e) => empleadoForm.setData('nombre', e.target.value)} />
+                            <Input
+                                value={empleadoForm.data.nombre}
+                                onChange={(e) =>
+                                    empleadoForm.setData(
+                                        'nombre',
+                                        e.target.value,
+                                    )
+                                }
+                            />
                             <InputError message={empleadoForm.errors.nombre} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Valor turno completo (def.)</Label>
                                 <Input
-                                    value={empleadoForm.data.valor_turno_completo}
-                                    onChange={(e) => handleNumberInputChange(e.target.value, (v) => empleadoForm.setData('valor_turno_completo', v))}
+                                    value={
+                                        empleadoForm.data.valor_turno_completo
+                                    }
+                                    onChange={(e) =>
+                                        handleNumberInputChange(
+                                            e.target.value,
+                                            (v) =>
+                                                empleadoForm.setData(
+                                                    'valor_turno_completo',
+                                                    v,
+                                                ),
+                                        )
+                                    }
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Valor medio turno (def.)</Label>
                                 <Input
                                     value={empleadoForm.data.valor_medio_turno}
-                                    onChange={(e) => handleNumberInputChange(e.target.value, (v) => empleadoForm.setData('valor_medio_turno', v))}
+                                    onChange={(e) =>
+                                        handleNumberInputChange(
+                                            e.target.value,
+                                            (v) =>
+                                                empleadoForm.setData(
+                                                    'valor_medio_turno',
+                                                    v,
+                                                ),
+                                        )
+                                    }
                                 />
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button type="submit" disabled={empleadoForm.processing}>Guardar</Button>
+                            <Button
+                                type="submit"
+                                disabled={empleadoForm.processing}
+                            >
+                                Guardar
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
@@ -269,7 +392,8 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>
-                            {semanaCtx?.empleado.nombre} — Semana {semanaCtx?.semana.semana}
+                            {semanaCtx?.empleado.nombre} — Semana{' '}
+                            {semanaCtx?.semana.semana}
                         </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submitSemana} className="space-y-4">
@@ -280,15 +404,39 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
                                     type="number"
                                     min={0}
                                     value={semanaForm.data.dias_turno_completo}
-                                    onChange={(e) => semanaForm.setData('dias_turno_completo', e.target.value)}
+                                    onChange={(e) =>
+                                        semanaForm.setData(
+                                            'dias_turno_completo',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Valor turno completo</Label>
                                 <Input
                                     value={semanaForm.data.valor_turno_completo}
-                                    onChange={(e) => handleNumberInputChange(e.target.value, (v) => semanaForm.setData('valor_turno_completo', v))}
-                                    onBlur={() => handleNumberInputBlur(semanaForm.data.valor_turno_completo, (v) => semanaForm.setData('valor_turno_completo', v))}
+                                    onChange={(e) =>
+                                        handleNumberInputChange(
+                                            e.target.value,
+                                            (v) =>
+                                                semanaForm.setData(
+                                                    'valor_turno_completo',
+                                                    v,
+                                                ),
+                                        )
+                                    }
+                                    onBlur={() =>
+                                        handleNumberInputBlur(
+                                            semanaForm.data
+                                                .valor_turno_completo,
+                                            (v) =>
+                                                semanaForm.setData(
+                                                    'valor_turno_completo',
+                                                    v,
+                                                ),
+                                        )
+                                    }
                                 />
                             </div>
                             <div className="space-y-2">
@@ -297,23 +445,53 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
                                     type="number"
                                     min={0}
                                     value={semanaForm.data.dias_medio_turno}
-                                    onChange={(e) => semanaForm.setData('dias_medio_turno', e.target.value)}
+                                    onChange={(e) =>
+                                        semanaForm.setData(
+                                            'dias_medio_turno',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Valor medio turno</Label>
                                 <Input
                                     value={semanaForm.data.valor_medio_turno}
-                                    onChange={(e) => handleNumberInputChange(e.target.value, (v) => semanaForm.setData('valor_medio_turno', v))}
-                                    onBlur={() => handleNumberInputBlur(semanaForm.data.valor_medio_turno, (v) => semanaForm.setData('valor_medio_turno', v))}
+                                    onChange={(e) =>
+                                        handleNumberInputChange(
+                                            e.target.value,
+                                            (v) =>
+                                                semanaForm.setData(
+                                                    'valor_medio_turno',
+                                                    v,
+                                                ),
+                                        )
+                                    }
+                                    onBlur={() =>
+                                        handleNumberInputBlur(
+                                            semanaForm.data.valor_medio_turno,
+                                            (v) =>
+                                                semanaForm.setData(
+                                                    'valor_medio_turno',
+                                                    v,
+                                                ),
+                                        )
+                                    }
                                 />
                             </div>
                         </div>
-                        <p className="text-muted-foreground text-xs">
-                            Pago = (días TC × valor TC) + (días MT × valor MT). Para sueldo fijo: pon el monto en valor TC con 1 día o solo valores.
+                        <p className="text-xs text-muted-foreground">
+                            Pago = (días TC × valor TC) + (días MT × valor MT).
+                            Para sueldo fijo: pon el monto en valor TC con 1 día
+                            o solo valores.
                         </p>
                         <DialogFooter>
-                            <Button type="submit" disabled={semanaForm.processing}>Guardar semana</Button>
+                            <Button
+                                type="submit"
+                                disabled={semanaForm.processing}
+                            >
+                                Guardar semana
+                            </Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
@@ -329,7 +507,13 @@ export default function FinanzasNomina({ periodo, filas, total_nomina }: Props) 
                     if (deleteEmpleadoId) {
                         router.delete(
                             `/finanzas/nomina/empleados/${deleteEmpleadoId}?anio=${periodo.anio}&mes=${periodo.mes}`,
-                            { preserveScroll: true, onSuccess: () => { toast.success('Desactivado'); setDeleteEmpleadoId(null); } },
+                            {
+                                preserveScroll: true,
+                                onSuccess: () => {
+                                    toast.success('Desactivado');
+                                    setDeleteEmpleadoId(null);
+                                },
+                            },
                         );
                     }
                 }}

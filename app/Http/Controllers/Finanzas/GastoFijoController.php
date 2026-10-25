@@ -27,6 +27,7 @@ class GastoFijoController extends Controller
             $q->where('anio', $periodo->anio)->where('mes', $periodo->mes);
         }])
             ->where('sede_id', $sedeId)
+            ->vigentesEn($periodo->anio, $periodo->mes)
             ->orderBy('nombre')
             ->get()
             ->map(function (ConceptoGastoFijo $concepto) {
@@ -60,7 +61,11 @@ class GastoFijoController extends Controller
             'nombre' => 'required|string|max:255',
         ]);
 
-        ConceptoGastoFijo::create($data);
+        // Si existía archivado con el mismo nombre se reactiva (evita duplicados y conserva su historial)
+        ConceptoGastoFijo::updateOrCreate(
+            ['sede_id' => $data['sede_id'], 'nombre' => $data['nombre']],
+            ['archivado_desde' => null],
+        );
 
         return redirect()->route('finanzas.gastos-fijos.index', [
             ...$periodo->toArray(),
@@ -72,7 +77,16 @@ class GastoFijoController extends Controller
     {
         $periodo = $this->periodo($request);
         $sedeId = $concepto->sede_id;
-        $concepto->delete();
+        $desde = $periodo->anio * 100 + $periodo->mes;
+
+        // Se quita desde este mes en adelante; los meses anteriores conservan su gasto
+        $concepto->valoresMes()->whereRaw('anio * 100 + mes >= ?', [$desde])->delete();
+
+        if ($concepto->valoresMes()->exists()) {
+            $concepto->update(['archivado_desde' => $desde]);
+        } else {
+            $concepto->delete();
+        }
 
         return redirect()->route('finanzas.gastos-fijos.index', [
             ...$periodo->toArray(),

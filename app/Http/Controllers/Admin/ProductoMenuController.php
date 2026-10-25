@@ -168,6 +168,10 @@ class ProductoMenuController extends Controller
 
     public function destroy(Producto $producto): RedirectResponse
     {
+        if ($producto->tieneVentasRegistradas()) {
+            return back()->withErrors(['producto' => 'No se puede eliminar: tiene ventas registradas en cierres de mes. Ocúltalo del menú para dejar de venderlo.']);
+        }
+
         if ($producto->imagen && ! str_starts_with($producto->imagen, '/')) {
             Storage::disk('public')->delete($producto->imagen);
         }

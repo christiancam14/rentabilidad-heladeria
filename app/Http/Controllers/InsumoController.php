@@ -20,8 +20,9 @@ class InsumoController extends Controller
     public function index(Request $request): Response
     {
         // Cargar todos los insumos sin paginación para búsqueda en frontend
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
+        // Solo columnas conocidas: un valor arbitrario en la URL no debe romper la consulta
+        $sortBy = in_array($request->get('sort_by'), ['nombre', 'precio', 'unidad', 'presentacion', 'created_at', 'updated_at'], true) ? $request->get('sort_by') : 'created_at';
+        $sortOrder = $request->get('sort_order') === 'asc' ? 'asc' : 'desc';
         $insumos = Insumo::orderBy($sortBy, $sortOrder)->get();
 
         return Inertia::render('insumos/index', [
@@ -98,23 +99,28 @@ class InsumoController extends Controller
     {
         // Obtener todos los productos que usan este insumo con una sola consulta
         $productosIds = $insumo->productos()->pluck('productos.id');
-        
+
         if ($productosIds->isEmpty()) {
             return;
         }
 
-        // Obtener la presentación del insumo una sola vez
-        $presentacion = $insumo->presentacion ?? 0;
-        $precio = $insumo->precio;
-        $valorUnidad = $presentacion > 0 ? round($precio / $presentacion, 2) : 0;
+        // Misma fórmula que Producto::agregarInsumo: el valor por unidad se usa sin redondear
+        // y solo se redondea el costo final, para que el resultado no dependa de cómo se recalculó.
+        $presentacion = (float) ($insumo->presentacion ?? 0);
+        $valorUnidad = $presentacion > 0 ? $insumo->precio / $presentacion : 0;
 
-        // Actualizar todos los registros pivot de una vez usando consulta SQL directa
-        DB::table('insumo_producto')
+        $lineas = DB::table('insumo_producto')
             ->where('insumo_id', $insumo->id)
-            ->update([
-                'valor_unidad' => $valorUnidad,
-                'costo_preparacion' => DB::raw("ROUND({$valorUnidad} * cantidad_preparacion, 2)"),
-            ]);
+            ->get(['id', 'cantidad_preparacion']);
+
+        DB::transaction(function () use ($lineas, $valorUnidad) {
+            foreach ($lineas as $linea) {
+                DB::table('insumo_producto')->where('id', $linea->id)->update([
+                    'valor_unidad' => round($valorUnidad, 2),
+                    'costo_preparacion' => round($valorUnidad * (float) $linea->cantidad_preparacion, 2),
+                ]);
+            }
+        });
 
         // Recalcular totales de todos los productos afectados usando consultas optimizadas
         // Obtener todos los costos de preparación agrupados por producto

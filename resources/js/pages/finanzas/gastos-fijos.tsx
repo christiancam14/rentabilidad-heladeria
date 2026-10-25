@@ -58,21 +58,41 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Gastos fijos', href: '/finanzas/gastos-fijos' },
 ];
 
-export default function FinanzasGastosFijos({ periodo, sedes, sede_id, conceptos, total_sede }: Props) {
+export default function FinanzasGastosFijos({
+    periodo,
+    sedes,
+    sede_id,
+    conceptos,
+    total_sede,
+}: Props) {
     const [conceptoDialog, setConceptoDialog] = useState(false);
-    const [deleteConceptoId, setDeleteConceptoId] = useState<number | null>(null);
+    const [deleteConceptoId, setDeleteConceptoId] = useState<number | null>(
+        null,
+    );
     const [valores, setValores] = useState<Record<number, string>>(
-        Object.fromEntries(conceptos.map((c) => [c.id, formatNumberWithSeparator(c.valor)])),
+        Object.fromEntries(
+            conceptos.map((c) => [c.id, formatNumberWithSeparator(c.valor)]),
+        ),
     );
 
-    const conceptoForm = useForm({ nombre: '', sede_id: sede_id, anio: periodo.anio, mes: periodo.mes });
+    const conceptoForm = useForm({
+        nombre: '',
+        sede_id: sede_id,
+        anio: periodo.anio,
+        mes: periodo.mes,
+    });
 
     const changeSede = (id: string) => {
-        router.get('/finanzas/gastos-fijos', { anio: periodo.anio, mes: periodo.mes, sede_id: id });
+        router.get('/finanzas/gastos-fijos', {
+            anio: periodo.anio,
+            mes: periodo.mes,
+            sede_id: id,
+        });
     };
 
     const guardarValor = (conceptoId: number) => {
-        const valor = parseInt(cleanNumberFormat(valores[conceptoId] ?? '0'), 10) || 0;
+        const valor =
+            parseInt(cleanNumberFormat(valores[conceptoId] ?? '0'), 10) || 0;
         router.post(
             '/finanzas/gastos-fijos/valores',
             {
@@ -82,7 +102,10 @@ export default function FinanzasGastosFijos({ periodo, sedes, sede_id, conceptos
                 anio: periodo.anio,
                 mes: periodo.mes,
             },
-            { preserveScroll: true, onSuccess: () => toast.success('Valor guardado') },
+            {
+                preserveScroll: true,
+                onSuccess: () => toast.success('Valor guardado'),
+            },
         );
     };
 
@@ -90,8 +113,20 @@ export default function FinanzasGastosFijos({ periodo, sedes, sede_id, conceptos
         e.preventDefault();
         router.post(
             '/finanzas/gastos-fijos/conceptos',
-            { nombre: conceptoForm.data.nombre, sede_id, anio: periodo.anio, mes: periodo.mes },
-            { preserveScroll: true, onSuccess: () => { toast.success('Concepto agregado'); setConceptoDialog(false); conceptoForm.reset(); } },
+            {
+                nombre: conceptoForm.data.nombre,
+                sede_id,
+                anio: periodo.anio,
+                mes: periodo.mes,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Concepto agregado');
+                    setConceptoDialog(false);
+                    conceptoForm.reset();
+                },
+            },
         );
     };
 
@@ -101,8 +136,12 @@ export default function FinanzasGastosFijos({ periodo, sedes, sede_id, conceptos
             <div className="flex flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Gastos fijos</h1>
-                        <p className="text-muted-foreground text-sm">Por sede — arriendo, servicios, etc.</p>
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">
+                            Gastos fijos
+                        </h1>
+                        <p className="text-sm text-muted-foreground">
+                            Por sede — arriendo, servicios, etc.
+                        </p>
                     </div>
                     <PeriodSelector
                         periodo={periodo}
@@ -111,23 +150,37 @@ export default function FinanzasGastosFijos({ periodo, sedes, sede_id, conceptos
                     />
                 </div>
 
-                <FinanzasNav active="/finanzas/gastos-fijos" periodo={periodo} />
+                <FinanzasNav
+                    active="/finanzas/gastos-fijos"
+                    periodo={periodo}
+                />
 
                 <div className="flex flex-wrap items-center gap-4">
                     <div className="space-y-1">
                         <Label>Sede</Label>
-                        <Select value={String(sede_id)} onValueChange={changeSede}>
+                        <Select
+                            value={String(sede_id)}
+                            onValueChange={changeSede}
+                        >
                             <SelectTrigger className="w-[180px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 {sedes.map((s) => (
-                                    <SelectItem key={s.id} value={String(s.id)}>{s.nombre}</SelectItem>
+                                    <SelectItem key={s.id} value={String(s.id)}>
+                                        {s.nombre}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button className="mt-6" onClick={() => { conceptoForm.setData('nombre', ''); setConceptoDialog(true); }}>
+                    <Button
+                        className="mt-6"
+                        onClick={() => {
+                            conceptoForm.setData('nombre', '');
+                            setConceptoDialog(true);
+                        }}
+                    >
                         <PlusIcon className="mr-2 size-4" />
                         Nuevo concepto
                     </Button>
@@ -135,27 +188,58 @@ export default function FinanzasGastosFijos({ periodo, sedes, sede_id, conceptos
 
                 <Card>
                     <CardHeader className="flex flex-row justify-between">
-                        <CardTitle>{sedes.find((s) => s.id === sede_id)?.nombre}</CardTitle>
-                        <span className="font-medium">Total sede: {formatPrice(total_sede)}</span>
+                        <CardTitle>
+                            {sedes.find((s) => s.id === sede_id)?.nombre}
+                        </CardTitle>
+                        <span className="font-medium">
+                            Total sede: {formatPrice(total_sede)}
+                        </span>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         {conceptos.map((c) => (
-                            <div key={c.id} className="flex flex-wrap items-center gap-2 border-b pb-3">
-                                <span className="min-w-[140px] flex-1 font-medium">{c.nombre}</span>
+                            <div
+                                key={c.id}
+                                className="flex flex-wrap items-center gap-2 border-b pb-3"
+                            >
+                                <span className="min-w-[140px] flex-1 font-medium">
+                                    {c.nombre}
+                                </span>
                                 <Input
                                     className="w-[160px]"
                                     value={valores[c.id] ?? ''}
-                                    onChange={(e) => handleNumberInputChange(e.target.value, (v) =>
-                                        setValores((prev) => ({ ...prev, [c.id]: v })),
-                                    )}
-                                    onBlur={() => handleNumberInputBlur(valores[c.id] ?? '', (v) =>
-                                        setValores((prev) => ({ ...prev, [c.id]: v })),
-                                    )}
+                                    onChange={(e) =>
+                                        handleNumberInputChange(
+                                            e.target.value,
+                                            (v) =>
+                                                setValores((prev) => ({
+                                                    ...prev,
+                                                    [c.id]: v,
+                                                })),
+                                        )
+                                    }
+                                    onBlur={() =>
+                                        handleNumberInputBlur(
+                                            valores[c.id] ?? '',
+                                            (v) =>
+                                                setValores((prev) => ({
+                                                    ...prev,
+                                                    [c.id]: v,
+                                                })),
+                                        )
+                                    }
                                 />
-                                <Button size="sm" variant="secondary" onClick={() => guardarValor(c.id)}>
+                                <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() => guardarValor(c.id)}
+                                >
                                     Guardar
                                 </Button>
-                                <Button size="icon" variant="ghost" onClick={() => setDeleteConceptoId(c.id)}>
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => setDeleteConceptoId(c.id)}
+                                >
                                     <TrashIcon className="size-4" />
                                 </Button>
                             </div>
@@ -166,12 +250,16 @@ export default function FinanzasGastosFijos({ periodo, sedes, sede_id, conceptos
 
             <Dialog open={conceptoDialog} onOpenChange={setConceptoDialog}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Nuevo gasto fijo</DialogTitle></DialogHeader>
+                    <DialogHeader>
+                        <DialogTitle>Nuevo gasto fijo</DialogTitle>
+                    </DialogHeader>
                     <form onSubmit={agregarConcepto} className="space-y-4">
                         <Input
                             placeholder="Nombre (ej. Parqueadero)"
                             value={conceptoForm.data.nombre}
-                            onChange={(e) => conceptoForm.setData('nombre', e.target.value)}
+                            onChange={(e) =>
+                                conceptoForm.setData('nombre', e.target.value)
+                            }
                         />
                         <DialogFooter>
                             <Button type="submit">Agregar</Button>
@@ -183,14 +271,20 @@ export default function FinanzasGastosFijos({ periodo, sedes, sede_id, conceptos
             <ConfirmDialog
                 open={deleteConceptoId !== null}
                 onOpenChange={(o) => !o && setDeleteConceptoId(null)}
-                title="Eliminar concepto"
-                description="Se borrarán también los valores históricos de este concepto."
+                title="Quitar concepto"
+                description={`Se quitará desde ${periodo.nombre_mes} ${periodo.anio} en adelante. Los meses anteriores conservan su valor.`}
                 variant="destructive"
                 onConfirm={() => {
                     if (deleteConceptoId) {
                         router.delete(
                             `/finanzas/gastos-fijos/conceptos/${deleteConceptoId}?anio=${periodo.anio}&mes=${periodo.mes}&sede_id=${sede_id}`,
-                            { preserveScroll: true, onSuccess: () => { toast.success('Eliminado'); setDeleteConceptoId(null); } },
+                            {
+                                preserveScroll: true,
+                                onSuccess: () => {
+                                    toast.success('Concepto quitado');
+                                    setDeleteConceptoId(null);
+                                },
+                            },
                         );
                     }
                 }}

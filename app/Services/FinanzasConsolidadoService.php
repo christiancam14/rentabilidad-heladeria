@@ -8,6 +8,8 @@ use App\Models\NominaSemana;
 use App\Models\Sede;
 use App\Models\Venta;
 use App\Support\FinanzasPeriodo;
+use Illuminate\Support\Facades\DB;
+
 class FinanzasConsolidadoService
 {
     public function calcular(FinanzasPeriodo $periodo): array
@@ -20,8 +22,7 @@ class FinanzasConsolidadoService
                     ->where('sede_id', $sede->id)
                     ->whereYear('fecha', $periodo->anio)
                     ->whereMonth('fecha', $periodo->mes)
-                    ->selectRaw('COALESCE(SUM(efectivo + transferencia), 0) as total')
-                    ->value('total');
+                    ->sum(DB::raw('efectivo + transferencia'));
 
                 return [
                     'sede_id' => $sede->id,
@@ -35,8 +36,7 @@ class FinanzasConsolidadoService
         $totalCompras = (int) Compra::query()
             ->whereYear('fecha', $periodo->anio)
             ->whereMonth('fecha', $periodo->mes)
-            ->selectRaw('COALESCE(SUM(efectivo + transferencia), 0) as total')
-            ->value('total');
+            ->sum(DB::raw('efectivo + transferencia'));
 
         $gastosFijosPorSede = Sede::query()
             ->orderBy('nombre')

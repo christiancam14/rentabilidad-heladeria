@@ -1,13 +1,21 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { PlusIcon, SearchIcon, PencilIcon, TrashIcon, EyeIcon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import {
+    ArrowDownIcon,
+    ArrowUpIcon,
+    EyeIcon,
+    PencilIcon,
+    PlusIcon,
+    SearchIcon,
+    TrashIcon,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
+import ConfirmDialog from '@/components/confirm-dialog';
+import InputError from '@/components/input-error';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
     Dialog,
     DialogContent,
@@ -16,11 +24,16 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import InputError from '@/components/input-error';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
+import {
+    cleanNumberFormat,
+    formatNumberWithSeparator,
+    handleNumberInputBlur,
+    handleNumberInputChange,
+} from '@/lib/number-format';
 import { type BreadcrumbItem } from '@/types';
-import { formatNumberWithSeparator, cleanNumberFormat, handleNumberInputChange, handleNumberInputBlur } from '@/lib/number-format';
-import ConfirmDialog from '@/components/confirm-dialog';
 
 interface Insumo {
     id: number;
@@ -59,7 +72,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 // Función helper para formatear precios con separador de miles (punto)
 const formatPrice = (price: number | string | null | undefined): string => {
     if (price === null || price === undefined) return '$0';
-    const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
+    const numPrice =
+        typeof price === 'string' ? parseFloat(price) : Number(price);
     if (isNaN(numPrice)) return '$0';
     // Formateo manual con punto como separador de miles
     const rounded = Math.round(numPrice);
@@ -67,24 +81,36 @@ const formatPrice = (price: number | string | null | undefined): string => {
 };
 
 // Función helper para formatear porcentajes
-const formatPercentage = (percentage: number | string | null | undefined): string => {
+const formatPercentage = (
+    percentage: number | string | null | undefined,
+): string => {
     if (percentage === null || percentage === undefined) return '0.00';
-    const numPercentage = typeof percentage === 'string' ? parseFloat(percentage) : Number(percentage);
+    const numPercentage =
+        typeof percentage === 'string'
+            ? parseFloat(percentage)
+            : Number(percentage);
     if (isNaN(numPercentage)) return '0.00';
     return numPercentage.toFixed(2);
 };
 
 // Función helper para convertir texto a Camel Case
+// Solo embellece nombres escritos todo en mayúsculas (datos antiguos); el resto se respeta tal cual
 const toCamelCase = (text: string | null | undefined): string => {
     if (!text) return '';
+    if (text !== text.toUpperCase()) return text;
     return text
         .toLowerCase()
         .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 };
 
-type SortColumn = 'precio_venta_publico' | 'costo_total' | 'ganancia' | 'porcentaje_rentabilidad' | null;
+type SortColumn =
+    | 'precio_venta_publico'
+    | 'costo_total'
+    | 'ganancia'
+    | 'porcentaje_rentabilidad'
+    | null;
 type SortDirection = 'asc' | 'desc';
 
 export default function ProductosIndex({ productos, filters }: Props) {
@@ -93,11 +119,15 @@ export default function ProductosIndex({ productos, filters }: Props) {
     const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
+    const [editingProducto, setEditingProducto] = useState<Producto | null>(
+        null,
+    );
     const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [productoToDelete, setProductoToDelete] = useState<number | null>(null);
+    const [productoToDelete, setProductoToDelete] = useState<number | null>(
+        null,
+    );
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         nombre: '',
@@ -107,12 +137,12 @@ export default function ProductosIndex({ productos, filters }: Props) {
     // Filtrar productos en el frontend basado en la búsqueda
     const filteredProductos = useMemo(() => {
         let result = productos;
-        
+
         // Aplicar filtro de búsqueda
         if (search.trim()) {
             const searchLower = search.toLowerCase();
             result = result.filter((producto) =>
-                producto.nombre.toLowerCase().includes(searchLower)
+                producto.nombre.toLowerCase().includes(searchLower),
             );
         }
 
@@ -178,8 +208,11 @@ export default function ProductosIndex({ productos, filters }: Props) {
                     toast.success('Producto eliminado correctamente');
                     setProductoToDelete(null);
                 },
-                onError: () => {
-                    toast.error('Error al eliminar el producto');
+                onError: (errors) => {
+                    toast.error(
+                        errors.producto ?? 'Error al eliminar el producto',
+                    );
+                    setProductoToDelete(null);
                 },
             });
         }
@@ -193,7 +226,14 @@ export default function ProductosIndex({ productos, filters }: Props) {
     const openEditDialog = (producto: Producto) => {
         setEditingProducto(producto);
         setData('nombre', producto.nombre || '');
-        setData('precio_venta_publico', producto.precio_venta_publico ? formatNumberWithSeparator(Math.round(Number(producto.precio_venta_publico))) : '');
+        setData(
+            'precio_venta_publico',
+            producto.precio_venta_publico
+                ? formatNumberWithSeparator(
+                      Math.round(Number(producto.precio_venta_publico)),
+                  )
+                : '',
+        );
         setEditDialogOpen(true);
     };
 
@@ -201,7 +241,16 @@ export default function ProductosIndex({ productos, filters }: Props) {
     useEffect(() => {
         if (editDialogOpen && editingProducto) {
             setData('nombre', editingProducto.nombre || '');
-            setData('precio_venta_publico', editingProducto.precio_venta_publico ? formatNumberWithSeparator(Math.round(Number(editingProducto.precio_venta_publico))) : '');
+            setData(
+                'precio_venta_publico',
+                editingProducto.precio_venta_publico
+                    ? formatNumberWithSeparator(
+                          Math.round(
+                              Number(editingProducto.precio_venta_publico),
+                          ),
+                      )
+                    : '',
+            );
         } else if (!editDialogOpen && !createDialogOpen) {
             // Limpiar el formulario cuando se cierran ambos modales
             reset();
@@ -213,61 +262,73 @@ export default function ProductosIndex({ productos, filters }: Props) {
         e.preventDefault();
         if (isCreating) return;
         // Limpiar formato y convertir precio a número entero antes de enviar
-        const cleanPrecio = cleanNumberFormat(data.precio_venta_publico as string);
+        const cleanPrecio = cleanNumberFormat(
+            data.precio_venta_publico as string,
+        );
         const precioNumerico = parseInt(cleanPrecio) || 0;
-        
+
         setIsCreating(true);
         // Enviar datos directamente con el valor limpio
-        router.post('/productos', {
-            nombre: data.nombre,
-            precio_venta_publico: precioNumerico,
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast.success('Producto creado correctamente');
-                setCreateDialogOpen(false);
-                reset();
-                setIsCreating(false);
+        router.post(
+            '/productos',
+            {
+                nombre: data.nombre,
+                precio_venta_publico: precioNumerico,
             },
-            onError: () => {
-                toast.error('Error al crear el producto');
-                setIsCreating(false);
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Producto creado correctamente');
+                    setCreateDialogOpen(false);
+                    reset();
+                    setIsCreating(false);
+                },
+                onError: () => {
+                    toast.error('Error al crear el producto');
+                    setIsCreating(false);
+                },
+                onFinish: () => {
+                    setIsCreating(false);
+                },
             },
-            onFinish: () => {
-                setIsCreating(false);
-            },
-        });
+        );
     };
 
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingProducto || isUpdating) return;
         // Limpiar formato y convertir precio a número entero antes de enviar
-        const cleanPrecio = cleanNumberFormat(data.precio_venta_publico as string);
+        const cleanPrecio = cleanNumberFormat(
+            data.precio_venta_publico as string,
+        );
         const precioNumerico = parseInt(cleanPrecio) || 0;
-        
+
         setIsUpdating(true);
         // Enviar datos directamente con el valor limpio
-        router.put(`/productos/${editingProducto.id}`, {
-            nombre: data.nombre,
-            precio_venta_publico: precioNumerico,
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast.success('Producto actualizado correctamente');
-                setEditDialogOpen(false);
-                setEditingProducto(null);
-                reset();
-                setIsUpdating(false);
+        router.put(
+            `/productos/${editingProducto.id}`,
+            {
+                nombre: data.nombre,
+                precio_venta_publico: precioNumerico,
             },
-            onError: () => {
-                toast.error('Error al actualizar el producto');
-                setIsUpdating(false);
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Producto actualizado correctamente');
+                    setEditDialogOpen(false);
+                    setEditingProducto(null);
+                    reset();
+                    setIsUpdating(false);
+                },
+                onError: () => {
+                    toast.error('Error al actualizar el producto');
+                    setIsUpdating(false);
+                },
+                onFinish: () => {
+                    setIsUpdating(false);
+                },
             },
-            onFinish: () => {
-                setIsUpdating(false);
-            },
-        });
+        );
     };
 
     return (
@@ -277,10 +338,16 @@ export default function ProductosIndex({ productos, filters }: Props) {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">Costeo y recetas</h1>
+                        <h1 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.04em] md:text-[44px]">
+                            Costeo y recetas
+                        </h1>
                         <p className="text-muted-foreground">
-                            Insumos, costo y margen de cada producto. Lo que ve el cliente se edita en{' '}
-                            <Link href="/admin/productos" className="font-semibold text-rosa">
+                            Insumos, costo y margen de cada producto. Lo que ve
+                            el cliente se edita en{' '}
+                            <Link
+                                href="/admin/productos"
+                                className="font-semibold text-rosa"
+                            >
                                 Productos del menú
                             </Link>
                             .
@@ -295,7 +362,7 @@ export default function ProductosIndex({ productos, filters }: Props) {
                 <Card>
                     <CardHeader>
                         <div className="relative">
-                            <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                            <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 type="text"
                                 placeholder="Buscar productos..."
@@ -318,127 +385,206 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                     <table className="w-full">
                                         <thead>
                                             <tr className="border-b">
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Nombre</th>
-                                                <th 
-                                                    className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-muted/50 select-none"
-                                                    onClick={() => handleSort('precio_venta_publico')}
+                                                <th className="px-4 py-3 text-left text-sm font-medium">
+                                                    Nombre
+                                                </th>
+                                                <th
+                                                    className="cursor-pointer px-4 py-3 text-left text-sm font-medium select-none hover:bg-muted/50"
+                                                    onClick={() =>
+                                                        handleSort(
+                                                            'precio_venta_publico',
+                                                        )
+                                                    }
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         Precio Venta
-                                                        {sortColumn === 'precio_venta_publico' && (
-                                                            sortDirection === 'asc' ? (
+                                                        {sortColumn ===
+                                                            'precio_venta_publico' &&
+                                                            (sortDirection ===
+                                                            'asc' ? (
                                                                 <ArrowUpIcon className="h-4 w-4" />
                                                             ) : (
                                                                 <ArrowDownIcon className="h-4 w-4" />
-                                                            )
-                                                        )}
+                                                            ))}
                                                     </div>
                                                 </th>
-                                                <th 
-                                                    className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-muted/50 select-none"
-                                                    onClick={() => handleSort('costo_total')}
+                                                <th
+                                                    className="cursor-pointer px-4 py-3 text-left text-sm font-medium select-none hover:bg-muted/50"
+                                                    onClick={() =>
+                                                        handleSort(
+                                                            'costo_total',
+                                                        )
+                                                    }
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         Costo Total
-                                                        {sortColumn === 'costo_total' && (
-                                                            sortDirection === 'asc' ? (
+                                                        {sortColumn ===
+                                                            'costo_total' &&
+                                                            (sortDirection ===
+                                                            'asc' ? (
                                                                 <ArrowUpIcon className="h-4 w-4" />
                                                             ) : (
                                                                 <ArrowDownIcon className="h-4 w-4" />
-                                                            )
-                                                        )}
+                                                            ))}
                                                     </div>
                                                 </th>
-                                                <th 
-                                                    className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-muted/50 select-none"
-                                                    onClick={() => handleSort('ganancia')}
+                                                <th
+                                                    className="cursor-pointer px-4 py-3 text-left text-sm font-medium select-none hover:bg-muted/50"
+                                                    onClick={() =>
+                                                        handleSort('ganancia')
+                                                    }
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         Ganancia
-                                                        {sortColumn === 'ganancia' && (
-                                                            sortDirection === 'asc' ? (
+                                                        {sortColumn ===
+                                                            'ganancia' &&
+                                                            (sortDirection ===
+                                                            'asc' ? (
                                                                 <ArrowUpIcon className="h-4 w-4" />
                                                             ) : (
                                                                 <ArrowDownIcon className="h-4 w-4" />
-                                                            )
-                                                        )}
+                                                            ))}
                                                     </div>
                                                 </th>
-                                                <th 
-                                                    className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-muted/50 select-none"
-                                                    onClick={() => handleSort('porcentaje_rentabilidad')}
+                                                <th
+                                                    className="cursor-pointer px-4 py-3 text-left text-sm font-medium select-none hover:bg-muted/50"
+                                                    onClick={() =>
+                                                        handleSort(
+                                                            'porcentaje_rentabilidad',
+                                                        )
+                                                    }
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         Rentabilidad
-                                                        {sortColumn === 'porcentaje_rentabilidad' && (
-                                                            sortDirection === 'asc' ? (
+                                                        {sortColumn ===
+                                                            'porcentaje_rentabilidad' &&
+                                                            (sortDirection ===
+                                                            'asc' ? (
                                                                 <ArrowUpIcon className="h-4 w-4" />
                                                             ) : (
                                                                 <ArrowDownIcon className="h-4 w-4" />
-                                                            )
-                                                        )}
+                                                            ))}
                                                     </div>
                                                 </th>
-                                                <th className="px-4 py-3 text-left text-sm font-medium">Insumos</th>
-                                                <th className="px-4 py-3 text-right text-sm font-medium">Acciones</th>
+                                                <th className="px-4 py-3 text-left text-sm font-medium">
+                                                    Insumos
+                                                </th>
+                                                <th className="px-4 py-3 text-right text-sm font-medium">
+                                                    Acciones
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredProductos.map((producto) => (
-                                                <tr key={producto.id} className="border-b hover:bg-muted/50">
-                                                    <td className="px-4 py-3 font-medium">{toCamelCase(producto.nombre)}</td>
-                                                    <td className="px-4 py-3">
-                                                        {formatPrice(producto.precio_venta_publico)}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        {formatPrice(producto.costo_total)}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <span className={producto.ganancia >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                                            {formatPrice(producto.ganancia)}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <Badge variant={(Number(producto.porcentaje_rentabilidad) || 0) >= 30 ? 'default' : 'outline'}>
-                                                            {formatPercentage(producto.porcentaje_rentabilidad)}%
-                                                        </Badge>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                                                        {producto.insumos.length} insumo(s)
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex justify-end gap-2">
-                                                            <Link href={`/productos/${producto.id}`}>
-                                                                <Button variant="ghost" size="icon">
-                                                                    <EyeIcon className="size-4" />
+                                            {filteredProductos.map(
+                                                (producto) => (
+                                                    <tr
+                                                        key={producto.id}
+                                                        className="border-b hover:bg-muted/50"
+                                                    >
+                                                        <td className="px-4 py-3 font-medium">
+                                                            {toCamelCase(
+                                                                producto.nombre,
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            {formatPrice(
+                                                                producto.precio_venta_publico,
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            {formatPrice(
+                                                                producto.costo_total,
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <span
+                                                                className={
+                                                                    producto.ganancia >=
+                                                                    0
+                                                                        ? 'text-green-600'
+                                                                        : 'text-red-600'
+                                                                }
+                                                            >
+                                                                {formatPrice(
+                                                                    producto.ganancia,
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <Badge
+                                                                variant={
+                                                                    (Number(
+                                                                        producto.porcentaje_rentabilidad,
+                                                                    ) || 0) >=
+                                                                    30
+                                                                        ? 'default'
+                                                                        : 'outline'
+                                                                }
+                                                            >
+                                                                {formatPercentage(
+                                                                    producto.porcentaje_rentabilidad,
+                                                                )}
+                                                                %
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                                                            {
+                                                                producto.insumos
+                                                                    .length
+                                                            }{' '}
+                                                            insumo(s)
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex justify-end gap-2">
+                                                                <Link
+                                                                    href={`/productos/${producto.id}`}
+                                                                >
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                    >
+                                                                        <EyeIcon className="size-4" />
+                                                                    </Button>
+                                                                </Link>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() =>
+                                                                        openEditDialog(
+                                                                            producto,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <PencilIcon className="size-4" />
                                                                 </Button>
-                                                            </Link>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => openEditDialog(producto)}
-                                                            >
-                                                                <PencilIcon className="size-4" />
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => handleDelete(producto.id)}
-                                                            >
-                                                                <TrashIcon className="size-4 text-destructive" />
-                                                            </Button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() =>
+                                                                        handleDelete(
+                                                                            producto.id,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <TrashIcon className="size-4 text-destructive" />
+                                                                </Button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ),
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
 
                                 <div className="flex items-center justify-between">
                                     <p className="text-sm text-muted-foreground">
-                                        {filteredProductos.length} {filteredProductos.length === 1 ? 'producto' : 'productos'}
-                                        {search && ` (de ${productos.length} total)`}
+                                        {filteredProductos.length}{' '}
+                                        {filteredProductos.length === 1
+                                            ? 'producto'
+                                            : 'productos'}
+                                        {search &&
+                                            ` (de ${productos.length} total)`}
                                     </p>
                                 </div>
                             </div>
@@ -447,30 +593,38 @@ export default function ProductosIndex({ productos, filters }: Props) {
                 </Card>
 
                 {/* Modal de Creación */}
-                <Dialog open={createDialogOpen} onOpenChange={(open) => {
-                    if (!isCreating) {
-                        setCreateDialogOpen(open);
-                        if (!open) {
-                            reset();
+                <Dialog
+                    open={createDialogOpen}
+                    onOpenChange={(open) => {
+                        if (!isCreating) {
+                            setCreateDialogOpen(open);
+                            if (!open) {
+                                reset();
+                            }
                         }
-                    }
-                }}>
+                    }}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Nuevo Producto</DialogTitle>
                             <DialogDescription>
-                                Crea un nuevo producto. Podrás agregar insumos después de crearlo.
+                                Crea un nuevo producto. Podrás agregar insumos
+                                después de crearlo.
                             </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreateSubmit}>
                             <div className="space-y-4 py-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="create-nombre">Nombre</Label>
+                                    <Label htmlFor="create-nombre">
+                                        Nombre
+                                    </Label>
                                     <Input
                                         id="create-nombre"
                                         name="nombre"
                                         value={data.nombre}
-                                        onChange={(e) => setData('nombre', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('nombre', e.target.value)
+                                        }
                                         placeholder="Ej: Helado de Vainilla, Helado de Chocolate..."
                                         required
                                     />
@@ -478,18 +632,40 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="create-precio_venta_publico">Precio de Venta Público</Label>
+                                    <Label htmlFor="create-precio_venta_publico">
+                                        Precio de Venta Público
+                                    </Label>
                                     <Input
                                         id="create-precio_venta_publico"
                                         name="precio_venta_publico"
                                         type="text"
                                         placeholder="0"
                                         value={data.precio_venta_publico}
-                                        onChange={(e) => handleNumberInputChange(e.target.value, (val) => setData('precio_venta_publico', val))}
-                                        onBlur={(e) => handleNumberInputBlur(e.target.value, (val) => setData('precio_venta_publico', val))}
+                                        onChange={(e) =>
+                                            handleNumberInputChange(
+                                                e.target.value,
+                                                (val) =>
+                                                    setData(
+                                                        'precio_venta_publico',
+                                                        val,
+                                                    ),
+                                            )
+                                        }
+                                        onBlur={(e) =>
+                                            handleNumberInputBlur(
+                                                e.target.value,
+                                                (val) =>
+                                                    setData(
+                                                        'precio_venta_publico',
+                                                        val,
+                                                    ),
+                                            )
+                                        }
                                         required
                                     />
-                                    <InputError message={errors.precio_venta_publico} />
+                                    <InputError
+                                        message={errors.precio_venta_publico}
+                                    />
                                 </div>
                             </div>
                             <DialogFooter>
@@ -505,7 +681,9 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                     Cancelar
                                 </Button>
                                 <Button type="submit" disabled={isCreating}>
-                                    {isCreating ? 'Creando...' : 'Crear Producto'}
+                                    {isCreating
+                                        ? 'Creando...'
+                                        : 'Crear Producto'}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -513,15 +691,18 @@ export default function ProductosIndex({ productos, filters }: Props) {
                 </Dialog>
 
                 {/* Modal de Edición */}
-                <Dialog open={editDialogOpen} onOpenChange={(open) => {
-                    if (!isUpdating) {
-                        setEditDialogOpen(open);
-                        if (!open) {
-                            reset();
-                            setEditingProducto(null);
+                <Dialog
+                    open={editDialogOpen}
+                    onOpenChange={(open) => {
+                        if (!isUpdating) {
+                            setEditDialogOpen(open);
+                            if (!open) {
+                                reset();
+                                setEditingProducto(null);
+                            }
                         }
-                    }
-                }}>
+                    }}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Editar Producto</DialogTitle>
@@ -536,26 +717,54 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                     <Input
                                         id="edit-nombre"
                                         name="nombre"
-                                        value={data.nombre || editingProducto?.nombre || ''}
-                                        onChange={(e) => setData('nombre', e.target.value)}
+                                        value={
+                                            data.nombre ||
+                                            editingProducto?.nombre ||
+                                            ''
+                                        }
+                                        onChange={(e) =>
+                                            setData('nombre', e.target.value)
+                                        }
                                         required
                                     />
                                     <InputError message={errors.nombre} />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="edit-precio_venta_publico">Precio de Venta Público</Label>
+                                    <Label htmlFor="edit-precio_venta_publico">
+                                        Precio de Venta Público
+                                    </Label>
                                     <Input
                                         id="edit-precio_venta_publico"
                                         name="precio_venta_publico"
                                         type="text"
                                         placeholder="0"
                                         value={data.precio_venta_publico || ''}
-                                        onChange={(e) => handleNumberInputChange(e.target.value, (val) => setData('precio_venta_publico', val))}
-                                        onBlur={(e) => handleNumberInputBlur(e.target.value, (val) => setData('precio_venta_publico', val))}
+                                        onChange={(e) =>
+                                            handleNumberInputChange(
+                                                e.target.value,
+                                                (val) =>
+                                                    setData(
+                                                        'precio_venta_publico',
+                                                        val,
+                                                    ),
+                                            )
+                                        }
+                                        onBlur={(e) =>
+                                            handleNumberInputBlur(
+                                                e.target.value,
+                                                (val) =>
+                                                    setData(
+                                                        'precio_venta_publico',
+                                                        val,
+                                                    ),
+                                            )
+                                        }
                                         required
                                     />
-                                    <InputError message={errors.precio_venta_publico} />
+                                    <InputError
+                                        message={errors.precio_venta_publico}
+                                    />
                                 </div>
                             </div>
                             <DialogFooter>
@@ -572,7 +781,9 @@ export default function ProductosIndex({ productos, filters }: Props) {
                                     Cancelar
                                 </Button>
                                 <Button type="submit" disabled={isUpdating}>
-                                    {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
+                                    {isUpdating
+                                        ? 'Guardando...'
+                                        : 'Guardar Cambios'}
                                 </Button>
                             </DialogFooter>
                         </form>
