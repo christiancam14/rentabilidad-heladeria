@@ -30,7 +30,33 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ $seo['titulo'] ?? config('app.name', 'A Tu Gusto') }}</title>
+
+        {{-- SEO y vistas previas al compartir: solo las páginas públicas pasan $seo; el resto queda fuera de buscadores --}}
+        @isset($seo)
+            <meta name="description" content="{{ $seo['descripcion'] }}">
+            <meta name="robots" content="index, follow, max-image-preview:large">
+            <link rel="canonical" href="{{ $seo['url'] }}">
+            <meta property="og:type" content="website">
+            <meta property="og:site_name" content="{{ config('app.name', 'A Tu Gusto') }}">
+            <meta property="og:locale" content="es_CO">
+            <meta property="og:title" content="{{ $seo['titulo'] }}">
+            <meta property="og:description" content="{{ $seo['descripcion'] }}">
+            <meta property="og:url" content="{{ $seo['url'] }}">
+            <meta property="og:image" content="{{ $seo['imagen'] }}">
+            <meta property="og:image:width" content="1200">
+            <meta property="og:image:height" content="630">
+            <meta property="og:image:alt" content="Heladería A Tu Gusto">
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:title" content="{{ $seo['titulo'] }}">
+            <meta name="twitter:description" content="{{ $seo['descripcion'] }}">
+            <meta name="twitter:image" content="{{ $seo['imagen'] }}">
+            @if ($seo['json_ld'])
+                <script type="application/ld+json">{!! json_encode($seo['json_ld'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}</script>
+            @endif
+        @else
+            <meta name="robots" content="noindex, nofollow">
+        @endisset
 
         <link rel="icon" href="/favicon.ico" sizes="48x48">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">

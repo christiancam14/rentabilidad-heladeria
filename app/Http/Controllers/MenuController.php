@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Configuracion;
 use App\Models\Sede;
 use App\Services\MenuCatalogo;
+use App\Support\Seo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,12 +28,19 @@ class MenuController extends Controller
         $request->session()->put('menu_sede_id', $sede->id);
         $config = Configuracion::todas();
 
+        $nombresSedes = $sedes->pluck('nombre')->join(', ', ' o ');
+
         return Inertia::render('menu/index', [
             'negocio' => $this->negocio($config),
             'sedes' => $sedes->map(fn (Sede $s) => $this->sede($s))->values(),
             'sede_id' => $sede->id,
             ...$catalogo->datosMenu($sede),
-        ]);
+        ])->withViewData('seo', Seo::pagina(
+            'Menú · Pide para recoger',
+            "{$config['negocio_nombre']} en Bucaramanga: copas, malteadas, waffles, crepes, ensaladas y helados para niños. Pide en línea y recoge en {$nombresSedes}.",
+            '/',
+            conNegocio: true,
+        ));
     }
 
     /** Página de enlaces tipo Linktree para la bio de Instagram y TikTok. */
@@ -44,7 +52,12 @@ class MenuController extends Controller
             'negocio' => $this->negocio($config),
             'sedes' => Sede::query()->where('en_menu', true)->orderBy('id')->get()
                 ->map(fn (Sede $s) => $this->sede($s))->values(),
-        ]);
+        ])->withViewData('seo', Seo::pagina(
+            'Enlaces',
+            "Pide en línea, escríbenos por WhatsApp, encuentra las sedes de {$config['negocio_nombre']} y síguenos en Instagram, Facebook y TikTok.",
+            '/links',
+            conNegocio: true,
+        ));
     }
 
     /**

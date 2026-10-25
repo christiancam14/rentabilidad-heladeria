@@ -19,12 +19,15 @@ use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PedidoPublicoController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
 
 // Menú digital público (pedidos para recoger)
 Route::get('/', [MenuController::class, 'index'])->name('home');
 Route::get('menu', [MenuController::class, 'index'])->name('menu');
 Route::get('links', [MenuController::class, 'links'])->name('links');
+Route::get('robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::post('pedidos', [PedidoPublicoController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('pedido.store');
